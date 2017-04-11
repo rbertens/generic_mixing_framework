@@ -4,8 +4,8 @@ void runTTreeFilter() {
     //
     // example which converts input data (in this case local aod's put into a chain)
     // to a tree which holds
-    // - AliFlowTTreeEvent : event object
-    // - AliFlowTTreeTrack : track objects
+    // - AliGMFTTreeEvent : event object
+    // - AliGMFTTreeTrack : track objects
     // see source of these classes for more details
 
     // load libraries
@@ -37,8 +37,8 @@ void runTTreeFilter() {
     gSystem->AddIncludePath("-Wno-deprecated");
     gSystem->AddIncludePath("-I$ALICE_ROOT -I$ALICE_ROOT/include -I$ALICE_PHYSICS/include");
 
-    gROOT->LoadMacro("../objects/AliFlowTTreeEvent.cxx+");
-    gROOT->LoadMacro("../objects/AliFlowTTreeTrack.cxx+");
+    gROOT->LoadMacro("../objects/AliGMFTTreeEvent.cxx+");
+    gROOT->LoadMacro("../objects/AliGMFTTreeTrack.cxx+");
     gROOT->LoadMacro("../objects/AliAnalysisTaskTTreeFilter.cxx+");
 
     // load the addtask

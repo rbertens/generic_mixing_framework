@@ -4,11 +4,11 @@ void runTTreeFilterOnGrid() {
     //
     // example which converts input data (in this case local aod's put into a chain)
     // to a tree which holds
-    // - AliFlowTTreeEvent : event object
-    // - AliFlowTTreeTrack : track objects
+    // - AliGMFTTreeEvent : event object
+    // - AliGMFTTreeTrack : track objects
     // see source of these classes for more details
     //
-    // note that in this example macro the source classes (AliFlowTTreeEvent, AliFlowTTreeTrack,
+    // note that in this example macro the source classes (AliGMFTTreeEvent, AliGMFTTreeTrack,
     // AliAnalysisTaskTTreeFilter) are expected to be available in the folder
     // from which this macro is launched
 
@@ -18,8 +18,8 @@ void runTTreeFilterOnGrid() {
     // create and customize the alien plugin
     AliAnalysisAlien *alienHandler = new AliAnalysisAlien();
     alienHandler->AddIncludePath("-I. -I$ROOTSYS/include -I$ALICE_ROOT -I$ALICE_ROOT/include -I$ALICE_PHYSICS/include");
-    alienHandler->SetAdditionalLibs("libANALYSISalice AliFlowTTreeEvent.cxx AliFlowTTreeTrack.cxx AliAnalysisTaskTTreeFilter.cxx AliFlowTTreeEvent.h AliFlowTTreeTrack.h AliAnalysisTaskTTreeFilter.h");
-    alienHandler->SetAnalysisSource("AliFlowTTreeEvent.cxx AliFlowTTreeTrack.cxx AliAnalysisTaskTTreeFilter.cxx");
+    alienHandler->SetAdditionalLibs("libANALYSISalice AliGMFTTreeEvent.cxx AliGMFTTreeTrack.cxx AliAnalysisTaskTTreeFilter.cxx AliGMFTTreeEvent.h AliGMFTTreeTrack.h AliAnalysisTaskTTreeFilter.h");
+    alienHandler->SetAnalysisSource("AliGMFTTreeEvent.cxx AliGMFTTreeTrack.cxx AliAnalysisTaskTTreeFilter.cxx");
     alienHandler->SetOverwriteMode();
     alienHandler->SetRunMode("full");
     alienHandler->SetNtestFiles(1);
@@ -68,8 +68,8 @@ void runTTreeFilterOnGrid() {
     gSystem->AddIncludePath("-Wno-deprecated");
     gSystem->AddIncludePath("-I$ALICE_ROOT -I$ALICE_ROOT/include -I$ALICE_PHYSICS/include");
 
-    gROOT->LoadMacro("AliFlowTTreeEvent.cxx+");
-    gROOT->LoadMacro("AliFlowTTreeTrack.cxx+");
+    gROOT->LoadMacro("AliGMFTTreeEvent.cxx+");
+    gROOT->LoadMacro("AliGMFTTreeTrack.cxx+");
     gROOT->LoadMacro("AliAnalysisTaskTTreeFilter.cxx+");
 
     // load the addtask

@@ -41,8 +41,8 @@
 #include <AliVTrack.h>
 
 // local includes
-#include "AliFlowTTreeEvent.h"
-#include "AliFlowTTreeTrack.h"
+#include "AliGMFTTreeEvent.h"
+#include "AliGMFTTreeTrack.h"
 
 ClassImp(AliAnalysisTaskTTreeFilter)
 
@@ -87,12 +87,12 @@ void AliAnalysisTaskTTreeFilter::UserCreateOutputObjects()
     fTree = new TTree("tree", "Event data");
 
     // init the custom event 
-    fEvent = new AliFlowTTreeEvent();
+    fEvent = new AliGMFTTreeEvent();
     // add the event branch to the tree
     fTree->Branch("event", &fEvent);
   
     // init the track tclonesarray
-    fTrackArray = new TClonesArray("AliFlowTTreeTrack", 1000);
+    fTrackArray = new TClonesArray("AliGMFTTreeTrack", 1000);
     // add clones array as branch via bronch
     fTree->Bronch("track", "TClonesArray", &fTrackArray);
 
@@ -139,7 +139,7 @@ void AliAnalysisTaskTTreeFilter::ParseTracks(AliVEvent* event)
         if(!PassesCuts(track)) continue;
 
         // push accepted track to tree
-        AliFlowTTreeTrack* acceptedTrack = new((*fTrackArray)[acceptedTracks]) AliFlowTTreeTrack();
+        AliGMFTTreeTrack* acceptedTrack = new((*fTrackArray)[acceptedTracks]) AliGMFTTreeTrack();
         acceptedTracks++;
         // add info
         acceptedTrack->SetPt(track->Pt());

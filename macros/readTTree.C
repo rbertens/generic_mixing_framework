@@ -14,29 +14,29 @@ void readTTree()
     gSystem->Load("libPWGflowBase");
 
     // comile the encapsulated classes
-    gROOT->LoadMacro("../objects/AliFlowTTreeEvent.cxx+");
-    gROOT->LoadMacro("../objects/AliFlowTTreeTrack.cxx+");
-    gROOT->LoadMacro("../objects/AliFlowEventSimpleFromTTree.cxx+");
+    gROOT->LoadMacro("../objects/AliGMFTTreeEvent.cxx+");
+    gROOT->LoadMacro("../objects/AliGMFTTreeTrack.cxx+");
+    gROOT->LoadMacro("../objects/AliGMFEventSimpleFromTTree.cxx+");
     
     TChain* myChain = new TChain("tree");
     myChain->Add("/home/rbertens/Documents/CERN/ALICE_DATA/filtered/000167988.root");
     myChain->Add("/home/rbertens/Documents/CERN/ALICE_DATA/filtered/000168066.root");
 
     // create pointers for the branches
-    AliFlowTTreeEvent* event = 0x0;
+    AliGMFTTreeEvent* event = 0x0;
     myChain->SetBranchAddress("event", &event);
     TClonesArray* tracks = 0x0;
     myChain->SetBranchAddress("track", &tracks);
     // and an example track
-    AliFlowTTreeTrack* firstTrack = 0x0;
+    AliGMFTTreeTrack* firstTrack = 0x0;
 
     // connection to the flow package
-    AliFlowAnalysisWithQCumulants* qc = new AliFlowAnalysisWithQCumulants();
+    AliGMFAnalysisWithQCumulants* qc = new AliGMFAnalysisWithQCumulants();
     qc->Init();
-    AliFlowTrackSimpleCuts* cutsPOI = new AliFlowTrackSimpleCuts();
+    AliGMFTrackSimpleCuts* cutsPOI = new AliGMFTrackSimpleCuts();
     cutsPOI->SetPtMin(0.2);
     cutsPOI->SetPtMin(2.);
-    AliFlowTrackSimpleCuts* cutsRP = new AliFlowTrackSimpleCuts();
+    AliGMFTrackSimpleCuts* cutsRP = new AliGMFTrackSimpleCuts();
 
     // set how many events you want to analyze
     Int_t maxEvents = 10000;
@@ -46,7 +46,7 @@ void readTTree()
         cout << " > Parsing event " << i << "\r"; cout.flush();
         myChain->GetEntry(i);
         // pass info to flow package
-        AliFlowEventSimple* flowevent = new AliFlowEventSimpleFromTTree(event, tracks, cutsPOI, cutsRP);
+        AliGMFEventSimple* flowevent = new AliGMFEventSimpleFromTTree(event, tracks, cutsPOI, cutsRP);
         qc->Make(flowevent);
         delete flowevent;
         maxEvents--;

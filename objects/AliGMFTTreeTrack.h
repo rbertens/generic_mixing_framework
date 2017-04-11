@@ -1,13 +1,13 @@
-#ifndef AliFlowTTreeTRACK_H
-#define AliFlowTTreeTRACK_H
+#ifndef AliGMFTTreeTRACK_H
+#define AliGMFTTreeTRACK_H
 
 #include <TObject.h>
 
-class AliFlowTTreeTrack : public TObject {
+class AliGMFTTreeTrack : public TObject {
 
  public:
 
-    AliFlowTTreeTrack();
+    AliGMFTTreeTrack();
  
     void       SetPt(Float_t pt)                {fPt =          pt;}
     void       SetEta(Float_t eta)              {fEta =         eta;}
@@ -25,9 +25,9 @@ class AliFlowTTreeTrack : public TObject {
     Float_t       fPhi;
     Float_t       fCharge;
 
-    virtual ~AliFlowTTreeTrack(); // default destructor
+    virtual ~AliGMFTTreeTrack(); // default destructor
   
-    ClassDef(AliFlowTTreeTrack, 1);    // Help class
+    ClassDef(AliGMFTTreeTrack, 1);    // Help class
 
 };
 

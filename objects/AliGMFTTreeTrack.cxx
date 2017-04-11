@@ -19,11 +19,11 @@
  * author: redmer alexander bertens (rbertnens@cern.ch)
  */
 
-#include "AliFlowTTreeTrack.h"
+#include "AliGMFTTreeTrack.h"
 
-ClassImp(AliFlowTTreeTrack);
+ClassImp(AliGMFTTreeTrack);
 
-AliFlowTTreeTrack::AliFlowTTreeTrack() : TObject(),
+AliGMFTTreeTrack::AliGMFTTreeTrack() : TObject(),
     fPt          (-1),
     fEta         (-999),
     fPhi         (-999),
@@ -32,4 +32,4 @@ AliFlowTTreeTrack::AliFlowTTreeTrack() : TObject(),
   // default constructor
 }
  
-AliFlowTTreeTrack::~AliFlowTTreeTrack(){}
+AliGMFTTreeTrack::~AliGMFTTreeTrack(){}

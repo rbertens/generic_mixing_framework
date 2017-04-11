@@ -20,10 +20,10 @@
  */
 
 
-#include "AliFlowTTreeEvent.h"
+#include "AliGMFTTreeEvent.h"
 
-ClassImp(AliFlowTTreeEvent)
-AliFlowTTreeEvent::AliFlowTTreeEvent(): TObject(),
+ClassImp(AliGMFTTreeEvent)
+AliGMFTTreeEvent::AliGMFTTreeEvent(): TObject(),
   fRun(-1),            
   fV0M(-1),
   fTRK(-1), 
@@ -33,4 +33,4 @@ AliFlowTTreeEvent::AliFlowTTreeEvent(): TObject(),
 }
 
 //_________________________________________________________
-AliFlowTTreeEvent::~AliFlowTTreeEvent(){}
+AliGMFTTreeEvent::~AliGMFTTreeEvent(){}

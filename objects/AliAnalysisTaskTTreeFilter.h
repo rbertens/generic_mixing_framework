@@ -9,7 +9,7 @@ class AliVEvent;
 class AliVTrack;
 class TTree;
 class TClonesArray;
-class AliFlowTTreeEvent;
+class AliGMFTTreeEvent;
 
 class AliAnalysisTaskTTreeFilter : public AliAnalysisTaskSE {
  public:
@@ -31,7 +31,7 @@ class AliAnalysisTaskTTreeFilter : public AliAnalysisTaskSE {
 
   // Output objects
   TTree*                fTree;              //! output data
-  AliFlowTTreeEvent*    fEvent;             //! custom event
+  AliGMFTTreeEvent*    fEvent;             //! custom event
   TClonesArray*         fTrackArray;        //! custom tracks
 
   ClassDef(AliAnalysisTaskTTreeFilter, 1);

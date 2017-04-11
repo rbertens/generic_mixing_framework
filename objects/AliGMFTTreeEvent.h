@@ -1,13 +1,13 @@
-#ifndef AliFlowTTreeEVENT_H
-#define AliFlowTTreeEVENT_H
+#ifndef AliGMFTTreeEVENT_H
+#define AliGMFTTreeEVENT_H
 
 #include <TObject.h>
 
-class AliFlowTTreeEvent : public TObject{
+class AliGMFTTreeEvent : public TObject{
 
  public:
 
-  AliFlowTTreeEvent();
+  AliGMFTTreeEvent();
   
   void  SetRun(Int_t run)       {fRun   = run;}
   void  SetV0M(Float_t V0M)     {fV0M   = V0M;}
@@ -25,9 +25,9 @@ class AliFlowTTreeEvent : public TObject{
   Float_t   fTRK;        // centrality TRK
   Float_t   fZvtx;       // rec vertex
 
-  virtual ~AliFlowTTreeEvent(); // default destructor
+  virtual ~AliGMFTTreeEvent(); // default destructor
 
-  ClassDef(AliFlowTTreeEvent, 1);    // Help class
+  ClassDef(AliGMFTTreeEvent, 1);    // Help class
 };
 
 #endif

@@ -14,7 +14,7 @@
  **************************************************************************/
 
 /*
-  AliFlowEventSimpleFromTTree: fill a flow event from a TTree
+  AliGMFEventSimpleFromTTree: fill a flow event from a TTree
   example class, to be expanded by the user
   see macros in PWGCF/FLOW/Documentation/examples/manual/ttree/macros
   for info on how to use this class
@@ -22,50 +22,50 @@
   author:   Redmer Alexander Bertens (rbertens@cern.ch)
 
   based on code from Mikolaj, see
-  $ALICE_PHYSICS/PWG/FLOW/Base/AliFlowEventStar.cxx
+  $ALICE_PHYSICS/PWG/FLOW/Base/AliGMFEventStar.cxx
 */
 
 // root includes
 #include "TClonesArray.h"
 
 // aliroot includes
-#include "AliFlowEventSimple.h"
-#include "AliFlowTrackSimple.h"
-#include "AliFlowTrackSimpleCuts.h"
+#include "AliGMFEventSimple.h"
+#include "AliGMFTrackSimple.h"
+#include "AliGMFTrackSimpleCuts.h"
 
 // custom includes
-#include "AliFlowEventSimpleFromTTree.h"
-#include "AliFlowTTreeEvent.h"
-#include "AliFlowTTreeTrack.h"
+#include "AliGMFEventSimpleFromTTree.h"
+#include "AliGMFTTreeEvent.h"
+#include "AliGMFTTreeTrack.h"
 
-ClassImp(AliFlowEventSimpleFromTTree)
+ClassImp(AliGMFEventSimpleFromTTree)
 
 //------------------------------------------------------------------------
-AliFlowEventSimpleFromTTree::AliFlowEventSimpleFromTTree():
-  AliFlowEventSimple()
+AliGMFEventSimpleFromTTree::AliGMFEventSimpleFromTTree():
+  AliGMFEventSimple()
 {
   // constructor for root I/O
 }
 //------------------------------------------------------------------------
-AliFlowEventSimpleFromTTree::AliFlowEventSimpleFromTTree(const AliFlowEventSimpleFromTTree& event):
-  AliFlowEventSimple(event)
+AliGMFEventSimpleFromTTree::AliGMFEventSimpleFromTTree(const AliGMFEventSimpleFromTTree& event):
+  AliGMFEventSimple(event)
 {
   // copy constructor
 }
 //------------------------------------------------------------------------
-AliFlowEventSimpleFromTTree& AliFlowEventSimpleFromTTree::operator=( const AliFlowEventSimpleFromTTree& event )
+AliGMFEventSimpleFromTTree& AliGMFEventSimpleFromTTree::operator=( const AliGMFEventSimpleFromTTree& event )
 {
   // assignment operator
-  AliFlowEventSimple::operator=(event);
+  AliGMFEventSimple::operator=(event);
   return *this;
 }
 //------------------------------------------------------------------------
-AliFlowEventSimpleFromTTree::AliFlowEventSimpleFromTTree( 
-        const AliFlowTTreeEvent* event,
+AliGMFEventSimpleFromTTree::AliGMFEventSimpleFromTTree( 
+        const AliGMFTTreeEvent* event,
         const TClonesArray* array,
-        const AliFlowTrackSimpleCuts* rpCuts,
-        const AliFlowTrackSimpleCuts* poiCuts ) :
-  AliFlowEventSimple(array->GetEntries())
+        const AliGMFTrackSimpleCuts* rpCuts,
+        const AliGMFTrackSimpleCuts* poiCuts ) :
+  AliGMFEventSimple(array->GetEntries())
 {
     // construct flow event from generic input
     SetReferenceMultiplicity(array->GetEntries());
@@ -74,9 +74,9 @@ AliFlowEventSimpleFromTTree::AliFlowEventSimpleFromTTree(
     if(event && PassesCuts(event)) {
         // track loop
         for (Int_t i(0); i < array->GetEntries(); i++) {
-            AliFlowTTreeTrack* track = static_cast<AliFlowTTreeTrack*>(array->At(i));
+            AliGMFTTreeTrack* track = static_cast<AliGMFTTreeTrack*>(array->At(i));
             if (!track) continue;
-            AliFlowTrackSimple* flowtrack = new AliFlowTrackSimple();
+            AliGMFTrackSimple* flowtrack = new AliGMFTrackSimple();
             flowtrack->SetPhi(track->GetPhi());
             flowtrack->SetEta(track->GetEta());
             flowtrack->SetPt(track->GetPt());
@@ -94,7 +94,7 @@ AliFlowEventSimpleFromTTree::AliFlowEventSimpleFromTTree(
     }
 }
 //------------------------------------------------------------------------
-Bool_t AliFlowEventSimpleFromTTree::PassesCuts(const AliFlowTTreeEvent* event)
+Bool_t AliGMFEventSimpleFromTTree::PassesCuts(const AliGMFTTreeEvent* event)
 {
     // example of event cuts
     // of course in practice hardcoding cuts isn't very good practice ...
