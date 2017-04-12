@@ -20,10 +20,10 @@
  */
 
 
-#include "AliGMFTTreeEvent.h"
+#include "AliGMFTTreeHeader.h"
 
-ClassImp(AliGMFTTreeEvent)
-AliGMFTTreeEvent::AliGMFTTreeEvent(): TObject(),
+ClassImp(AliGMFTTreeHeader)
+AliGMFTTreeHeader::AliGMFTTreeHeader(): TObject(),
   fRun(-1),            
   fV0M(-1),
   fTRK(-1), 
@@ -33,4 +33,4 @@ AliGMFTTreeEvent::AliGMFTTreeEvent(): TObject(),
 }
 
 //_________________________________________________________
-AliGMFTTreeEvent::~AliGMFTTreeEvent(){}
+AliGMFTTreeHeader::~AliGMFTTreeHeader(){}

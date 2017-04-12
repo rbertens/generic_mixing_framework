@@ -37,9 +37,9 @@ AliAnalysisTaskTTreeFilter* AddTaskTTreeFilter(
         TTree::Class(),
         AliAnalysisManager::kOutputContainer,
         outfile.Data());
-    // connect the input data to the flow event task
+    // connect the input data
     mgr->ConnectInput(filter, 0, cinput);
-    // and connect the output to the flow event task
+    // and connect the output
     mgr->ConnectOutput(filter, 1, coutput);
 
     return filter;

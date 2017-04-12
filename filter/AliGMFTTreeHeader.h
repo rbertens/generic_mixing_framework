@@ -3,11 +3,11 @@
 
 #include <TObject.h>
 
-class AliGMFTTreeEvent : public TObject{
+class AliGMFTTreeHeader : public TObject{
 
  public:
 
-  AliGMFTTreeEvent();
+  AliGMFTTreeHeader();
   
   void  SetRun(Int_t run)       {fRun   = run;}
   void  SetV0M(Float_t V0M)     {fV0M   = V0M;}
@@ -25,9 +25,9 @@ class AliGMFTTreeEvent : public TObject{
   Float_t   fTRK;        // centrality TRK
   Float_t   fZvtx;       // rec vertex
 
-  virtual ~AliGMFTTreeEvent(); // default destructor
+  virtual ~AliGMFTTreeHeader(); // default destructor
 
-  ClassDef(AliGMFTTreeEvent, 1);    // Help class
+  ClassDef(AliGMFTTreeHeader, 1);    // Help class
 };
 
 #endif

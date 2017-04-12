@@ -15,10 +15,8 @@
 
 /* analysis task which extracts some kinematic info from AliVEvents in the 
  * aliroot analysis framework and stores then in a ttree
- * see macros in PWGCF/FLOW/Documentation/examples/manual/ttree/macros
  * for usage info
  * author: redmer alexander bertens (rbertens@cern.ch)
- * based on code received from Alexandru Dorbin
  */
 
 
@@ -41,7 +39,7 @@
 #include <AliVTrack.h>
 
 // local includes
-#include "AliGMFTTreeEvent.h"
+#include "AliGMFTTreeHeader.h"
 #include "AliGMFTTreeTrack.h"
 
 ClassImp(AliAnalysisTaskTTreeFilter)
@@ -87,7 +85,7 @@ void AliAnalysisTaskTTreeFilter::UserCreateOutputObjects()
     fTree = new TTree("tree", "Event data");
 
     // init the custom event 
-    fEvent = new AliGMFTTreeEvent();
+    fEvent = new AliGMFTTreeHeader();
     // add the event branch to the tree
     fTree->Branch("event", &fEvent);
   
