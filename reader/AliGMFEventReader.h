@@ -1,7 +1,7 @@
 #ifndef ALIGMFEVENTREADER_H
 #define ALIGMFEVENTREADER_H
 
-class aliGMFEventcontainer;
+class AliGMFEventcontainer;
 
 class AliGMFEventReader : public TObject {
 

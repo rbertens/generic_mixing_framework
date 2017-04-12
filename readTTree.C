@@ -12,11 +12,10 @@ void readTTree()
     gSystem->Load("libPWGflowBase");
 
     // comile the encapsulated classes
-    gROOT->LoadMacro("../filter/AliGMFTTreeHeader.cxx+");
-    gROOT->LoadMacro("../filter/AliGMFTTreeTrack.cxx+");
-    gROOT->LoadMacro("../filter/AliGMFEventSimpleFromTTree.cxx+");
-    gROOT->LoadMacro("../reader/AliGMFEventContainer.cxx+");
-    gROOT->LoadMacro("../reader/AliGMFEventReader.cxx+");
+    gROOT->LoadMacro("filter/AliGMFTTreeHeader.cxx+");
+    gROOT->LoadMacro("filter/AliGMFTTreeTrack.cxx+");
+    gROOT->LoadMacro("reader/AliGMFEventContainer.cxx+");
+    gROOT->LoadMacro("reader/AliGMFEventReader.cxx+");
 
     TChain* myChain = new TChain("tree");
     myChain->Add("../myFilteredTree.root");

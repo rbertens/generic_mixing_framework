@@ -1,9 +1,8 @@
 // event reader class
 #include "AliGMFEventReader.h"
+#include "AliGMFEventContainer.h"
 
-ClassImp(AlIGMFEventReader)
-    
-
+ClassImp(AliGMFEventReader)
 
 //-----------------------------------------------------------------------------
 AliGMFEventReader::AliGMFEventReader() : TObject()

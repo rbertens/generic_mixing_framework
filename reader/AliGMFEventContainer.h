@@ -1,11 +1,6 @@
 // AliGMFEventContainer: Event container
 // origin:   Redmer Alexander Bertens, rbertens@cern.ch
 
-#ifndef ALIFLOWEVENTSIMPLEFROMTTREE_H
-#define ALIFLOWEVENTSIMPLEFROMTTREE_H
-
-// aliroot includes
-#include "AliGMFEventSimple.h"
 
 //forward declarations
 class AliGMFTTreeHeader;
@@ -15,17 +10,15 @@ class AliGMFEventContainer : public TObject {
 
    public:
        AliGMFEventContainer();
-       AliGMFEventContainer(const AliGMFEventContainer& event );
        AliGMFEventContainer( 
-               const AliGMFTTreeHeader* event,
-               const TClonesArray* array);
-       AliGMFEventContainer& operator=( const AliGMFEventContainer& event );
+               AliGMFTTreeHeader* event,
+               TClonesArray* array);
        virtual  ~AliGMFEventContainer() {}
 
 
        // members
        TClonesArray* fTracks;           //! tclones array with tracks
-       AliGMFTTreeHeader fEvent;        //! event header
+       AliGMFTTreeHeader* fHeader;        //! event header
 
 
 
@@ -33,4 +26,3 @@ class AliGMFEventContainer : public TObject {
        ClassDef(AliGMFEventContainer,1)
 };
 
-#endif
