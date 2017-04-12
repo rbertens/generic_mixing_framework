@@ -12,36 +12,25 @@ void readTTree()
     gSystem->Load("libPWGflowBase");
 
     // comile the encapsulated classes
-    gROOT->LoadMacro("../objects/AliGMFTTreeHeader.cxx+");
-    gROOT->LoadMacro("../objects/AliGMFTTreeTrack.cxx+");
-    gROOT->LoadMacro("../objects/AliGMFEventSimpleFromTTree.cxx+");
+    gROOT->LoadMacro("../filter/AliGMFTTreeHeader.cxx+");
+    gROOT->LoadMacro("../filter/AliGMFTTreeTrack.cxx+");
+    gROOT->LoadMacro("../filter/AliGMFEventSimpleFromTTree.cxx+");
+    gROOT->LoadMacro("../reader/AliGMFEventContainer.cxx+");
+    gROOT->LoadMacro("../reader/AliGMFEventReader.cxx+");
 
-    // chain of files with filtered data    
     TChain* myChain = new TChain("tree");
-    myChain->Add("/home/rbertens/Documents/CERN/ALICE_DATA/filtered/000167988.root");
-    myChain->Add("/home/rbertens/Documents/CERN/ALICE_DATA/filtered/000168066.root");
+    myChain->Add("../myFilteredTree.root");
+    // add more files if desired, e.g. per class
 
-    // create pointers for the branches
-    AliGMFTTreeHeader* event = 0x0;
-    myChain->SetBranchAddress("event", &event);
-    TClonesArray* tracks = 0x0;
-    myChain->SetBranchAddress("track", &tracks);
-    // and an example track
-    AliGMFTTreeTrack* firstTrack = 0x0;
+    // initialize the reader and manipulate the events
+    AliGMFEventReader reader = new AliGMGEventReader();
+    reader->SetInputChain(myChain);
 
-    // set how many events you want to analyze
-    Int_t maxEvents = 10000;
-    // event loop
-    printf(" > %i events in chain, processing %i of them < \n", myChain->GetEntries(), maxEvents);
-    for(Int_t i = 0; i < myChain->GetEntries(); i++) {
-        cout << " > Parsing event " << i << "\r"; cout.flush();
-        myChain->GetEntry(i);
+    // etc, this of course will go in the mixing class
+    AliGMFEventReader->GetEvent(i);
 
-        // do the event magic - tbd what we want here
-        AliGMFEventSimple eventMaker = AliGMFEventSimpleFromTTree(event, tracks, cutsPOI, cutsRP);
-        maxEvents--;
-        if(maxEvents < 1) break;
-    }
+
+
 
 }
 
