@@ -22,11 +22,11 @@ void readTTree()
     // add more files if desired, e.g. per class
 
     // initialize the reader and manipulate the events
-    AliGMFEventReader reader = new AliGMGEventReader();
+    AliGMFEventReader reader = new AliGMFEventReader();
     reader->SetInputChain(myChain);
 
     // etc, this of course will go in the mixing class
-    AliGMFEventReader->GetEvent(i);
+    reader->GetEvent(i);
 
 
 

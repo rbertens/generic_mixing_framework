@@ -9,11 +9,6 @@
 ClassImp(AliGMFEventContainer)
 
 //------------------------------------------------------------------------
-AliGMFEventContainer::AliGMFEventContainer() : TObject()
-{
-  // constructor for root I/O
-}
-//------------------------------------------------------------------------
 AliGMFEventContainer::AliGMFEventContainer( 
         AliGMFTTreeHeader* event,
         TClonesArray* array) : TObject()

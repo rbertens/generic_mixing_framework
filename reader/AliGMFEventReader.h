@@ -1,7 +1,11 @@
 #ifndef ALIGMFEVENTREADER_H
 #define ALIGMFEVENTREADER_H
 
-class AliGMFEventcontainer;
+class AliGMFEventContainer;
+class TChain;
+class TClonesArray;
+class AliGMFTTreeHeader;
+
 
 class AliGMFEventReader : public TObject {
 
@@ -11,6 +15,11 @@ class AliGMFEventReader : public TObject {
 
         Bool_t Initialize();
         AliGMFEventContainer* GetEvent(Int_t i);
+    private:
+
+        TChain* fInputChain;    //! input chain
+        TClonesArray* fTracks;  //! tracks
+        AliGMFTTreeHeader* fHeader;     //! header
 
         ClassDef(AliGMFEventReader, 1)
 };

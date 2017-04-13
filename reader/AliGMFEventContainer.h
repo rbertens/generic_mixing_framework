@@ -1,6 +1,8 @@
 // AliGMFEventContainer: Event container
 // origin:   Redmer Alexander Bertens, rbertens@cern.ch
 
+#ifndef ALIGMFEVENTCONTAINER_H
+#define ALIGMFEVENTCONTAINER_H
 
 //forward declarations
 class AliGMFTTreeHeader;
@@ -9,11 +11,10 @@ class TClonesArray;
 class AliGMFEventContainer : public TObject {
 
    public:
-       AliGMFEventContainer();
        AliGMFEventContainer( 
                AliGMFTTreeHeader* event,
                TClonesArray* array);
-       virtual  ~AliGMFEventContainer() {}
+       virtual  ~AliGMFEventContainer() {;}
 
 
        // members
@@ -26,3 +27,4 @@ class AliGMFEventContainer : public TObject {
        ClassDef(AliGMFEventContainer,1)
 };
 
+#endif
