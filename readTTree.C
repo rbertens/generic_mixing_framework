@@ -18,15 +18,16 @@ void readTTree()
     gROOT->LoadMacro("reader/AliGMFEventReader.cxx+");
 
     TChain* myChain = new TChain("tree");
-    myChain->Add("../myFilteredTree.root");
+    myChain->Add("myFilteredTree.root");
     // add more files if desired, e.g. per class
 
     // initialize the reader and manipulate the events
-    AliGMFEventReader reader = new AliGMFEventReader();
+    AliGMFEventReader* reader = new AliGMFEventReader();
     reader->SetInputChain(myChain);
 
     // etc, this of course will go in the mixing class
-    reader->GetEvent(i);
+    reader->GetEvent(2);
+    reader->PrintEventSummary();
 
 
 

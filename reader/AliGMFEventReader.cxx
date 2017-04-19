@@ -28,15 +28,25 @@ Bool_t AliGMFEventReader::Initialize() {
     fInputChain->SetBranchAddress("event", &fHeader);
     TClonesArray* fTracks = 0x0;
     fInputChain->SetBranchAddress("track", &fTracks);
-    // and an example track
-    AliGMFTTreeTrack* firstTrack = 0x0;
 }
-
-
+//-----------------------------------------------------------------------------
+void AliGMFEventReader::PrintEventSummary() {
+    // print some test information of the current event
+    printf(" Current event number %i out of %i \n", fCurrentEvent, fEvents);
+    printf(" fTracks %p \n", fTracks);
+    if(fTracks) printf(" - contains %i tracks \n", fTracks->GetEntries());
+}
+//-----------------------------------------------------------------------------
+void AliGMFEventReader::SetInputChain(TChain* c) {
+    fInputChain = c;
+    Initialize();
+    fEvents = fInputChain->GetEntries();
+}
 //-----------------------------------------------------------------------------
 AliGMFEventContainer* AliGMFEventReader::GetEvent(Int_t i) {
     // provide a container that points to the ith event in the chain
-    fInputChain->GetEntry(i);
+    fCurrentEvent = i;
+    fInputChain->GetEntry(fCurrentEvent);
     return new AliGMFEventContainer(fHeader, fTracks);
 }
 
