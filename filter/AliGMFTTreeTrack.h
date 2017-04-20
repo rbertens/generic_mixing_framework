@@ -23,7 +23,11 @@ class AliGMFTTreeTrack : public TObject {
     Float_t       fPt;
     Float_t       fEta;
     Float_t       fPhi;
+    // obviously a float for charge doesn't make sense
     Float_t       fCharge;
+
+    // some transient members that we'll use for bookkeeping, but dont want to store now
+    Bool_t        fUsed;        //! was track used for mixing ? 
 
     virtual ~AliGMFTTreeTrack(); // default destructor
   

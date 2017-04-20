@@ -9,6 +9,7 @@ class AliGMFTTreeHeader : public TObject{
 
   AliGMFTTreeHeader();
   
+  // manipulators - persistent
   void  SetRun(Int_t run)       {fRun   = run;}
   void  SetV0M(Float_t V0M)     {fV0M   = V0M;}
   void  SetTRK(Float_t TRK)     {fTRK   = TRK;}
@@ -19,11 +20,23 @@ class AliGMFTTreeHeader : public TObject{
   Float_t       GetTRK() const  {return fTRK;}
   Float_t       GetZvtx() const {return fZvtx;}
 
+  // manipulators - no persistent
+  void SetEventID(Int_t id)     {fEventID = id;}
+  void SetUsed(Bool_t used)     {fUsed = used;}
+
+  Int_t         GetEventID() const      {return fEventID;}
+  Bool_t        GetUsed() const         {return fUsed;}
+
+
  private:
   Int_t     fRun;        // run number
   Float_t   fV0M;        // centrality V0
   Float_t   fTRK;        // centrality TRK
   Float_t   fZvtx;       // rec vertex
+
+  // transient members for bookkeeping
+  Int_t    fEventID;    //! event identifier
+  Bool_t   fUsed;       //! was event read from file
 
   virtual ~AliGMFTTreeHeader(); // default destructor
 

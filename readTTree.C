@@ -8,10 +8,7 @@ void readTTree()
     gSystem->AddIncludePath("-Wno-deprecated");
     gSystem->AddIncludePath("-I$ALICE_ROOT -I$ALICE_ROOT/include -I$ALICE_PHYSICS/include");
  
-    // load libraries
-    gSystem->Load("libPWGflowBase");
-
-    // comile the encapsulated classes
+    // compile the encapsulated classes
     gROOT->LoadMacro("filter/AliGMFTTreeHeader.cxx+");
     gROOT->LoadMacro("filter/AliGMFTTreeTrack.cxx+");
     gROOT->LoadMacro("reader/AliGMFEventContainer.cxx+");
@@ -22,15 +19,17 @@ void readTTree()
     // add more files if desired, e.g. per class
 
     // initialize the reader and manipulate the events
-    AliGMFEventReader* reader = new AliGMFEventReader();
-    reader->SetInputChain(myChain);
+    AliGMFEventReader* reader = new AliGMFEventReader(myChain);
 
     // etc, this of course will go in the mixing class
-    reader->GetEvent(2);
-    reader->PrintEventSummary();
-
-
-
+ 
+    for (int i = 0 ; i < 5; i ++) {
+        reader->GetEvent(i)->PrintEventSummary();
+    }
+    reader->TouchEvent(1);
+   // reader->TouchEvent(3);
+    for (int i = 0 ; i < 5; i ++) {
+        reader->GetEvent(i)->PrintEventSummary();
+    }
 
 }
-
