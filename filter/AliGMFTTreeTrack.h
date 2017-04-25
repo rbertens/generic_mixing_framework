@@ -13,6 +13,7 @@ class AliGMFTTreeTrack : public TObject {
     void       SetEta(Float_t eta)              {fEta =         eta;}
     void       SetPhi(Float_t phi)              {fPhi =         phi;}
     void       SetCharge(Float_t charge)        {fCharge =      charge;}
+    void       SetUsed(Bool_t used)             {fUsed =        used;}
    
     Float_t    GetPt() const                    {return fPt;}
     Float_t    GetEta() const                   {return fEta;}
@@ -20,11 +21,11 @@ class AliGMFTTreeTrack : public TObject {
     Float_t    GetCharge() const                {return fCharge;}
     
  private:
-    Float_t       fPt;
-    Float_t       fEta;
-    Float_t       fPhi;
+    Double32_t       fPt;       //[0,100,8]
+    Double32_t       fEta;      //[-1,1,8]
+    Double32_t       fPhi;      //[0,6.3,8]
     // obviously a float for charge doesn't make sense
-    Float_t       fCharge;
+    Short_t          fCharge;
 
     // some transient members that we'll use for bookkeeping, but dont want to store now
     Bool_t        fUsed;        //! was track used for mixing ? 

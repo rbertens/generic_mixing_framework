@@ -29,7 +29,6 @@ AliGMFTTreeTrack::AliGMFTTreeTrack() : TObject(),
     fPhi         (-999),
     fCharge      (-9999999),
     fUsed        (kFALSE)
-                           
 {
   // default constructor
 }

@@ -26,7 +26,6 @@ ClassImp(AliGMFTTreeHeader)
 AliGMFTTreeHeader::AliGMFTTreeHeader(): TObject(),
   fRun(-1),            
   fV0M(-1),
-  fTRK(-1), 
   fZvtx(+999),
   fEventID(-1),
   fUsed(kFALSE)

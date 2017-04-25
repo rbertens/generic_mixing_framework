@@ -114,7 +114,6 @@ Bool_t AliAnalysisTaskTTreeFilter::ParseEvent(AliVEvent* event)
     // store some event info
     fEvent->SetRun(event->GetRunNumber());
     fEvent->SetV0M(event->GetCentrality()->GetCentralityPercentile("V0M"));
-    fEvent->SetTRK(event->GetCentrality()->GetCentralityPercentile("TRK"));
     fEvent->SetZvtx(event->GetPrimaryVertex()->GetZ());
   
     // parse the tracks
