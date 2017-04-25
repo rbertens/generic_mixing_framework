@@ -12,8 +12,14 @@ class AliGMFEventCuts : public TObject {
 
     Bool_t IsSelected(AliVEvent* event);
 
+    Bool_t PassesCentralitySelection();
+    Bool_t PassesVertexSelection();
+
      
  private:
+
+    AliVEvent*  fCurrentEvent;  //! current event    
+
     ClassDef(AliGMFEventCuts, 1);    // Help class
 
 };
