@@ -1,3 +1,7 @@
+#ifndef COMPRESSION_LEVEL
+#define COMPRESSION_LEVEL 2
+#endif
+
 #ifndef AliGMFTTreeEVENT_H
 #define AliGMFTTreeEVENT_H
 
@@ -28,8 +32,19 @@ class AliGMFTTreeHeader : public TObject{
 
  private:
   Short_t       fRun;        // run number
+#if COMPRESSION_LEVEL > 1
+  // maximum compression, some loss of precision may occur
   Double32_t    fV0M;        //[0,100,8] centrality V0
   Double32_t    fZvtx;       //[0,10,8] rec vertex
+#elif COMPRESSION > 0
+  //medium compression, no precision loss expected`
+  Double32_t    fV0M;        //[0,100,12] centrality V0
+  Double32_t    fZvtx;       //[0,10,12] rec vertex
+#else  
+  // no compression
+  Double_t      fV0M;        // centrality V0
+  Double_t      fZvtx;       // rec vertex
+#endif
 
   // transient members for bookkeeping
   Int_t    fEventID;    //! event identifier

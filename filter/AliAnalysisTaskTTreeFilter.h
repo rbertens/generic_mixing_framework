@@ -9,7 +9,12 @@ class AliVEvent;
 class AliVTrack;
 class TTree;
 class TClonesArray;
+
+// framework classes
 class AliGMFTTreeHeader;
+class AliGMFEventCuts;
+class AliGMFTrackCuts;
+
 
 class AliAnalysisTaskTTreeFilter : public AliAnalysisTaskSE {
  public:
@@ -29,10 +34,14 @@ class AliAnalysisTaskTTreeFilter : public AliAnalysisTaskSE {
   Bool_t        PassesCuts(AliVEvent* event);
   Bool_t        PassesCuts(AliVTrack* track);
 
+
+  // configuration objects
+  AliGMFEventCuts*      fEventCuts;     // event cuts
+  AliGMFTrackCuts*      fTrackCuts;     // track cuts
   // Output objects
-  TTree*                fTree;              //! output data
-  AliGMFTTreeHeader*     fEvent;             //! custom event
-  TClonesArray*         fTrackArray;        //! custom tracks
+  TTree*                fTree;          //! output data
+  AliGMFTTreeHeader*     fEvent;        //! custom event
+  TClonesArray*         fTrackArray;    //! custom tracks
 
   ClassDef(AliAnalysisTaskTTreeFilter, 1);
 };

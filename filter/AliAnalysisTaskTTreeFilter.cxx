@@ -1,24 +1,4 @@
-/**************************************************************************
- * Copyright(c) 1998-1999, ALICE Experiment at CERN, All rights reserved. *
- *                                                                        *
- * Author: The ALICE Off-line Project.                                    *
- * Contributors are mentioned in the code where appropriate.              *
- *                                                                        *
- * Permission to use, copy, modify and distribute this software and its   *
- * documentation strictly for non-commercial purposes is hereby granted   *
- * without fee, provided that the above copyright notice appears in all   *
- * copies and that both the copyright notice and this permission notice   *
- * appear in the supporting documentation. The authors make no claims     *
- * about the suitability of this software for any purpose. It is          *
- * provided "as is" without express or implied warranty.                  *
- **************************************************************************/
-
-/* analysis task which extracts some kinematic info from AliVEvents in the 
- * aliroot analysis framework and stores then in a ttree
- * for usage info
- * author: redmer alexander bertens (rbertens@cern.ch)
- */
-
+ // author: redmer alexander bertens (rbertens@cern.ch)
 
 #include "AliAnalysisTaskTTreeFilter.h"
 
@@ -41,6 +21,9 @@
 // local includes
 #include "AliGMFTTreeHeader.h"
 #include "AliGMFTTreeTrack.h"
+#include "AliGMFEventCuts.h"
+#include "AliGMFTrackCuts.h"
+
 
 ClassImp(AliAnalysisTaskTTreeFilter)
 
@@ -48,7 +31,9 @@ ClassImp(AliAnalysisTaskTTreeFilter)
 AliAnalysisTaskTTreeFilter::AliAnalysisTaskTTreeFilter():
     AliAnalysisTaskSE(),
     fEvent(0x0),
-    fTrackArray(0x0)
+    fTrackArray(0x0),
+    fEventCuts(0x0),
+    fTrackCuts(0x0)
 {
     // default constructor for root I/O
 }
@@ -56,7 +41,9 @@ AliAnalysisTaskTTreeFilter::AliAnalysisTaskTTreeFilter():
 AliAnalysisTaskTTreeFilter::AliAnalysisTaskTTreeFilter(const char *name):
     AliAnalysisTaskSE(name),
     fEvent(0x0),
-    fTrackArray(0x0)
+    fTrackArray(0x0),
+    fEventCuts(0x0),
+    fTrackCuts(0x0)
 {
     // constructor
     DefineOutput(1, TTree::Class());
@@ -65,10 +52,9 @@ AliAnalysisTaskTTreeFilter::AliAnalysisTaskTTreeFilter(const char *name):
 AliAnalysisTaskTTreeFilter::~AliAnalysisTaskTTreeFilter()
 {
     // destructor
-    if (fTree) {
-        delete fTree;
-        fTree = 0x0;
-    }
+    delete fTree;
+    delete fEventCuts;
+    delete fTrackCuts;
 }
 //______________________________________________________________________________
 void AliAnalysisTaskTTreeFilter::UserCreateOutputObjects()
@@ -156,16 +142,14 @@ void AliAnalysisTaskTTreeFilter::PushToTTree()
 //________________________________________________________________________
 Bool_t AliAnalysisTaskTTreeFilter::PassesCuts(AliVEvent* event)
 {
-    // event cuts would go here
-    if(!event) return kFALSE;
-    return kTRUE;
+    // check the event cuts
+    return fEventCuts->IsSelected(event);
 }
 //________________________________________________________________________
 Bool_t AliAnalysisTaskTTreeFilter::PassesCuts(AliVTrack* track)
 {
     // track cuts would go here
-    if(!track) return kFALSE;
-    return kTRUE;
+    return fTrackCuts->IsSelected(track);
 }
 //________________________________________________________________________
 void AliAnalysisTaskTTreeFilter::Terminate(Option_t *)

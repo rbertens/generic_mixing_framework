@@ -38,6 +38,8 @@ void runTTreeFilter() {
     gSystem->AddIncludePath("-Wno-deprecated");
     gSystem->AddIncludePath("-I$ALICE_ROOT -I$ALICE_ROOT/include -I$ALICE_PHYSICS/include");
 
+    gROOT->LoadMacro("filter/AliGMFEventCuts.cxx+");
+    gROOT->LoadMacro("filter/AliGMFTrackCuts.cxx+");
     gROOT->LoadMacro("filter/AliGMFTTreeHeader.cxx+");
     gROOT->LoadMacro("filter/AliGMFTTreeTrack.cxx+");
     gROOT->LoadMacro("filter/AliAnalysisTaskTTreeFilter.cxx+");

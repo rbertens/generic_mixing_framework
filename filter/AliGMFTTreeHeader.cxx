@@ -13,11 +13,7 @@
  * provided "as is" without express or implied warranty.                  *
  **************************************************************************/
 
-/* example event class which can be stored in a ttree 
- * see marcos in PWGCF/FLOW/Documentation/examples/manual/ttree/macros for
- * further explanation
- * author: redmer alexander bertens (rbertens@cern.ch)
- */
+ // author: redmer alexander bertens (rbertens@cern.ch)
 
 
 #include "AliGMFTTreeHeader.h"
