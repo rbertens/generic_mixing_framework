@@ -1,5 +1,5 @@
 #ifndef COMPRESSION_LEVEL
-#define COMPRESSION_LEVEL 0
+#define COMPRESSION_LEVEL 2 
 #endif
 
 #ifndef AliGMFTTreeEVENT_H
@@ -14,41 +14,45 @@ class AliGMFTTreeHeader : public TObject{
   AliGMFTTreeHeader();
   
   // manipulators - persistent
-  void  SetRun(Int_t run)       {fRun   = run;}
-  void  SetV0M(Float_t V0M)     {fV0M   = V0M;}
-  void  SetZvtx(Float_t Zvtx)   {fZvtx  = Zvtx;}
-
-  Int_t         GetRun() const  {return fRun;}
-  Float_t       GetV0M() const  {return fV0M;}
-  Float_t       GetZvtx() const {return fZvtx;}
+  void  SetZvtx(Float_t Zvtx)           {fZvtx  = Zvtx;}
+  void  SetEventPlane(Float_t ep)       {fEventPlane = ep;}
 
   // manipulators - no persistent
-  void SetEventID(Int_t id)     {fEventID = id;}
-  void SetUsed(Bool_t used)     {fUsed = used;}
+  void SetEventID(Int_t id)             {fEventID = id;}
+  void SetUsed(Bool_t used)             {fUsed = used;}
+  void SetMultiplicity(Short_t m)       {fMultiplicity = m;}
+
+
+  // getters
+  Float_t       GetZvtx() const         {return fZvtx;}
+  Float_t       GetEventPlane() const   {return fEventPlane;}
 
   Int_t         GetEventID() const      {return fEventID;}
   Bool_t        GetUsed() const         {return fUsed;}
-
+  Short_t       SetMultiplicity() const {return fMultiplicity;}
 
  private:
-  Short_t       fRun;        // run number
+  // first the persistent members are listed. these are written to disk
+  // so extra care is taken to minimize the space they take
 #if COMPRESSION_LEVEL > 1
   // maximum compression, some loss of precision may occur
-  Double32_t    fV0M;        //[0,100,8] centrality V0
-  Double32_t    fZvtx;       //[0,10,8] rec vertex
+  Double32_t    fZvtx;          //[0,10,8] rec vertex
+  Double32_t    fEventPlane;    //[0,3.15,8] event plane orientation
 #elif COMPRESSION > 0
   //medium compression, no precision loss expected`
-  Double32_t    fV0M;        //[0,100,12] centrality V0
-  Double32_t    fZvtx;       //[0,10,12] rec vertex
+  Double32_t    fZvtx;          //[0,10,12] rec vertex
+  Double32_t    fEventPlane;    //[0,3.15,12] event plane orientation
 #else  
   // no compression
-  Double_t      fV0M;        // centrality V0
-  Double_t      fZvtx;       // rec vertex
+  Double_t      fZvtx;          // rec vertex
+  Double_t      fEventPlane;    //event plane orientation
 #endif
 
-  // transient members for bookkeeping
-  Int_t    fEventID;    //! event identifier
-  Bool_t   fUsed;       //! was event read from file
+  // transient members are not written to disk, they
+  // can be optimized for speed
+  Int_t         fEventID;       //! event identifier
+  Bool_t        fUsed;          //! was event read from file
+  Short_t       fMultiplicity;  //! event multiplicity
 
   virtual ~AliGMFTTreeHeader(); // default destructor
 

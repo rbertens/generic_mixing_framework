@@ -20,11 +20,11 @@
 
 ClassImp(AliGMFTTreeHeader)
 AliGMFTTreeHeader::AliGMFTTreeHeader(): TObject(),
-  fRun(-1),            
-  fV0M(-1),
-  fZvtx(+999),
+  fZvtx(0),
+  fEventPlane(0),
   fEventID(-1),
-  fUsed(kFALSE)
+  fUsed(kFALSE),
+  fMultiplicity(0)
 {
   // default constructor
 }

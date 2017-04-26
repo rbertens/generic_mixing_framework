@@ -98,10 +98,10 @@ Bool_t AliAnalysisTaskTTreeFilter::ParseEvent(AliVEvent* event)
     if(!PassesCuts(event)) return kFALSE;
 
     // store some event info
-    fEvent->SetRun(event->GetRunNumber());
-    fEvent->SetV0M(event->GetCentrality()->GetCentralityPercentile("V0M"));
     fEvent->SetZvtx(event->GetPrimaryVertex()->GetZ());
-  
+    
+    // just some dummy value
+    fEvent->SetEventPlane(2.);
     // parse the tracks
     ParseTracks(event);
 
@@ -115,7 +115,6 @@ Bool_t AliAnalysisTaskTTreeFilter::ParseEvent(AliVEvent* event)
 void AliAnalysisTaskTTreeFilter::ParseTracks(AliVEvent* event)
 {
     // parse tracks
-  
     for(Int_t i(0), acceptedTracks(0); i < event->GetNumberOfTracks(); i++) {
         // track loop
         AliVTrack* track(static_cast<AliVTrack*>(event->GetTrack(i)));
