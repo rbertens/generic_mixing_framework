@@ -1,9 +1,6 @@
 // addtask macro for AliAnalysisTaskTTreeFilter
 // author: redmer alexander bertens (rbertens@cern.ch)
 //
-// note that this addtask macro is not necessary to run
-// the example macro in this folder, but is added for 
-// clarity
 
 AliAnalysisTaskTTreeFilter* AddTaskTTreeFilter(
         TString outfile = "myFilteredTree.root",
@@ -28,6 +25,13 @@ AliAnalysisTaskTTreeFilter* AddTaskTTreeFilter(
     mgr->AddTask(filter);
     // set the trigger selection
     filter->SelectCollisionCandidates(trigger);
+
+    // create the event and track cut objects
+    AliGMFEventCuts* eventCuts = new AliGMFEventCuts();
+    filter->SetEventCuts(eventCuts);
+    
+    AliGMFTrackCuts* trackCuts = new AliGMFTrackCuts();
+    filter->SetTrackCuts(trackCuts);
 
     // get the common input container from the analysis manager
     AliAnalysisDataContainer *cinput = mgr->GetCommonInputContainer();

@@ -17,6 +17,7 @@ class AliGMFTrackCuts;
 
 
 class AliAnalysisTaskTTreeFilter : public AliAnalysisTaskSE {
+
  public:
   AliAnalysisTaskTTreeFilter();
   AliAnalysisTaskTTreeFilter(const char *name);
@@ -26,6 +27,14 @@ class AliAnalysisTaskTTreeFilter : public AliAnalysisTaskSE {
   virtual void  UserCreateOutputObjects();
   virtual void  UserExec(Option_t *option);
   virtual void  Terminate(Option_t *); 
+
+  // setters
+  void          SetEventCuts(AliGMFEventCuts* ec)       {fEventCuts = ec;}
+  void          SetTrackCuts(AliGMFTrackCuts* tc)       {fTrackCuts = tc;}
+
+  // getters
+  const AliGMFEventCuts*        GetEventCuts()  {return fEventCuts;}
+  const AliGMFTrackCuts*        GetTrackCuts()  {return fTrackCuts;}
 
  private:
   Bool_t        ParseEvent(AliVEvent* event);
@@ -40,7 +49,7 @@ class AliAnalysisTaskTTreeFilter : public AliAnalysisTaskSE {
   AliGMFTrackCuts*      fTrackCuts;     // track cuts
   // Output objects
   TTree*                fTree;          //! output data
-  AliGMFTTreeHeader*     fEvent;        //! custom event
+  AliGMFTTreeHeader*    fEvent;         //! custom event
   TClonesArray*         fTrackArray;    //! custom tracks
 
   ClassDef(AliAnalysisTaskTTreeFilter, 1);
