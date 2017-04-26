@@ -24,10 +24,10 @@
 ClassImp(AliGMFTTreeTrack);
 
 AliGMFTTreeTrack::AliGMFTTreeTrack() : TObject(),
-    fPt          (-1),
-    fEta         (-999),
-    fPhi         (-999),
-    fCharge      (-9999999),
+    fPt          (0.),
+    fEta         (0.),
+    fPhi         (0.),
+    fCharge      (0.),
     fUsed        (kFALSE)
 {
   // default constructor

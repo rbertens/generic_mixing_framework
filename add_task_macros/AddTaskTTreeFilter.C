@@ -31,6 +31,7 @@ AliAnalysisTaskTTreeFilter* AddTaskTTreeFilter(
     filter->SetEventCuts(eventCuts);
     
     AliGMFTrackCuts* trackCuts = new AliGMFTrackCuts();
+    trackCuts->SetFilterBit(768);
     filter->SetTrackCuts(trackCuts);
 
     // get the common input container from the analysis manager
