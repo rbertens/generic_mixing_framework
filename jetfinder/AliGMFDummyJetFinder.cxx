@@ -31,8 +31,7 @@ AliGMFDummyJetFinder::AliGMFDummyJetFinder() : TObject(),
     fDoBackgroundSubtraction(kFALSE),
     fJetResolution(.3),
     fLeadingHadronPt(.1),
-    fHistogramManager(0x0),
-    fHistJetPt(0x0)
+    fHistogramManager(0x0)
 {
     // default constructor
 }
@@ -44,6 +43,8 @@ Bool_t AliGMFDummyJetFinder::Initialize() {
    
    // create the histograms (for now here)
    fHistogramManager->BookTH1F("fHistJetPt", "p_{T}^{jet}", 100, 0, 100);
+   fHistogramManager->BookTH2F("fHistJetPtArea", "p_{T}^{jet}", "area", 100, 0, 100, 100, 0, 1);
+   fHistogramManager->BookTH2F("fHistJetEtaPhi", "#eta^{jet}", "#phi^{jet}", 100, -1, 1, 100, 0, TMath::TwoPi());
 
    return kTRUE;
 
@@ -90,59 +91,31 @@ Bool_t AliGMFDummyJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
 
     // get the jets
     std::vector <fastjet::PseudoJet> inclusiveJets = clusterSeq.inclusive_jets();
-/*
-    // define background strategy (applied if requested)
-    fastjet::JetMedianBackgroundEstimator bge;
-    fastjet::ClusterSequenceArea *clustSeqBG = 0;
-
-    if (fDoBackgroundSubtraction) {
-        fastjet::JetDefinition jetDefBG(fastjet::kt_algorithm, fJetResolution, recombScheme, strategy);
-        fastjet::Selector BGSelector = fastjet::SelectorStrip(2*fJetResolution);
-        BGSelector.set_reference(inclusiveJets);
-        fastjet::ClusterSequenceArea clustSeqBG(fjInputVector, jetDefBG,areaDef);
-
-        BGSelector.set_jets(inclusiveJets);
-        clustSeqBG = new fastjet::ClusterSequenceArea(fjInputs, jetDefBG,areaDef);
-        vector <fastjet::PseudoJet> BGJets = clustSeqBG->inclusive_jets();
-
-        bge.set_selector(BGSelector);
-        bge.set_jets(BGJets);
-    }
-*/
-
-
-    // jet finding is done, store info in histograms
-    Float_t eta_lead_jet=0; 
-    Float_t jet_eta= 0;
-    Float_t jet_phi= 0;
-    Float_t jet_pt= 0;
-    Float_t jet_pt_bgsub= 0;
 
     for (UInt_t iJet = 0; iJet < inclusiveJets.size(); iJet++) {
         if (!range.is_in_range(inclusiveJets[iJet])) continue;
         // loop over constituents to apply leading hadron cut
         std::vector<fastjet::PseudoJet> constituents = clusterSeq.constituents(inclusiveJets[iJet]);
-        double maxpt(0);
+        Double_t maxpt(0);
         for(UInt_t i(0); i < constituents.size(); i++) {
             if(constituents[i].perp() > maxpt) maxpt = constituents[i].perp();
         }
         if(maxpt < fLeadingHadronPt) continue;
 
-        // if we pass the lh cut
-        jet_pt = inclusiveJets[iJet].perp();
-        jet_eta = inclusiveJets[iJet].eta();
-/*        float rho = 0;
-
-        if (fDoBackgroundSubtraction) {
-            rho = bge.rho(inclusiveJets[iJet]);
-            float jet_area = clustSeqCh.area(inclusiveJets[iJet]);
-            float bgsub = rho*jet_area;
-            jet_pt_bgsub = jet_pt - bgsub;
-        }
-        else*/ jet_pt_bgsub = jet_pt;
-
-        // fill histograms
-        fHistogramManager->Fill("fHistJetPt", jet_pt_bgsub);
+        fHistogramManager->Fill(
+                "fHistJetPt", 
+                inclusiveJets[iJet].perp()
+                );
+        fHistogramManager->Fill(
+                "fHistJetPtArea", 
+                inclusiveJets[iJet].perp(),
+                inclusiveJets[iJet].area()
+                );
+        fHistogramManager->Fill(
+                "fHistJetEtaPhi",
+                inclusiveJets[iJet].eta(),
+                inclusiveJets[iJet].phi()
+                );
     }
 
     return kTRUE;

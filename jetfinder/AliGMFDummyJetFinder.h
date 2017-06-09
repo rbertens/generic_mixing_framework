@@ -27,7 +27,6 @@ class AliGMFDummyJetFinder : public TObject {
 
         // histograms
         AliGMFHistogramManager* fHistogramManager;      // histogram manager
-        TH1F*                   fHistJetPt;             // dummy histo for jet pt
 
         ClassDef(AliGMFDummyJetFinder, 1);
 
