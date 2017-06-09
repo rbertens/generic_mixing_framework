@@ -13,13 +13,14 @@
 #include <iostream>
 #include <vector>
 
-#include "TH1D.h"
+#include "TH1F.h"
 #include "TFile.h"
 #include "TMath.h"
 
 #include "reader/AliGMFEventContainer.h"
 #include "filter/AliGMFTTreeTrack.h"
 #include "jetfinder/AliGMFDummyJetFinder.h"
+#include "tools/AliGMFHistogramManager.h"
 
 ClassImp(AliGMFDummyJetFinder)
 
@@ -30,6 +31,7 @@ AliGMFDummyJetFinder::AliGMFDummyJetFinder() : TObject(),
     fDoBackgroundSubtraction(kFALSE),
     fJetResolution(.3),
     fLeadingHadronPt(.1),
+    fHistogramManager(0x0),
     fHistJetPt(0x0)
 {
     // default constructor
@@ -38,8 +40,10 @@ AliGMFDummyJetFinder::AliGMFDummyJetFinder() : TObject(),
 //_____________________________________________________________________________
 Bool_t AliGMFDummyJetFinder::Initialize() {
     // initialize
-
-   fHistJetPt =  new TH1D("jet pt dummy", "jet pt dummy", 100, 0, 100); 
+   fHistogramManager = new AliGMFHistogramManager();
+   
+   // create the histograms (for now here)
+   fHistogramManager->BookTH1F("fHistJetPt", "p_{T}^{jet}", 100, 0, 100);
 
    return kTRUE;
 
@@ -138,7 +142,7 @@ Bool_t AliGMFDummyJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
         else*/ jet_pt_bgsub = jet_pt;
 
         // fill histograms
-        fHistJetPt->Fill(jet_pt_bgsub);
+        fHistogramManager->Fill("fHistJetPt", jet_pt_bgsub);
     }
 
     return kTRUE;
@@ -146,10 +150,8 @@ Bool_t AliGMFDummyJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
 //_____________________________________________________________________________
 
 Bool_t AliGMFDummyJetFinder::Finalize() {
-    TFile* outputFile(new TFile("dummyJetFinderOutput.root", "RECREATE"));
-    fHistJetPt->Write();
-    outputFile->Close();
 
+    fHistogramManager->StoreManager("jetFinderOutput.root");
     return kTRUE;
 
 }

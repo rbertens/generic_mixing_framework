@@ -18,6 +18,7 @@ void runJetFindingOnTree()
     gSystem->Load("libfastjetcontribfragile");
 
     // compile the encapsulated classes
+    gROOT->LoadMacro("tools/AliGMFHistogramManager.cxx+");
     gROOT->LoadMacro("filter/AliGMFTTreeHeader.cxx+");
     gROOT->LoadMacro("filter/AliGMFTTreeTrack.cxx+");
     gROOT->LoadMacro("reader/AliGMFEventContainer.cxx+");

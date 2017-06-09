@@ -3,6 +3,7 @@
 
 class TH1D;
 class AliGMFEventContainer;
+class AliGMFHistogramManager;
 
 class AliGMFDummyJetFinder : public TObject {
 
@@ -25,7 +26,8 @@ class AliGMFDummyJetFinder : public TObject {
         Float_t fLeadingHadronPt;               // leading hadron pt
 
         // histograms
-        TH1D*   fHistJetPt;                     // dummy histo for jet pt
+        AliGMFHistogramManager* fHistogramManager;      // histogram manager
+        TH1F*                   fHistJetPt;             // dummy histo for jet pt
 
         ClassDef(AliGMFDummyJetFinder, 1);
 
