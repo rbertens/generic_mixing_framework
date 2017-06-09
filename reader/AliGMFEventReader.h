@@ -1,8 +1,9 @@
 #ifndef ALIGMFEVENTREADER_H
 #define ALIGMFEVENTREADER_H
 
+#include "TChain.h"
+
 class AliGMFEventContainer;
-class TChain;
 class TClonesArray;
 class AliGMFTTreeHeader;
 
@@ -15,11 +16,12 @@ class AliGMFEventReader : public TObject {
         virtual ~AliGMFEventReader() {;}
 
         // interface
-        Bool_t Initialize();
+        Bool_t  Initialize();
         AliGMFEventContainer* GetEvent(Int_t i);
-        void TouchEvent(Int_t i);
+        void    TouchEvent(Int_t i);
 
-        void SetInputChain(TChain* c); 
+        void    SetInputChain(TChain* c); 
+        Int_t   GetNumberOfEvents()     {return fInputChain->GetEntries();}
     
     private:
         TChain*                 fInputChain;            //! input chain

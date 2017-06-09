@@ -33,13 +33,12 @@ void runJetFindingOnTree()
 
     // initialize the reader and jet finder
     AliGMFEventReader* reader = new AliGMFEventReader(myChain);
+    cout << reader->GetNumberOfEvents() << " events available for analysis " << endl;
+    
     AliGMFDummyJetFinder* jetFinder = new AliGMFDummyJetFinder();
-
     jetFinder->Initialize();    // tbd pass enum on configuration
 
-    // etc, this of course will go in the mixing class
-
-    for (int i = 0 ; i < 5; i ++) {
+    for (int i = 0 ; i < reader->GetNumberOfEvents(); i ++) {
         jetFinder->AnalyzeEvent(reader->GetEvent(i));
     }
 

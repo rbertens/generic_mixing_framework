@@ -43,6 +43,7 @@ Bool_t AliGMFDummyJetFinder::Initialize() {
    
    // create the histograms (for now here)
    fHistogramManager->BookTH1F("fHistJetPt", "p_{T}^{jet}", 100, 0, 100);
+   fHistogramManager->BookTH1F("fHistRho", "#rho", 100, 0, 150);
    fHistogramManager->BookTH2F("fHistJetPtArea", "p_{T}^{jet}", "area", 100, 0, 100, 100, 0, 1);
    fHistogramManager->BookTH2F("fHistJetEtaPhi", "#eta^{jet}", "#phi^{jet}", 100, -1, 1, 100, 0, TMath::TwoPi());
 
@@ -75,7 +76,7 @@ Bool_t AliGMFDummyJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
         }
     }
 
-    // setup the jet finder
+    // setup the jet finder for signal and background jets
     fastjet::GhostedAreaSpec     ghostSpec(.9, 1, 0.001);
     fastjet::Strategy            strategy = fastjet::Best;
     fastjet::RecombinationScheme recombScheme = fastjet::BIpt_scheme;
@@ -85,9 +86,11 @@ Bool_t AliGMFDummyJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
     // some bookkeeping
     fastjet::RangeDefinition range(fJetResolution-.9, .9-fJetResolution, 0, 2.*fastjet::pi);
     fastjet::JetDefinition jetDef(fastjet::antikt_algorithm, fJetResolution, recombScheme, strategy);
+    fastjet::JetDefinition jetDefRho(fastjet::kt_algorithm, fJetResolution, recombScheme, strategy);
 
     // feed the protojets to fastjet
     fastjet::ClusterSequenceArea clusterSeq(fjInputVector, jetDef, areaDef);
+    fastjet::ClusterSequenceArea clusterSeqRho(fjInputVector, jetDefRho, areaDef);
 
     // get the jets
     std::vector <fastjet::PseudoJet> inclusiveJets = clusterSeq.inclusive_jets();
@@ -117,6 +120,20 @@ Bool_t AliGMFDummyJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
                 inclusiveJets[iJet].phi()
                 );
     }
+
+    std::vector <fastjet::PseudoJet> backgroundJets = clusterSeqRho.inclusive_jets();
+    Double_t rhoVector[backgroundJets.size()];
+
+    for (UInt_t iJet = 0; iJet < backgroundJets.size(); iJet++) {
+        // TODO first pass to exclude n number of hard jets
+        if (!range.is_in_range(inclusiveJets[iJet])) continue;
+        rhoVector[iJet] = backgroundJets[iJet].perp() / backgroundJets[iJet].area();
+    }
+    Double_t rho = TMath::Median(backgroundJets.size(), rhoVector);
+    fHistogramManager->Fill(
+            "fHistRho", 
+            rho
+            );
 
     return kTRUE;
 }
