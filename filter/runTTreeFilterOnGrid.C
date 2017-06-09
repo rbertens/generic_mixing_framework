@@ -21,7 +21,7 @@ void runTTreeFilterOnGrid() {
     alienHandler->SetAdditionalLibs("AliGMFEventCuts.cxx AliGMFEventCuts.h AliGMFTrackCuts.cxx AliGMFTrackCuts.h AliGMFTTreeHeader.cxx AliGMFTTreeTrack.cxx AliAnalysisTaskTTreeFilter.cxx AliGMFTTreeHeader.h AliGMFTTreeTrack.h AliAnalysisTaskTTreeFilter.h");
     alienHandler->SetAnalysisSource("AliGMFEventCuts.cxx AliGMFTrackCuts.cxx AliGMFTTreeHeader.cxx AliGMFTTreeTrack.cxx AliAnalysisTaskTTreeFilter.cxx");
     alienHandler->SetOverwriteMode();
-    alienHandler->SetRunMode("full");
+    alienHandler->SetRunMode("test");
     alienHandler->SetNtestFiles(1);
     alienHandler->SetAPIVersion("V1.1x");
     alienHandler->SetAliPhysicsVersion("vAN-20170411");

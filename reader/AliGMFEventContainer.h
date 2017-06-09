@@ -4,9 +4,14 @@
 #ifndef ALIGMFEVENTCONTAINER_H
 #define ALIGMFEVENTCONTAINER_H
 
+#include "TClonesArray.h"
+#include "TObject.h"
+#include "filter/AliGMFTTreeTrack.h"
+
+
 //forward declarations
 class AliGMFTTreeHeader;
-class TClonesArray;
+class AliGMFTTreeTrack;
 
 class AliGMFEventContainer : public TObject {
 
@@ -24,6 +29,10 @@ class AliGMFEventContainer : public TObject {
        void SetUsed(Bool_t used);
 
        void PrintEventSummary();
+
+       // interface
+       Int_t                    GetNumberOfTracks()     { return fTracks->GetEntries();}
+       AliGMFTTreeTrack*        GetTrack(Int_t i)       { return static_cast<AliGMFTTreeTrack*>(fTracks->At(i));}
 
    private:
        // members
