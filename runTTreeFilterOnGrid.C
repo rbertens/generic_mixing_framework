@@ -74,7 +74,7 @@ void runTTreeFilterOnGrid() {
     gROOT->LoadMacro("AliAnalysisTaskTTreeFilter.cxx+");
 
     // load the addtask
-    gROOT->LoadMacro("../add_task_macros/AddTaskTTreeFilter.C");
+    gROOT->LoadMacro("add_task_macros/AddTaskTTreeFilter.C");
 
     // launch the task
     AddTaskTTreeFilter();

@@ -9,10 +9,10 @@ void readTTree()
     gSystem->AddIncludePath("-I$ALICE_ROOT -I$ALICE_ROOT/include -I$ALICE_PHYSICS/include");
  
     // compile the encapsulated classes
-    gROOT->LoadMacro("filter/AliGMFTTreeHeader.cxx+");
-    gROOT->LoadMacro("filter/AliGMFTTreeTrack.cxx+");
-    gROOT->LoadMacro("reader/AliGMFEventContainer.cxx+");
-    gROOT->LoadMacro("reader/AliGMFEventReader.cxx+");
+    gROOT->LoadMacro("AliGMFTTreeHeader.cxx+");
+    gROOT->LoadMacro("AliGMFTTreeTrack.cxx+");
+    gROOT->LoadMacro("AliGMFEventContainer.cxx+");
+    gROOT->LoadMacro("AliGMFEventReader.cxx+");
 
     TChain* myChain = new TChain("tree");
     myChain->Add("myFilteredTree.root");

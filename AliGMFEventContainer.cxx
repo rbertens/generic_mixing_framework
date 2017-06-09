@@ -3,8 +3,8 @@
 
 // custom includes
 #include "AliGMFEventContainer.h"
-#include "../filter/AliGMFTTreeHeader.h"
-#include "../filter/AliGMFTTreeTrack.h"
+#include "AliGMFTTreeHeader.h"
+#include "AliGMFTTreeTrack.h"
 
 ClassImp(AliGMFEventContainer)
 

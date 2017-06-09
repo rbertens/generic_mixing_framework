@@ -17,10 +17,10 @@
 #include "TFile.h"
 #include "TMath.h"
 
-#include "reader/AliGMFEventContainer.h"
-#include "filter/AliGMFTTreeTrack.h"
-#include "jetfinder/AliGMFDummyJetFinder.h"
-#include "tools/AliGMFHistogramManager.h"
+#include "AliGMFEventContainer.h"
+#include "AliGMFTTreeTrack.h"
+#include "AliGMFDummyJetFinder.h"
+#include "AliGMFHistogramManager.h"
 
 ClassImp(AliGMFDummyJetFinder)
 

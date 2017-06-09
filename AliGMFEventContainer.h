@@ -6,7 +6,7 @@
 
 #include "TClonesArray.h"
 #include "TObject.h"
-#include "filter/AliGMFTTreeTrack.h"
+#include "AliGMFTTreeTrack.h"
 
 
 //forward declarations

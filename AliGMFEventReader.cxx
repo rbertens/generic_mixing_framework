@@ -1,8 +1,8 @@
 // event reader class
 #include "AliGMFEventReader.h"
 #include "AliGMFEventContainer.h"
-#include "../filter/AliGMFTTreeTrack.h"
-#include "../filter/AliGMFTTreeHeader.h"
+#include "AliGMFTTreeTrack.h"
+#include "AliGMFTTreeHeader.h"
 
 #include "TChain.h"
 #include "TClonesArray.h"
