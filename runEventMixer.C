@@ -13,23 +13,24 @@ void runEventMixer()
     gROOT->LoadMacro("AliGMFTTreeTrack.cxx+");
     gROOT->LoadMacro("AliGMFEventContainer.cxx+");
     gROOT->LoadMacro("AliGMFEventReader.cxx+");
+    gROOT->LoadMacro("AliGMFMixingManager.cxx+");
 
+    // define the input chain and create an event reader
     TChain* myChain = new TChain("tree");
     myChain->Add("myFilteredTree.root");
-    // add more files if desired, e.g. per class
-
-    // initialize the reader and manipulate the events
     AliGMFEventReader* reader = new AliGMFEventReader(myChain);
 
-    // etc, this of course will go in the mixing class
- 
-    for (int i = 0 ; i < 5; i ++) {
-        reader->GetEvent(i)->PrintEventSummary();
-    }
-    reader->TouchEvent(1);
-   // reader->TouchEvent(3);
-    for (int i = 0 ; i < 5; i ++) {
-        reader->GetEvent(i)->PrintEventSummary();
-    }
+    // create the mixer and connect the input event reader
+    AliGMFMixingManager* mixer = new AliGMFMixingManager();
+    mixer->SetEventReader(reader);
 
+    // configure the mixer
+    mixer->SetMultiplicityRange(5,10);  // purpusefully low
+    mixer->SetVertexRange(-5, 5);
+    mixer->SetEventPlaneRange(-10, 10);
+
+    // run the mixer
+    mixer->DoPerChunkMixing();
+
+    // sit back and enjoy the results
 }

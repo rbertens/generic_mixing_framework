@@ -16,7 +16,7 @@ class AliGMFEventContainer;
 
 class AliGMFMixingManager : public TObject {
 
-
+   
  public:
     AliGMFMixingManager();
 
@@ -29,7 +29,7 @@ class AliGMFMixingManager : public TObject {
         fMultiplicityMin = min;
         fMultiplicityMax = max;
     }
-    void SetVertexrange(Float_t min, Float_t max) {
+    void SetVertexRange(Float_t min, Float_t max) {
         fVertexMin = min;
         fVertexMax = max;
                 }
@@ -46,11 +46,13 @@ class AliGMFMixingManager : public TObject {
     Bool_t      FillMixingCache();
     void        FlushMixingCache();
     void        StageCachedEvent(Int_t i);
-    AliGMFTTreeTrack*   GetNextCachedTrackFromEvent();
-
+    AliGMFTTreeTrack*   GetNextTrackFromEvent(Int_t i);
+    void        CreateNewEvent();
+    void        PushToTTree();
+    void        Finish();
 
     Int_t       fMultiplicityMin;   // minimum multiplicity
-    Int_t       fMultipicityMax;    // maximum multiplicity
+    Int_t       fMultiplicityMax;   // maximum multiplicity
     Float_t     fVertexMin;         // minimum vertexz
     Float_t     fVertexMax;         // maximum vertexz
     Float_t     fEventPlaneMin;     // minimum event plane angle
@@ -59,7 +61,7 @@ class AliGMFMixingManager : public TObject {
 
     // data structures for mixed event output
     TTree*                      fTree;                  //! output data
-    AliGMFTTreeHeader           fEvent;                 //! event header
+    AliGMFTTreeHeader*          fEvent;                 //! event header
     AliGMFEventContainer*       fBufferedEvent;         //! buffered real event 
     TClonesArray*               fTrackArray;            //! track container
     TFile*                      fOutputFile;            //! output file

@@ -35,6 +35,7 @@ class AliGMFEventContainer : public TObject {
 
        Int_t                    GetMultiplicity()       { return GetNumberOfTracks(); }
        Float_t                  GetEventPlane()         { return fHeader->GetEventPlane(); }
+       Float_t                  GetZvtx()               { return fHeader->GetZvtx(); }
        
 
    private:

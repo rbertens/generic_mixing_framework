@@ -2,8 +2,8 @@
 #define COMPRESSION_LEVEL 1 
 #endif
 
-#ifndef AliGMFTTreeEVENT_H
-#define AliGMFTTreeEVENT_H
+#ifndef AliGMFTTreeHeader_H
+#define AliGMFTTreeHeader_H
 
 #include <TObject.h>
 

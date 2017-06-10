@@ -1,4 +1,4 @@
- // author: redmer alexander bertens (rbertnens@cern.ch)
+ // author: redmer alexander bertens (rbertens@cern.ch)
 
 #include "TFile.h"
 #include "TClonesArray.h"
@@ -15,27 +15,28 @@
 
 ClassImp(AliGMFMixingManager);
 
-AliGMFMixingManager::AliGMFTrackCuts() : TObject(),
+//_____________________________________________________________________________
+AliGMFMixingManager::AliGMFMixingManager() : TObject(),
     fMultiplicityMin(1), 
-    fMultipicityMax(-1),
+    fMultiplicityMax(-1),
     fVertexMin(1),
-    fVertexMax(-1)    
+    fVertexMax(-1),
     fEventPlaneMin(1),
     fEventPlaneMax(-1),
-    fTree(0x0),
+    fTree(0x0),/*
     fEvent(0x0),
-    fBufferedEvent(0x0),  
+    fBufferedEvent(0x0), 
     fTrackArray(0x0),
     fOutputFile(0x0),
     fEventCache(0x0),
     fTrackCache(0x0),
-    fEventReader(0x0),
+    fEventReader(0x0),*/
     fGlobalBufferPosition(0)
 {
   // default constructor
 }
 //_____________________________________________________________________________
-Bool_t Initialize() {
+Bool_t AliGMFMixingManager::Initialize() {
 
     fOutputFile = new TFile("myMixedEvents.root", "RECREATE");
 
@@ -49,7 +50,7 @@ Bool_t Initialize() {
 
 }
 //_____________________________________________________________________________
-void InitializeMixingCache() {
+void AliGMFMixingManager::InitializeMixingCache() {
     // the mixing is performed 'per chunk' of M events, where M corresponds to the maximum multiplicity of
     // the mixed classes . in a first step, we go through the input chain, and check which events in the input
     // chain fulfill our mixing criteria
@@ -61,7 +62,7 @@ void InitializeMixingCache() {
     fTrackCache = new TArrayI(fMultiplicityMax);
 }
 //_____________________________________________________________________________
-Bool_t FillMixingCache() {
+Bool_t AliGMFMixingManager::FillMixingCache() {
     // go through the events in the reader until we've found M events that
     // can be used for mixing, caching the index numbers of the eligible events
     // we start at the buffer position
@@ -73,13 +74,13 @@ Bool_t FillMixingCache() {
     // first flush the current cache
     FlushMixingCache();
 
-    while ((currentEvent = fReader->GetEvent(fGlobalBufferPosition))) {
+    while ((currentEvent = fEventReader->GetEvent(fGlobalBufferPosition))) {
 
         // the buffer position moves with each event 
         fGlobalBufferPosition++;
         if(IsSelected(currentEvent)) {
             // if an event is selected for mixing, cache its index
-            fEventCache->AddAt(iCache, fGlobalBufferPosition);
+            fEventCache->AddAt(fGlobalBufferPosition, iCache);
             iCache++;
         }
         // if the cache is full, break the loop
@@ -92,7 +93,7 @@ Bool_t FillMixingCache() {
 //_____________________________________________________________________________
 void AliGMFMixingManager::StageCachedEvent(Int_t i) {
     // retrieve the i-th good event and put it in the event buffer 
-    fBufferedEvent = fReader->GetEvent(fEventCache->At(i));
+    fBufferedEvent = fEventReader->GetEvent(fEventCache->At(i));
 }
 //_____________________________________________________________________________
 AliGMFTTreeTrack* AliGMFMixingManager::GetNextTrackFromEvent(Int_t i) {
@@ -111,14 +112,17 @@ AliGMFTTreeTrack* AliGMFMixingManager::GetNextTrackFromEvent(Int_t i) {
     return track;
 }
 //_____________________________________________________________________________
-void FlushMixingCache() {
+void AliGMFMixingManager::FlushMixingCache() {
     // clean out the cache
     fTrackCache->Reset(0);
 }
 //_____________________________________________________________________________
-Int_t DoPerChunkMixing() {
+Int_t AliGMFMixingManager::DoPerChunkMixing() {
     // the heart of this manager
 
+    // 0) general initialization
+    Initialize();
+    
     // 1) initialize the mixing cache
     InitializeMixingCache();
 
@@ -137,41 +141,32 @@ Bool_t AliGMFMixingManager::IsSelected(AliGMFEventContainer* event) {
     // check if this event meets the criteria for mixing
     if(!event) return kFALSE;
     if(event->GetZvtx() < fVertexMin || event->GetZvtx() > fVertexMax) return kFALSE;
-    if(event->GetMultiplicity() > fMultipicityMax || event->GetMultiplicity() < fMultiplicityMin) return kFALSE;
-    if(event->GetEventPlane() > fEventPlaneMin || event->GetEventPlane() < fEventPlaneMin()) return kFALSE;
+    if(event->GetMultiplicity() > fMultiplicityMax || event->GetMultiplicity() < fMultiplicityMin) return kFALSE;
+    if(event->GetEventPlane() > fEventPlaneMin || event->GetEventPlane() < fEventPlaneMin) return kFALSE;
 
     // if it doesn't fail, it passes :)
     return kTRUE;
 }
 //_____________________________________________________________________________
-Bool_t AliGMFMixingManager::CreateNewEvent() 
+void AliGMFMixingManager::CreateNewEvent() 
 {
 
     // store some faux info
     fEvent->SetZvtx(.5*(fVertexMin+fVertexMax));
     fEvent->SetEventPlane(.5*(fEventPlaneMin+fEventPlaneMax));
-    // parse the tracks
-    ParseTracks(event);
-
+    
+    // and then get the tracks
+    AliGMFTTreeTrack* track(0x0);
+    for(Int_t i(0); i < fMultiplicityMin; i++) {
+        track = GetNextTrackFromEvent(i);
+        AliGMFTTreeTrack* mixedTrack = new((*fTrackArray)[i]) AliGMFTTreeTrack();
+        mixedTrack->SetPt(track->GetPt());
+        mixedTrack->SetEta(track->GetEta());
+        mixedTrack->SetPhi(track->GetPhi());
+        mixedTrack->SetCharge(track->GetCharge());
+    }
     // write the tree and perform cleanup
     PushToTTree();
-    return kTRUE;
-}
-//_____________________________________________________________________________
-void AliGMFMixingManager::ParseTracks()
-{
-    // parse tracks
-    AliGMFTTreeTrack* track(0x0);
-
-    for(Int_t i(0), i < fMultiplicityMin; i++) {
-        // then stage a track
-        track = GetNextCachedTrackFromEvent(i);
-        AliGMFTTreeTrack* acceptedTrack = new((*fTrackArray)[acceptedTracks]) AliGMFTTreeTrack();
-        acceptedTrack->SetPt(track->Pt());
-        acceptedTrack->SetEta(track->Eta());
-        acceptedTrack->SetPhi(track->Phi());
-        acceptedTrack->SetCharge(track->Charge());
-    }
 }
 //_____________________________________________________________________________
 void AliGMFMixingManager::PushToTTree()
