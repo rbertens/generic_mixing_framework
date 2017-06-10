@@ -43,6 +43,7 @@ Bool_t AliGMFDummyJetFinder::Initialize() {
    
    // create the histograms (for now here)
    fHistogramManager->BookTH1F("fHistJetPt", "p_{T}^{jet}", 100, 0, 100);
+   fHistogramManager->BookTH1F("fHistMultiplicity", "track multiplicity", 1000, 0, 2000);
    fHistogramManager->BookTH1F("fHistRho", "#rho", 100, 0, 150);
    fHistogramManager->BookTH2F("fHistJetPtArea", "p_{T}^{jet}", "area", 100, 0, 100, 100, 0, 1);
    fHistogramManager->BookTH2F("fHistJetEtaPhi", "#eta^{jet}", "#phi^{jet}", 100, -1, 1, 100, 0, TMath::TwoPi());
@@ -59,6 +60,10 @@ Bool_t AliGMFDummyJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
     std::vector <fastjet::PseudoJet> fjInputVector;
     AliGMFTTreeTrack* track(0x0);
     Double_t totalE;
+
+
+    // store some event info
+    fHistogramManager->Fill("fHistMultiplicity", event->GetNumberOfTracks());
 
     for(Int_t i(0); i < event->GetNumberOfTracks(); i++) {
         track = event->GetTrack(i);

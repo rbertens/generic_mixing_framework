@@ -29,7 +29,7 @@ class AliGMFTTreeHeader : public TObject{
 
   Int_t         GetEventID() const      {return fEventID;}
   Bool_t        GetUsed() const         {return fUsed;}
-  Short_t       SetMultiplicity() const {return fMultiplicity;}
+  Short_t       GetMultiplicity() const {return fMultiplicity;}
 
  private:
   // first the persistent members are listed. these are written to disk

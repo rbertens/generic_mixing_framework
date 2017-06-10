@@ -7,10 +7,9 @@
 #include "TClonesArray.h"
 #include "TObject.h"
 #include "AliGMFTTreeTrack.h"
-
+#include "AliGMFTTreeHeader.h"
 
 //forward declarations
-class AliGMFTTreeHeader;
 class AliGMFTTreeTrack;
 
 class AliGMFEventContainer : public TObject {
@@ -33,6 +32,10 @@ class AliGMFEventContainer : public TObject {
        // interface
        Int_t                    GetNumberOfTracks()     { return fTracks->GetEntries();}
        AliGMFTTreeTrack*        GetTrack(Int_t i)       { return static_cast<AliGMFTTreeTrack*>(fTracks->At(i));}
+
+       Int_t                    GetMultiplicity()       { return GetNumberOfTracks(); }
+       Float_t                  GetEventPlane()         { return fHeader->GetEventPlane(); }
+       
 
    private:
        // members
