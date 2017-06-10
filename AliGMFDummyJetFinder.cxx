@@ -103,8 +103,10 @@ Bool_t AliGMFDummyJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
         for(UInt_t i(0); i < constituents.size(); i++) {
             if(constituents[i].perp() > maxpt) maxpt = constituents[i].perp();
         }
+        // check jet area and constituent requirement
         if(maxpt < fLeadingHadronPt) continue;
-
+        if(inclusiveJets[iJet].area() < .56*TMath::Pi()*fJetResolution*fJetResolution) continue;
+        
         fHistogramManager->Fill(
                 "fHistJetPt", 
                 inclusiveJets[iJet].perp()

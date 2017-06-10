@@ -1,0 +1,35 @@
+void runEventMixer()
+{
+
+    // example macro to read data from a ttree and perform simple analysis
+    // author: Redmer Alexander Bertens (rbertens@cern.ch)
+
+    // include paths, necessary for compilation
+    gSystem->AddIncludePath("-Wno-deprecated");
+    gSystem->AddIncludePath("-I$ALICE_ROOT -I$ALICE_ROOT/include -I$ALICE_PHYSICS/include");
+ 
+    // compile the encapsulated classes
+    gROOT->LoadMacro("AliGMFTTreeHeader.cxx+");
+    gROOT->LoadMacro("AliGMFTTreeTrack.cxx+");
+    gROOT->LoadMacro("AliGMFEventContainer.cxx+");
+    gROOT->LoadMacro("AliGMFEventReader.cxx+");
+
+    TChain* myChain = new TChain("tree");
+    myChain->Add("myFilteredTree.root");
+    // add more files if desired, e.g. per class
+
+    // initialize the reader and manipulate the events
+    AliGMFEventReader* reader = new AliGMFEventReader(myChain);
+
+    // etc, this of course will go in the mixing class
+ 
+    for (int i = 0 ; i < 5; i ++) {
+        reader->GetEvent(i)->PrintEventSummary();
+    }
+    reader->TouchEvent(1);
+   // reader->TouchEvent(3);
+    for (int i = 0 ; i < 5; i ++) {
+        reader->GetEvent(i)->PrintEventSummary();
+    }
+
+}
