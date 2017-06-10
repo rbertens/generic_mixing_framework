@@ -33,7 +33,7 @@ void runTTreeFilterOnGrid() {
     for(int i = firstrun; i < lastrun; i++) alienHandler->AddRunNumber(runs[i]);
 
     alienHandler->SetDefaultOutputs();
-    alienHandler->SetAnalysisMacro("PhiV2.C");
+    alienHandler->SetAnalysisMacro("TTreeFilterOnGrid.C");
     alienHandler->SetSplitMaxInputFileNumber(40);
     alienHandler->SetExecutable("runTTreeFilterOnGrid.sh");
     alienHandler->SetTTL(10000);

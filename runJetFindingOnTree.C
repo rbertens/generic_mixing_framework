@@ -25,7 +25,7 @@ void runJetFindingOnTree()
     gROOT->LoadMacro("AliGMFEventReader.cxx+");
 
     // compile the jet finding classes
-    gROOT->LoadMacro("jetfinder/AliGMFDummyJetFinder.cxx+");
+    gROOT->LoadMacro("AliGMFDummyJetFinder.cxx+");
 
     TChain* myChain = new TChain("tree");
     myChain->Add("myFilteredTree.root");
@@ -38,8 +38,20 @@ void runJetFindingOnTree()
     AliGMFDummyJetFinder* jetFinder = new AliGMFDummyJetFinder();
     jetFinder->Initialize();    // tbd pass enum on configuration
 
-    for (int i = 0 ; i < reader->GetNumberOfEvents(); i ++) {
+    TStopwatch timer;
+    timer.Start();
+    
+    Int_t iEvents = reader->GetNumberOfEvents();
+    Float_t remainingTime = -1;
+
+    for (int i = 0 ; i < iEvents; i ++) {
         jetFinder->AnalyzeEvent(reader->GetEvent(i));
+        if(i%10 == 0) cout << " Processed event " << i << "\r"; cout.flush();
+        if(i==100) {
+            remainingTime = timer.RealTime()/100.;
+            cout << "remaining time (min) approximately " << remainingTime*(iEvents-i)/60. << endl;
+        } else if (i > 0 && i%1000 == 0) cout << " remaining time (min) approximately " << remainingTime*(iEvents-i)/60. << endl; 
+
     }
 
     // write and clear memory
