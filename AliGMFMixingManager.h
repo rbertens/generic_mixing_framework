@@ -5,36 +5,71 @@
 
 #include "AliGMFEventContainer.h"
 
+class TTree;
+class AliGMFTTreeHeader;
+class AliGMFTTreeTrack;
+class TClonesArray;
+class TFile;
+class TArrayI;
+class AliGMFEventReader;
+class AliGMFEventContainer;
+
 class AliGMFMixingManager : public TObject {
+
 
  public:
     AliGMFMixingManager();
-    Bool_t IsSelected(AliGMFEventContainer* event);
 
+    // core functions
+    Bool_t      Initialize();
+    Int_t       DoPerChunkMixing();
 
     // setters
-    SetMultiplicityRange(Int_t min, Int_t max) {
+    void SetMultiplicityRange(Int_t min, Int_t max) {
         fMultiplicityMin = min;
         fMultiplicityMax = max;
     }
-    SetVertexrange(Float_t min, Float_t max) {
+    void SetVertexrange(Float_t min, Float_t max) {
         fVertexMin = min;
         fVertexMax = max;
                 }
-    SetEventPlaneRange(Float_t min, Float_t max) {
+    void SetEventPlaneRange(Float_t min, Float_t max) {
         fEventPlaneMin = min;
         fEventPlaneMax = max;
     }
+    void SetEventReader(AliGMFEventReader* r)   {fEventReader = r;}
 
  private:
-    fMultiplicityMin;   // minimum multiplicity
-    fMultipicityMax;    // maximum multiplicity
-    fVertexMin;         // minimum vertexz
-    fVertexMax;         // maximum vertexz
-    fEventPlaneMin;     // minimum event plane angle
-    fEventPlaneMax;     // maximum event plane angle
+
+    Bool_t      IsSelected(AliGMFEventContainer* event);
+    void        InitializeMixingCache();
+    Bool_t      FillMixingCache();
+    void        FlushMixingCache();
+    void        StageCachedEvent(Int_t i);
+    AliGMFTTreeTrack*   GetNextCachedTrackFromEvent();
 
 
+    Int_t       fMultiplicityMin;   // minimum multiplicity
+    Int_t       fMultipicityMax;    // maximum multiplicity
+    Float_t     fVertexMin;         // minimum vertexz
+    Float_t     fVertexMax;         // maximum vertexz
+    Float_t     fEventPlaneMin;     // minimum event plane angle
+    Float_t     fEventPlaneMax;     // maximum event plane angle
+
+
+    // data structures for mixed event output
+    TTree*                      fTree;                  //! output data
+    AliGMFTTreeHeader           fEvent;                 //! event header
+    AliGMFEventContainer*       fBufferedEvent;         //! buffered real event 
+    TClonesArray*               fTrackArray;            //! track container
+    TFile*                      fOutputFile;            //! output file
+
+    TArrayI*                    fEventCache;            //! event cache
+    TArrayI*                    fTrackCache;            //! track cache
+
+    // misc
+    AliGMFEventReader*          fEventReader;           // event reader
+    Int_t                       fGlobalBufferPosition;  //! global buffer position
 
     ClassDef(AliGMFMixingManager, 1);
 

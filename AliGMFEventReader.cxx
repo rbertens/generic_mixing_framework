@@ -65,6 +65,7 @@ void AliGMFEventReader::MoveChainBufferTo(Int_t i) {
 //-----------------------------------------------------------------------------
 AliGMFEventContainer* AliGMFEventReader::GetEvent(Int_t i) {
     // provide a container that points to the ith event in the chain
+    if( i-1 > GetNumberOfEvents()) return 0x0;
     MoveChainBufferTo(i);
     if(!fEventContainer) {
         fEventContainer = new AliGMFEventContainer(fHeader, fTracks, i);
