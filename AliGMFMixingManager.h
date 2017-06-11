@@ -13,6 +13,7 @@ class TFile;
 class TArrayI;
 class AliGMFEventReader;
 class AliGMFEventContainer;
+class AliGMFHistogramManager;
 
 class AliGMFMixingManager : public TObject {
 
@@ -38,16 +39,16 @@ class AliGMFMixingManager : public TObject {
         fEventPlaneMax = max;
     }
     void SetEventReader(AliGMFEventReader* r)   {fEventReader = r;}
+    void DoQA();
 
  private:
 
     Bool_t      IsSelected(AliGMFEventContainer* event);
     void        InitializeMixingCache();
     Bool_t      FillMixingCache();
-    void        FlushMixingCache();
     void        StageCachedEvent(Int_t i);
     AliGMFTTreeTrack*   GetNextTrackFromEvent(Int_t i);
-    void        CreateNewEvent();
+    void        CreateNewEventChunk();
     void        PushToTTree();
     void        Finish();
 
@@ -67,11 +68,12 @@ class AliGMFMixingManager : public TObject {
     TFile*                      fOutputFile;            //! output file
 
     TArrayI*                    fEventCache;            //! event cache
-    TArrayI*                    fTrackCache;            //! track cache
 
     // misc
     AliGMFEventReader*          fEventReader;           // event reader
     Int_t                       fGlobalBufferPosition;  //! global buffer position
+    Int_t                       fTrackCacheLexer;       //! 'walks' trough the track cache 
+    AliGMFHistogramManager*     fQAManager;             // run QA 
 
     ClassDef(AliGMFMixingManager, 1);
 

@@ -13,6 +13,7 @@ void runEventMixer()
     gROOT->LoadMacro("AliGMFTTreeTrack.cxx+");
     gROOT->LoadMacro("AliGMFEventContainer.cxx+");
     gROOT->LoadMacro("AliGMFEventReader.cxx+");
+    gROOT->LoadMacro("AliGMFHistogramManager.cxx+");
     gROOT->LoadMacro("AliGMFMixingManager.cxx+");
 
     // define the input chain and create an event reader
@@ -25,9 +26,10 @@ void runEventMixer()
     mixer->SetEventReader(reader);
 
     // configure the mixer
-    mixer->SetMultiplicityRange(5,10);  // purpusefully low
+    mixer->SetMultiplicityRange(100, 200);
     mixer->SetVertexRange(-5, 5);
     mixer->SetEventPlaneRange(-10, 10);
+    mixer->DoQA();
 
     // run the mixer
     mixer->DoPerChunkMixing();
