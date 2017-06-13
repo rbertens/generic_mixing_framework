@@ -39,13 +39,13 @@ Bool_t AliGMFEventReader::Initialize() {
         return kFALSE;
     }
 
-    TBranch* eventBranch = fInputChain->GetBranch("event");
-    eventBranch->SetAddress(&fHeader);
-    eventBranch->SetAutoDelete(kTRUE);
-
-    TBranch* trackBranch = fInputChain->GetBranch("track");
-    trackBranch->SetAddress(&fTracks);
-    trackBranch->SetAutoDelete(kTRUE);
+    Int_t check(0);
+    check += fInputChain->GetBranchAddress("event", &fHeader);
+    check += fInputChain->GetBranchAddress("track", &fTracks);
+    if(check%5!=0) {
+        printf(" Warning, input file has unexpected structure \n ");
+        return kFALSE;
+    }
     
     return kTRUE;
 }
