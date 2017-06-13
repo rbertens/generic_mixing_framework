@@ -12,6 +12,7 @@ class AliGMFTTreeTrack : public TObject {
     public:
 
         AliGMFTTreeTrack();
+        void       Fill(AliGMFTTreeTrack* track);
 
         void       SetPt(Float_t pt)                {fPt =          pt;}
         void       SetEta(Float_t eta)              {fEta =         eta;}
@@ -23,6 +24,7 @@ class AliGMFTTreeTrack : public TObject {
         Float_t    GetEta() const                   {return fEta;}
         Float_t    GetPhi() const                   {return fPhi;}
         Float_t    GetCharge() const                {return fCharge;}
+        Bool_t     GetUsed() const                  {return fUsed;}
 
     private:
 #if COMPRESSION_LEVEL > 1

@@ -13,7 +13,7 @@ class AliGMFDummyJetFinder : public TObject {
         // 'task' type members
         Bool_t Initialize();
         Bool_t AnalyzeEvent(AliGMFEventContainer* event);
-        Bool_t Finalize();
+        Bool_t Finalize(TString name);
 
         // setters
         void    DoBackgroundSubtraction(Bool_t b)       { fDoBackgroundSubtraction = b; }

@@ -30,11 +30,11 @@ AliGMFMixingManager::AliGMFMixingManager() : TObject(),
     fBufferedEvent(0x0), 
     fTrackArray(0x0),
     fOutputFile(0x0),
-    fEventCache(0x0),
     fEventReader(0x0),
     fGlobalBufferPosition(0),
     fTrackCacheLexer(0),
-    fQAManager(0x0)
+    fQAManager(0x0),
+    fEventCache(0x0)
 {
   // default constructor
 }
@@ -61,10 +61,10 @@ Bool_t AliGMFMixingManager::Initialize() {
 
     fTree = new TTree("tree", "Event data");
     fEvent = new AliGMFTTreeHeader();
-    fTree->Branch("event", &fEvent);
+    fTree->Branch("mixedEvent", &fEvent);
 
     fTrackArray = new TClonesArray("AliGMFTTreeTrack", 1000);
-    fTree->Bronch("track", "TClonesArray", &fTrackArray); 
+    fTree->Bronch("mixedTrack", "TClonesArray", &fTrackArray); 
 
 
 }
@@ -72,12 +72,21 @@ Bool_t AliGMFMixingManager::Initialize() {
 void AliGMFMixingManager::InitializeMixingCache() {
     // the mixing is performed 'per chunk' of M events, where M corresponds to the maximum multiplicity of
     // the mixed classes . in a first step, we go through the input chain, and check which events in the input
-    // chain fulfill our mixing criteria
-    // these are stored the first in the 'cache' as a bookkeeping utility
+    // chain fulfill our mixing criteria, these are stored the first in the 'cache' as a bookkeeping utility
+    // memory for this is allocated in this routine
 
     if(fMultiplicityMax < 1) AliFatal(" Maximum multiplicity is too low \n");
 
-    fEventCache = new TArrayI(fMultiplicityMax);
+    fEventCache = new TObjArray(fMultiplicityMax, 0);
+    fEventCache->SetOwner(kTRUE);
+
+    for(Int_t i(0); i < fMultiplicityMax; i++) {
+        fEventCache->AddAt(new AliGMFEventContainer(
+                    new AliGMFTTreeHeader(),
+                    new TClonesArray("AliGMFTTreeTrack", fMultiplicityMax),
+                    i), // this is the container ID
+                    i); // this is the iterator of the object array
+    }
 }
 //_____________________________________________________________________________
 Bool_t AliGMFMixingManager::FillMixingCache() {
@@ -87,14 +96,16 @@ Bool_t AliGMFMixingManager::FillMixingCache() {
     
     AliGMFTTreeTrack* track(0x0);
     AliGMFEventContainer* currentEvent(0x0);
+    AliGMFEventContainer* cachedEvent(0x0);
     Int_t iCache(0);
 
     while ((currentEvent = fEventReader->GetEvent(fGlobalBufferPosition))) {
         // the buffer position moves with each event 
         fGlobalBufferPosition++;
         if(IsSelected(currentEvent)) {
-            // if an event is selected for mixing, cache its index
-            fEventCache->AddAt(fGlobalBufferPosition, iCache);
+            // this event meets out criteria, we make a local copy of it to the cache
+            cachedEvent = static_cast<AliGMFEventContainer*>(fEventCache->At(iCache));
+            cachedEvent->Fill(currentEvent);
             iCache++;
             if(fQAManager) {
                 fQAManager->Fill("fHistAcceptedMultiplicity", currentEvent->GetMultiplicity());
@@ -122,7 +133,7 @@ Bool_t AliGMFMixingManager::FillMixingCache() {
 //_____________________________________________________________________________
 void AliGMFMixingManager::StageCachedEvent(Int_t i) {
     // retrieve the i-th good event and put it in the event buffer 
-    fBufferedEvent = fEventReader->GetEvent(fEventCache->At(i));
+    fBufferedEvent = static_cast<AliGMFEventContainer*>(fEventCache->At(i));
 }
 //_____________________________________________________________________________
 AliGMFTTreeTrack* AliGMFMixingManager::GetNextTrackFromEvent(Int_t i) {
@@ -181,8 +192,6 @@ Bool_t AliGMFMixingManager::IsSelected(AliGMFEventContainer* event) {
 //_____________________________________________________________________________
 void AliGMFMixingManager::CreateNewEventChunk() 
 {
-
-   
     // and then get the tracks
     AliGMFTTreeTrack* track(0x0);
     Int_t iMixedTracks(0);

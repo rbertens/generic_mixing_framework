@@ -24,6 +24,7 @@ class AliGMFEventContainer : public TObject {
        void SetEvent(
                AliGMFTTreeHeader* header,
                TClonesArray* tracks, Int_t eventID);
+       Bool_t  Fill(AliGMFEventContainer* event);
 
        void SetUsed(Bool_t used);
 
@@ -36,6 +37,8 @@ class AliGMFEventContainer : public TObject {
        Int_t                    GetMultiplicity()       { return GetNumberOfTracks(); }
        Float_t                  GetEventPlane()         { return fHeader->GetEventPlane(); }
        Float_t                  GetZvtx()               { return fHeader->GetZvtx(); }
+       AliGMFTTreeHeader*       GetHeader()             { return fHeader;}
+       TClonesArray*            GetTracks()             { return fTracks;}
        
 
    private:

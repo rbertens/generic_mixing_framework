@@ -29,6 +29,21 @@ void AliGMFEventContainer::SetEvent(
     if(fHeader) fHeader->SetEventID(eventID);
 }
 //-----------------------------------------------------------------------------
+Bool_t AliGMFEventContainer::Fill(AliGMFEventContainer* event) {
+    // fill the current event with info from another event
+    if(!event) return kFALSE;
+
+    // fill the event header
+    fHeader->Fill(event->GetHeader());
+
+    // fill the tracks
+    for(Int_t i(0); i < event->GetNumberOfTracks(); i++) {
+        if(GetTrack(i) && event->GetTrack(i)) {
+            GetTrack(i)->Fill(event->GetTrack(i));
+        }
+    }
+}
+//-----------------------------------------------------------------------------
 void AliGMFEventContainer::SetUsed(Bool_t used) {
     // mark the header as read
     fHeader->SetUsed(used);

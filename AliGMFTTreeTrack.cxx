@@ -13,5 +13,14 @@ AliGMFTTreeTrack::AliGMFTTreeTrack() : TObject(),
 {
   // default constructor
 }
- 
+//_____________________________________________________________________________ 
 AliGMFTTreeTrack::~AliGMFTTreeTrack(){}
+//_____________________________________________________________________________
+void AliGMFTTreeTrack::Fill(AliGMFTTreeTrack* track) {
+    // fill current track with info from supplied track
+    fPt = track->GetPt();
+    fEta = track->GetEta();
+    fPhi = track->GetPhi();
+    fCharge = track->GetCharge();
+    fUsed = track->GetUsed();
+}

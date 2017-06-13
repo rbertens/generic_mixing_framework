@@ -12,6 +12,7 @@ class AliGMFTTreeHeader : public TObject{
  public:
 
   AliGMFTTreeHeader();
+  void  Fill(AliGMFTTreeHeader* event);
   
   // manipulators - persistent
   void  SetZvtx(Float_t Zvtx)           {fZvtx  = Zvtx;}

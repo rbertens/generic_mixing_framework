@@ -5,6 +5,7 @@
 #include "AliGMFTTreeHeader.h"
 
 #include "TChain.h"
+#include "TBranch.h"
 #include "TClonesArray.h"
 
 ClassImp(AliGMFEventReader)
@@ -38,15 +39,14 @@ Bool_t AliGMFEventReader::Initialize() {
         return kFALSE;
     }
 
-    // create pointers for the branches in the chain
-    Int_t check(0);
-    check += fInputChain->SetBranchAddress("event", &fHeader);
-    check += fInputChain->SetBranchAddress("track", &fTracks);
-    if(check%5!=0) {
-        printf(" Warning, input chain contains unexpected input \n");
-        return kFALSE;
-    }
+    TBranch* eventBranch = fInputChain->GetBranch("event");
+    eventBranch->SetAddress(&fHeader);
+    eventBranch->SetAutoDelete(kTRUE);
 
+    TBranch* trackBranch = fInputChain->GetBranch("track");
+    trackBranch->SetAddress(&fTracks);
+    trackBranch->SetAutoDelete(kTRUE);
+    
     return kTRUE;
 }
 

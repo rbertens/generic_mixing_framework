@@ -11,6 +11,7 @@ class AliGMFTTreeTrack;
 class TClonesArray;
 class TFile;
 class TArrayI;
+class TObjArray;
 class AliGMFEventReader;
 class AliGMFEventContainer;
 class AliGMFHistogramManager;
@@ -33,7 +34,7 @@ class AliGMFMixingManager : public TObject {
     void SetVertexRange(Float_t min, Float_t max) {
         fVertexMin = min;
         fVertexMax = max;
-                }
+    }
     void SetEventPlaneRange(Float_t min, Float_t max) {
         fEventPlaneMin = min;
         fEventPlaneMax = max;
@@ -67,13 +68,12 @@ class AliGMFMixingManager : public TObject {
     TClonesArray*               fTrackArray;            //! track container
     TFile*                      fOutputFile;            //! output file
 
-    TArrayI*                    fEventCache;            //! event cache
-
     // misc
     AliGMFEventReader*          fEventReader;           // event reader
     Int_t                       fGlobalBufferPosition;  //! global buffer position
     Int_t                       fTrackCacheLexer;       //! 'walks' trough the track cache 
     AliGMFHistogramManager*     fQAManager;             // run QA 
+    TObjArray*                  fEventCache;            // event cache 
 
     ClassDef(AliGMFMixingManager, 1);
 

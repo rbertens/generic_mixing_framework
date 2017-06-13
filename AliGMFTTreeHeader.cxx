@@ -15,3 +15,13 @@ AliGMFTTreeHeader::AliGMFTTreeHeader(): TObject(),
 
 //_________________________________________________________
 AliGMFTTreeHeader::~AliGMFTTreeHeader(){}
+
+//_____________________________________________________________________________
+void AliGMFTTreeHeader::Fill(AliGMFTTreeHeader* event) {
+   // fill current header with info from another header
+   fZvtx = event->GetZvtx();
+   fEventPlane = event->GetEventID();
+   fEventID = event->GetEventID();
+   fUsed = event->GetUsed();
+   fMultiplicity = event->GetMultiplicity();
+}
