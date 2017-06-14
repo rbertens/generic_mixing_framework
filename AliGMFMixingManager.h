@@ -1,3 +1,7 @@
+#ifndef VERBOSE
+#define VERBOSE 1
+#endif
+
 #ifndef AliGMFMixingManager_H
 #define AliGMFMixingManager_H
 
@@ -73,8 +77,8 @@ class AliGMFMixingManager : public TObject {
 
     // misc
     AliGMFEventReader*          fEventReader;           // event reader
-    Int_t                       fGlobalBufferPosition;  //! global buffer position
-    Int_t                       fTrackCacheLexer;       //! 'walks' trough the track cache 
+    Int_t                       fEventBufferPosition;   //! global buffer position
+    Int_t                       fTrackBufferPosition;   //! 'walks' trough the track cache 
     AliGMFHistogramManager*     fQAManager;             // run QA 
     TObjArray*                  fEventCache;            // event cache 
 

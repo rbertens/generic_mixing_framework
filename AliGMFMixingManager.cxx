@@ -1,4 +1,4 @@
- // author: redmer alexander bertens (rbertens@cern.ch)
+// author: redmer alexander bertens (rbertens@cern.ch)
 
 #include "TFile.h"
 #include "TClonesArray.h"
@@ -30,25 +30,23 @@ AliGMFMixingManager::AliGMFMixingManager() : TObject(),
     fBufferedEvent(0x0), 
     fTrackArray(0x0),
     fOutputFile(0x0),
-    fEventReader(0x0),
-    fGlobalBufferPosition(0),
-    fTrackCacheLexer(0),
+    fEventBufferPosition(0),
+    fTrackBufferPosition(0),
     fQAManager(0x0),
     fEventCache(0x0)
 {
-  // default constructor
+    // default constructor
 }
 //_____________________________________________________________________________
 AliGMFMixingManager::~AliGMFMixingManager() {
-    // class destructor
+    // class destructor - only delete what the manager allocates
     delete fTree;         
     delete fEvent;        
     delete fBufferedEvent;
     delete fTrackArray;   
     delete fOutputFile;   
-    delete fEventReader;  
     delete fQAManager;    
-    delete fEventCache;   
+    delete fEventCache;  
 }
 //_____________________________________________________________________________
 void AliGMFMixingManager::DoQA() {
@@ -80,6 +78,9 @@ Bool_t AliGMFMixingManager::Initialize() {
     fTrackArray = new TClonesArray("AliGMFTTreeTrack", 1000);
     fTree->Bronch("mixedTrack", "TClonesArray", &fTrackArray); 
 
+#if VERBOSE > 0
+    printf(" > %i events found ... this can take a while \n", fTree->GetEntries());
+#endif
 
 }
 //_____________________________________________________________________________
@@ -108,7 +109,7 @@ void AliGMFMixingManager::InitializeMixingCache() {
                     new AliGMFTTreeHeader(),
                     trackBuffer,
                     i), // this is the container ID
-                    i); // this is the iterator of the object array
+                i); // this is the iterator of the object array
     }
 }
 //_____________________________________________________________________________
@@ -116,15 +117,15 @@ Bool_t AliGMFMixingManager::FillMixingCache() {
     // go through the events in the reader until we've found M events that
     // can be used for mixing, caching the index numbers of the eligible events
     // we start at the buffer position
-    
+
     AliGMFTTreeTrack* track(0x0);
     AliGMFEventContainer* currentEvent(0x0);
     AliGMFEventContainer* cachedEvent(0x0);
     Int_t iCache(0);
 
-    while ((currentEvent = fEventReader->GetEvent(fGlobalBufferPosition))) {
+    while ((currentEvent = fEventReader->GetEvent(fEventBufferPosition))) {
         // the buffer position moves with each event 
-        fGlobalBufferPosition++;
+        fEventBufferPosition++;
         if(IsSelected(currentEvent)) {
             // this event meets out criteria, we make a local copy of it to the cache
             cachedEvent = static_cast<AliGMFEventContainer*>(fEventCache->At(iCache));
@@ -178,7 +179,7 @@ AliGMFTTreeTrack* AliGMFMixingManager::GetNextTrackFromEventI(Int_t i) {
     StageCachedEvent(i);
 
     // then retrieve the track buffer position for this track and get the track itself
-    AliGMFTTreeTrack* track(fBufferedEvent->GetTrack(fTrackCacheLexer));
+    AliGMFTTreeTrack* track(fBufferedEvent->GetTrack(fTrackBufferPosition));
 
     return track;
 
@@ -189,7 +190,7 @@ Int_t AliGMFMixingManager::DoPerChunkMixing() {
 
     // 0) general initialization
     Initialize();
-    
+
     // 1) initialize the mixing cache
     InitializeMixingCache();
 
@@ -197,15 +198,24 @@ Int_t AliGMFMixingManager::DoPerChunkMixing() {
     // 2) create new events, loop exits when end of true evens is reached
     //    mixing only starts when the buffer is 100% full
     //    produces chunks of M mixed events
+#if VERBOSE > 0
     Int_t i(0);
+#endif
+
     while(FillMixingCache()) {
         CreateNewEventChunk();
+#if VERBOSE > 0
         i+=fMultiplicityMin;
+        printf("   - created %i new events \n", i);
+#endif
+
     }
 
     // 3) write the tree to a file
     Finish();
+#if VERBOSE > 0
     printf(" Event mixer finished and should have written %i events and %i tracks \n", i, i*i);
+#endif
 }
 
 //_____________________________________________________________________________ 
@@ -239,7 +249,7 @@ void AliGMFMixingManager::CreateNewEventChunk()
     // and at the same time serves as event iterator
     // (in 'square' mixing, event i is created by sampling the i-th track
     // from all buffered events
-    for(fTrackCacheLexer = 0; fTrackCacheLexer < fMultiplicityMin; fTrackCacheLexer++) {
+    for(fTrackBufferPosition = 0; fTrackBufferPosition < fMultiplicityMin; fTrackBufferPosition++) {
         // bookkeep the total number of tracks that is added to the array
         iMixedTracks = 0;
         // enter the track loop

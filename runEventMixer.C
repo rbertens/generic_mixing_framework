@@ -19,8 +19,8 @@ void runEventMixer()
     // define the input chain and create an event reader
     TChain* myChain = new TChain("tree");
     myChain->Add("myFilteredTree.root");
+    cout << myChain->GetEntries() << endl;
     AliGMFEventReader* reader = new AliGMFEventReader(myChain);
-
     // create the mixer and connect the input event reader
     AliGMFMixingManager* mixer = new AliGMFMixingManager();
     mixer->SetEventReader(reader);
@@ -34,5 +34,9 @@ void runEventMixer()
     // run the mixer
     mixer->DoPerChunkMixing();
 
+    // cleanup
+    delete mixer;
+    delete myChain;
+    delete reader;
     // sit back and enjoy the results
 }
