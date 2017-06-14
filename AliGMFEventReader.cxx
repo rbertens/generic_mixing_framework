@@ -40,8 +40,8 @@ Bool_t AliGMFEventReader::Initialize() {
     }
 
     Int_t check(0);
-    check += fInputChain->GetBranchAddress("event", &fHeader);
-    check += fInputChain->GetBranchAddress("track", &fTracks);
+    check += fInputChain->SetBranchAddress("event", &fHeader);
+    check += fInputChain->SetBranchAddress("track", &fTracks);
     if(check%5!=0) {
         printf(" Warning, input file has unexpected structure \n ");
         return kFALSE;

@@ -21,6 +21,7 @@ class AliGMFMixingManager : public TObject {
    
  public:
     AliGMFMixingManager();
+    virtual     ~AliGMFMixingManager();
 
     // core functions
     Bool_t      Initialize();
@@ -48,7 +49,9 @@ class AliGMFMixingManager : public TObject {
     void        InitializeMixingCache();
     Bool_t      FillMixingCache();
     void        StageCachedEvent(Int_t i);
-    AliGMFTTreeTrack*   GetNextTrackFromEvent(Int_t i);
+    void        FillHeaderWithCachedEventInfo();
+    AliGMFTTreeTrack*   GetNextTrackFromEventI(Int_t i);
+    AliGMFTTreeTrack*   GetRandomTrackFromEventI(Int_t i) {;}   // to be implemented
     void        CreateNewEventChunk();
     void        PushToTTree();
     void        Finish();

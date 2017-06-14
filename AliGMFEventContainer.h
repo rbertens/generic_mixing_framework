@@ -40,6 +40,7 @@ class AliGMFEventContainer : public TObject {
        AliGMFTTreeHeader*       GetHeader()             { return fHeader;}
        TClonesArray*            GetTracks()             { return fTracks;}
        
+       void                     Dump() const;
 
    private:
        // members

@@ -20,7 +20,7 @@ AliGMFTTreeHeader::~AliGMFTTreeHeader(){}
 void AliGMFTTreeHeader::Fill(AliGMFTTreeHeader* event) {
    // fill current header with info from another header
    fZvtx = event->GetZvtx();
-   fEventPlane = event->GetEventID();
+   fEventPlane = event->GetEventPlane();
    fEventID = event->GetEventID();
    fUsed = event->GetUsed();
    fMultiplicity = event->GetMultiplicity();

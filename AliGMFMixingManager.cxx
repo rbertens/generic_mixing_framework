@@ -39,6 +39,18 @@ AliGMFMixingManager::AliGMFMixingManager() : TObject(),
   // default constructor
 }
 //_____________________________________________________________________________
+AliGMFMixingManager::~AliGMFMixingManager() {
+    // class destructor
+    delete fTree;         
+    delete fEvent;        
+    delete fBufferedEvent;
+    delete fTrackArray;   
+    delete fOutputFile;   
+    delete fEventReader;  
+    delete fQAManager;    
+    delete fEventCache;   
+}
+//_____________________________________________________________________________
 void AliGMFMixingManager::DoQA() {
     // initialize the QA manager
     fQAManager = new AliGMFHistogramManager();
@@ -53,13 +65,15 @@ void AliGMFMixingManager::DoQA() {
     fQAManager->BookTH1F("fHistMixedPt", "#it{p}_{T} (GeV/c)", 100, 0, 10);
     fQAManager->BookTH1F("fHistMixedEta", "#eta", 100, -1, 1);
     fQAManager->BookTH1F("fHistMixedPhi", "#phi", 100, 0, TMath::TwoPi());
+    fQAManager->BookTH1F("fHistMixedVertex", "cm", 100, -12, 12);
+    fQAManager->BookTH1F("fHistMixedEventPlane", "#Psi", 100, -4, 4);
 }
 //_____________________________________________________________________________
 Bool_t AliGMFMixingManager::Initialize() {
 
     fOutputFile = new TFile("myMixedEvents.root", "RECREATE");
 
-    fTree = new TTree("tree", "Event data");
+    fTree = new TTree("tree", "mixed event data");
     fEvent = new AliGMFTTreeHeader();
     fTree->Branch("mixedEvent", &fEvent);
 
@@ -80,10 +94,19 @@ void AliGMFMixingManager::InitializeMixingCache() {
     fEventCache = new TObjArray(fMultiplicityMax, 0);
     fEventCache->SetOwner(kTRUE);
 
+
+
+
     for(Int_t i(0); i < fMultiplicityMax; i++) {
+        // allocate the track buffer
+        TClonesArray* trackBuffer = new TClonesArray("AliGMFTTreeTrack", fMultiplicityMax);
+        for(Int_t j(0); j < fMultiplicityMax; j++) {
+            new((*trackBuffer)[j]) AliGMFTTreeTrack();
+        }
+        // allocate full event buffer
         fEventCache->AddAt(new AliGMFEventContainer(
                     new AliGMFTTreeHeader(),
-                    new TClonesArray("AliGMFTTreeTrack", fMultiplicityMax),
+                    trackBuffer,
                     i), // this is the container ID
                     i); // this is the iterator of the object array
     }
@@ -134,9 +157,21 @@ Bool_t AliGMFMixingManager::FillMixingCache() {
 void AliGMFMixingManager::StageCachedEvent(Int_t i) {
     // retrieve the i-th good event and put it in the event buffer 
     fBufferedEvent = static_cast<AliGMFEventContainer*>(fEventCache->At(i));
+    FillHeaderWithCachedEventInfo();
 }
 //_____________________________________________________________________________
-AliGMFTTreeTrack* AliGMFMixingManager::GetNextTrackFromEvent(Int_t i) {
+void AliGMFMixingManager::FillHeaderWithCachedEventInfo() {
+    // as the function title suggests
+    if(fBufferedEvent) {
+        fEvent->SetZvtx(fBufferedEvent->GetZvtx());
+        fEvent->SetEventPlane(fBufferedEvent->GetEventPlane());
+        // and fill the qa hists
+        fQAManager->Fill("fHistMixedVertex", fBufferedEvent->GetZvtx());
+        fQAManager->Fill("fHistMixedEventPlane", fBufferedEvent->GetEventPlane());
+    }
+}
+//_____________________________________________________________________________
+AliGMFTTreeTrack* AliGMFMixingManager::GetNextTrackFromEventI(Int_t i) {
     // get the next track from the i-th cached event
 
     // first stage the i-th event
@@ -146,6 +181,7 @@ AliGMFTTreeTrack* AliGMFMixingManager::GetNextTrackFromEvent(Int_t i) {
     AliGMFTTreeTrack* track(fBufferedEvent->GetTrack(fTrackCacheLexer));
 
     return track;
+
 }
 //_____________________________________________________________________________
 Int_t AliGMFMixingManager::DoPerChunkMixing() {
@@ -161,12 +197,15 @@ Int_t AliGMFMixingManager::DoPerChunkMixing() {
     // 2) create new events, loop exits when end of true evens is reached
     //    mixing only starts when the buffer is 100% full
     //    produces chunks of M mixed events
+    Int_t i(0);
     while(FillMixingCache()) {
         CreateNewEventChunk();
+        i+=fMultiplicityMin;
     }
 
     // 3) write the tree to a file
     Finish();
+    printf(" Event mixer finished and should have written %i events and %i tracks \n", i, i*i);
 }
 
 //_____________________________________________________________________________ 
@@ -196,19 +235,24 @@ void AliGMFMixingManager::CreateNewEventChunk()
     AliGMFTTreeTrack* track(0x0);
     Int_t iMixedTracks(0);
 
+    // this outer loop only changes the gobal track index
+    // and at the same time serves as event iterator
+    // (in 'square' mixing, event i is created by sampling the i-th track
+    // from all buffered events
     for(fTrackCacheLexer = 0; fTrackCacheLexer < fMultiplicityMin; fTrackCacheLexer++) {
-        // store some faux info
-        fEvent->SetZvtx(.5*(fVertexMin+fVertexMax));
-        fEvent->SetEventPlane(.5*(fEventPlaneMin+fEventPlaneMax));
+        // bookkeep the total number of tracks that is added to the array
         iMixedTracks = 0;
+        // enter the track loop
         for(Int_t i(0); i < fMultiplicityMin; i++) {
-            track = GetNextTrackFromEvent(i);
+            // go through all the buffered events i, and take the next
+            // 'unused' track from them
+            track = GetNextTrackFromEventI(i);
+            // the track should always be there ... but ok
             if(!track) continue;
+            // build the new track and fill it
             AliGMFTTreeTrack* mixedTrack = new((*fTrackArray)[iMixedTracks]) AliGMFTTreeTrack();
-            mixedTrack->SetPt(track->GetPt());
-            mixedTrack->SetEta(track->GetEta());
-            mixedTrack->SetPhi(track->GetPhi());
-            mixedTrack->SetCharge(track->GetCharge());
+            mixedTrack->Fill(track);
+            // if requested do some qa
             if(fQAManager) {
                 fQAManager->Fill("fHistMixedPt", mixedTrack->GetPt());
                 fQAManager->Fill("fHistMixedEta", mixedTrack->GetEta());

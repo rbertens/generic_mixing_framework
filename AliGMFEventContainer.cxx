@@ -31,6 +31,7 @@ void AliGMFEventContainer::SetEvent(
 //-----------------------------------------------------------------------------
 Bool_t AliGMFEventContainer::Fill(AliGMFEventContainer* event) {
     // fill the current event with info from another event
+    // just fills, does *not* create objects !!!
     if(!event) return kFALSE;
 
     // fill the event header
@@ -40,7 +41,7 @@ Bool_t AliGMFEventContainer::Fill(AliGMFEventContainer* event) {
     for(Int_t i(0); i < event->GetNumberOfTracks(); i++) {
         if(GetTrack(i) && event->GetTrack(i)) {
             GetTrack(i)->Fill(event->GetTrack(i));
-        }
+        } else printf(" Warning, tried to fill track %i but memory is not allocated - skipping track ! \n ");
     }
 }
 //-----------------------------------------------------------------------------
@@ -55,3 +56,17 @@ void AliGMFEventContainer::PrintEventSummary() {
     if(fTracks) printf(" - contains %i tracks \n", fTracks->GetEntries());
     printf(" - status %i \n", (int)(fHeader->GetUsed()));
 }
+//_____________________________________________________________________________
+void AliGMFEventContainer::Dump() const {
+    // 'recursive' dump of contents
+    TObject::Dump();
+    if(fHeader) {
+        printf(" Dumping event header \n");
+        fHeader->Dump();
+    }
+    if(fTracks) {
+        printf(" Dump array with %i tracks \n", fTracks->GetEntries());
+        fTracks->Dump();
+    }
+}
+
