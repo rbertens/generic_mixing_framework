@@ -148,7 +148,7 @@ Bool_t AliGMFDummyJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
 
 Bool_t AliGMFDummyJetFinder::Finalize(TString name) {
 
-    fHistogramManager->StoreManager(Form("%.root", name.Data()));
+    fHistogramManager->StoreManager(Form("%s.root", name.Data()));
     return kTRUE;
 
 }

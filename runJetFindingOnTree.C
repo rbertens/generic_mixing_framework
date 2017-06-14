@@ -45,7 +45,7 @@ void runJetFindingOnTree()
     Float_t remainingTime = -1;
 
     // set max number of events
-    //iEvents = 2000;
+//    iEvents = 200;
 
     for (int i = 0 ; i < iEvents; i ++) {
         jetFinder->AnalyzeEvent(reader->GetEvent(i));
@@ -57,7 +57,7 @@ void runJetFindingOnTree()
     }
 
     // write and clear memory
-    jetFinder->Finalize();
+    jetFinder->Finalize("myJets");
 
     delete jetFinder;
     delete reader;
