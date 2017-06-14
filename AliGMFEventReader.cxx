@@ -3,6 +3,7 @@
 #include "AliGMFEventContainer.h"
 #include "AliGMFTTreeTrack.h"
 #include "AliGMFTTreeHeader.h"
+#include "AliLog.h"
 
 #include "TChain.h"
 #include "TBranch.h"
@@ -40,12 +41,18 @@ Bool_t AliGMFEventReader::Initialize() {
     }
 
     Int_t check(0);
+
+    // check for 'regular' data
     check += fInputChain->SetBranchAddress("event", &fHeader);
     check += fInputChain->SetBranchAddress("track", &fTracks);
-    if(check%5!=0) {
-        printf(" Warning, input file has unexpected structure \n ");
-        return kFALSE;
-    }
+    if(check != 0) {
+        // else check for mixed events
+        check = 0;
+        check += fInputChain->SetBranchAddress("mixedEvent", &fHeader);
+        check += fInputChain->SetBranchAddress("mixedTrack", &fTracks);
+        // see if there is still hope
+        if(check != 0) AliFatal("Couldn't find input branches in the file you supplied \n");
+    } else printf(" Found mixed events - please ignore the two E-TChain messages \n");
     
     return kTRUE;
 }

@@ -40,11 +40,9 @@ AliGMFMixingManager::AliGMFMixingManager() : TObject(),
 //_____________________________________________________________________________
 AliGMFMixingManager::~AliGMFMixingManager() {
     // class destructor - only delete what the manager allocates
-    delete fTree;         
-    delete fEvent;        
+/*    delete fOutputFile;
     delete fBufferedEvent;
-    delete fTrackArray;   
-    delete fOutputFile;   
+    delete fOutputFile;   */
     delete fQAManager;    
     delete fEventCache;  
 }
@@ -79,7 +77,7 @@ Bool_t AliGMFMixingManager::Initialize() {
     fTree->Bronch("mixedTrack", "TClonesArray", &fTrackArray); 
 
 #if VERBOSE > 0
-    printf(" > %i events found ... this can take a while \n", fTree->GetEntries());
+    printf(" > %i events found ... this can take a while \n", fEventReader->GetNumberOfEvents());
 #endif
 
 }
@@ -214,7 +212,7 @@ Int_t AliGMFMixingManager::DoPerChunkMixing() {
     // 3) write the tree to a file
     Finish();
 #if VERBOSE > 0
-    printf(" Event mixer finished and should have written %i events and %i tracks \n", i, i*i);
+    printf(" Event mixer finished and should have written %i events and %i tracks \n", i, i*fMultiplicityMin);
 #endif
 }
 
@@ -257,8 +255,8 @@ void AliGMFMixingManager::CreateNewEventChunk()
             // go through all the buffered events i, and take the next
             // 'unused' track from them
             track = GetNextTrackFromEventI(i);
-            // the track should always be there ... but ok
-            if(!track) continue;
+            //            // the track should always be there ... but ok
+            //            if(!track) continue;
             // build the new track and fill it
             AliGMFTTreeTrack* mixedTrack = new((*fTrackArray)[iMixedTracks]) AliGMFTTreeTrack();
             mixedTrack->Fill(track);

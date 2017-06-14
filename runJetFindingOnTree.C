@@ -28,7 +28,7 @@ void runJetFindingOnTree()
     gROOT->LoadMacro("AliGMFDummyJetFinder.cxx+");
 
     TChain* myChain = new TChain("tree");
-    myChain->Add("myFilteredTree.root");
+    myChain->Add("myMixedEvents.root");
     // add more files if desired, e.g. per class
 
     // initialize the reader and jet finder
