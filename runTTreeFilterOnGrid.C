@@ -8,6 +8,11 @@ void runTTreeFilterOnGrid() {
     // - AliGMFTTreeTrack : track objects
     // see source of these classes for more details
 
+
+    // select range of runs to analyze (see runs[] for definition)
+    Int_t firstrun = 0;
+    Int_t lastrun = 15;
+
     // load libraries
     gSystem->Load("libANALYSISalice");
 
@@ -27,8 +32,6 @@ void runTTreeFilterOnGrid() {
     alienHandler->SetRunPrefix("000");
     Int_t runs[] =  {139510, 139507, 139505, 139503, /*139465,*/ 139438, 139437, /*139360,*/ 139329, 139328, 139314, 139310, 139309, 139173, 139107, 139105, 139038, 139037, 139036, 139029, 139028, 138872, 138871, 138870, 138837, /*138732,*/ /*138730,*/ /*138666,*/ 138662, 138653, 138652, 138638, 138624, 138621, 138583, 138582, 138579, 138578, 138534, 138469, 138442, 138439, /*138438,*/ /*138396*/ 138364, 138225, 138201, 138197, 138192, 138190, 137848, 137844, 137752, 137751, 137724, 137722, 137718, 137704, 137693, 137692, 137691, 137686, 137685, 137639, 137638, 137608, 137595, 137549, /*137546,*/ 137544, 137541, 137539, 137531, 137530, 137443, 137441, 137440, 137439, 137434, 137432, 137431, 137430, 137243, 137236, 137235, 137232, 137231, /*137230,*/ 137162, 137161, /*137135*/ 138275}; // bad runs are commented out - 83 entries
 
-    Int_t firstrun = 0;
-    Int_t lastrun = 15;
     // add the runnnumbers to the handler
     for(int i = firstrun; i < lastrun; i++) alienHandler->AddRunNumber(runs[i]);
 
@@ -48,8 +51,8 @@ void runTTreeFilterOnGrid() {
     alienHandler->SetMergeViaJDL(kTRUE);
 
     // define the output folders
-    alienHandler->SetGridWorkingDir(Form("filteredTTree_runs_%i-%i", runs[firstrun], runs[lastrun]));
-    alienHandler->SetGridOutputDir(Form("filteredTTree_runs_%i-%i", runs[firstrun], runs[lastrun]));
+    alienHandler->SetGridWorkingDir("filteredTTree");
+    alienHandler->SetGridOutputDir("filteredTTree");
 
     // create the analysis manager
     AliAnalysisManager* mgr = new AliAnalysisManager("MyManager");

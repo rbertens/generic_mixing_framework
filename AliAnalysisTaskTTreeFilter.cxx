@@ -150,11 +150,15 @@ Bool_t AliAnalysisTaskTTreeFilter::ParseEvent(AliVEvent* event)
     // parse the input event
     if(!PassesCuts(event)) return kFALSE;
 
-    // store some event info
+    // store zvertex position
     fEvent->SetZvtx(event->GetPrimaryVertex()->GetZ());
-    
-    // just some dummy value
+
+    // store centrality
+    fEvent->SetCentrality(InputEvent()->GetCentrality()->GetCentralityPercentile("V0M"));
+   
+    // store event plane orientation
     fEvent->SetEventPlane(GetEventPlane());
+
     // parse the tracks
     ParseTracks(event);
 

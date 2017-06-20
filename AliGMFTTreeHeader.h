@@ -22,7 +22,7 @@ class AliGMFTTreeHeader : public TObject{
   void SetEventID(Int_t id)             {fEventID = id;}
   void SetUsed(Bool_t used)             {fUsed = used;}
   void SetMultiplicity(Short_t m)       {fMultiplicity = m;}
-  void SetCentrality(Double_t c)        {fCentrality = m;}
+  void SetCentrality(Double_t c)        {fCentrality = c;}
 
 
   // getters
