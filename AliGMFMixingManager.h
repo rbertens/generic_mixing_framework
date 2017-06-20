@@ -44,6 +44,12 @@ class AliGMFMixingManager : public TObject {
         fEventPlaneMin = min;
         fEventPlaneMax = max;
     }
+
+    void SetCentralityRange(Float_t min, Float_t max) {
+        fCentralityMin = min;
+        fCentralityMax = max;
+    }
+
     void SetEventReader(AliGMFEventReader* r)   {fEventReader = r;}
     void DoQA();
 
@@ -66,7 +72,8 @@ class AliGMFMixingManager : public TObject {
     Float_t     fVertexMax;         // maximum vertexz
     Float_t     fEventPlaneMin;     // minimum event plane angle
     Float_t     fEventPlaneMax;     // maximum event plane angle
-
+    Float_t     fCentralityMin;     // minimum event centrality
+    Float_t     fCentralityMax;     // maximum event centrality
 
     // data structures for mixed event output
     TTree*                      fTree;                  //! output data

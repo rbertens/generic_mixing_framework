@@ -37,6 +37,8 @@ class AliGMFEventContainer : public TObject {
        Int_t                    GetMultiplicity()       { return GetNumberOfTracks(); }
        Float_t                  GetEventPlane()         { return fHeader->GetEventPlane(); }
        Float_t                  GetZvtx()               { return fHeader->GetZvtx(); }
+       Float_t                  GetCentrality()         { return fHeader->GetCentrality(); }
+       
        AliGMFTTreeHeader*       GetHeader()             { return fHeader;}
        TClonesArray*            GetTracks()             { return fTracks;}
        

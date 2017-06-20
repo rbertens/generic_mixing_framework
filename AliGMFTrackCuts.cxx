@@ -7,14 +7,14 @@
 ClassImp(AliGMFTrackCuts);
 
 AliGMFTrackCuts::AliGMFTrackCuts() : TObject(),
-    fFilterBit(0)
+    fFilterBit(768)
 {
   // default constructor
 }
  
 Bool_t AliGMFTrackCuts::IsSelected(AliVTrack* track) {
     // see if the track passes criteria
-    fAODTrack = reinterpret_cast<AliAODTrack*>(track);
+    fAODTrack = static_cast<AliAODTrack*>(track);
 
     if (!fAODTrack) return kFALSE;
     if (!fAODTrack->TestFilterBit(fFilterBit)) return kFALSE;

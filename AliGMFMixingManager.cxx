@@ -25,6 +25,8 @@ AliGMFMixingManager::AliGMFMixingManager() : TObject(),
     fVertexMax(-1),
     fEventPlaneMin(1),
     fEventPlaneMax(-1),
+    fCentralityMin(1),
+    fCentralityMax(-1),
     fTree(0x0),
     fEvent(0x0),
     fBufferedEvent(0x0), 
@@ -52,9 +54,11 @@ void AliGMFMixingManager::DoQA() {
     fQAManager = new AliGMFHistogramManager();
     fQAManager->BookTH1F("fHistRejectedMultiplicity", "counts", 1000, 0, 2000);
     fQAManager->BookTH1F("fHistRejectedVertex", "cm", 100, -12, 12);
+    fQAManager->BookTH1F("fHistRejectedCentrality", "percentile", 100, 0, 100);
     fQAManager->BookTH1F("fHistAcceptedMultiplicity", "counts", 1000, 0, 2000);
     fQAManager->BookTH1F("fHistAcceptedVertex", "cm", 100, -12, 12);
-    fQAManager->BookTH1F("fHistRejectionReason", "0 cen, 1 vtx, 2 ep", 3, 0, 3);
+    fQAManager->BookTH1F("fHistAcceptedCentrality", "percentile", 100, 0, 100);
+    fQAManager->BookTH1F("fHistRejectionReason", "0 cen, 1 vtx, 2 ep, 3 cen", 4, 0, 4);
     fQAManager->BookTH1F("fHistUnmixedPt", "#it{p}_{T} (GeV/c)", 100, 0, 10);
     fQAManager->BookTH1F("fHistUnmixedEta", "#eta", 100, -1, 1);
     fQAManager->BookTH1F("fHistUnmixedPhi", "#phi", 100, 0, TMath::TwoPi());
@@ -62,6 +66,7 @@ void AliGMFMixingManager::DoQA() {
     fQAManager->BookTH1F("fHistMixedEta", "#eta", 100, -1, 1);
     fQAManager->BookTH1F("fHistMixedPhi", "#phi", 100, 0, TMath::TwoPi());
     fQAManager->BookTH1F("fHistMixedVertex", "cm", 100, -12, 12);
+    fQAManager->BookTH1F("fHistMixedCentrality", "percentile", 100, 0, 100);
     fQAManager->BookTH1F("fHistMixedEventPlane", "#Psi", 100, -4, 4);
 }
 //_____________________________________________________________________________
@@ -132,6 +137,7 @@ Bool_t AliGMFMixingManager::FillMixingCache() {
             if(fQAManager) {
                 fQAManager->Fill("fHistAcceptedMultiplicity", currentEvent->GetMultiplicity());
                 fQAManager->Fill("fHistAcceptedVertex", currentEvent->GetZvtx());
+                fQAManager->Fill("fHistAcceptedCentrality", currentEvent->GetCentrality());
                 for(Int_t i(0); i < fMultiplicityMin; i++) {
                     if((track = currentEvent->GetTrack(i))) {
                         fQAManager->Fill("fHistUnmixedPt", track->GetPt());
@@ -143,6 +149,7 @@ Bool_t AliGMFMixingManager::FillMixingCache() {
         } else if (fQAManager) {
             fQAManager->Fill("fHistRejectedVertex", currentEvent->GetZvtx());
             fQAManager->Fill("fHistRejectedMultiplicity", currentEvent->GetMultiplicity());
+            fQAManager->Fill("fHistRejectedCentrality", currentEvent->GetCentrality());
         }
 
         // if the cache is full, break the loop
@@ -167,6 +174,7 @@ void AliGMFMixingManager::FillHeaderWithCachedEventInfo() {
         // and fill the qa hists
         fQAManager->Fill("fHistMixedVertex", fBufferedEvent->GetZvtx());
         fQAManager->Fill("fHistMixedEventPlane", fBufferedEvent->GetEventPlane());
+        fQAManager->Fill("fHistMixedCentrality", fBufferedEvent->GetCentrality());
     }
 }
 //_____________________________________________________________________________
@@ -233,6 +241,9 @@ Bool_t AliGMFMixingManager::IsSelected(AliGMFEventContainer* event) {
         pass = kFALSE;
         if(fQAManager) fQAManager->Fill("fHistRejectionReason", 2);
     }
+    if(event->GetCentrality() > fCentralityMax || event->GetCentrality() < fCentralityMin) {
+        pass = kFALSE;
+        if(fQAManager) fQAManager->Fill("fHistRejectionReason", 3);
 
     return pass;
 }
