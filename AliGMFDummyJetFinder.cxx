@@ -21,6 +21,7 @@
 #include "AliGMFTTreeTrack.h"
 #include "AliGMFDummyJetFinder.h"
 #include "AliGMFHistogramManager.h"
+#include "AliGMFTTreeEventCuts.h"
 
 ClassImp(AliGMFDummyJetFinder)
 
@@ -31,6 +32,7 @@ AliGMFDummyJetFinder::AliGMFDummyJetFinder() : TObject(),
     fDoBackgroundSubtraction(kFALSE),
     fJetResolution(.3),
     fLeadingHadronPt(.1),
+    fEventCuts(0x0),
     fHistogramManager(0x0)
 {
     // default constructor
@@ -56,6 +58,11 @@ Bool_t AliGMFDummyJetFinder::Initialize() {
 Bool_t AliGMFDummyJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
     // called for each event
     
+    // check if event cuts are required, and if so, if the event passes
+    if(fEventCuts) {
+        if(!fEventCuts->IsSelected(event)) return kTRUE;
+    }
+
     // define the fastjet input vector and create a pointer to a track
     std::vector <fastjet::PseudoJet> fjInputVector;
     AliGMFTTreeTrack* track(0x0);
