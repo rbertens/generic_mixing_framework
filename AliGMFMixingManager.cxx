@@ -244,7 +244,7 @@ Bool_t AliGMFMixingManager::IsSelected(AliGMFEventContainer* event) {
     if(event->GetCentrality() > fCentralityMax || event->GetCentrality() < fCentralityMin) {
         pass = kFALSE;
         if(fQAManager) fQAManager->Fill("fHistRejectionReason", 3);
-
+    }
     return pass;
 }
 //_____________________________________________________________________________

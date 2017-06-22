@@ -11,7 +11,7 @@ void runTTreeFilterOnGrid() {
 
     // select range of runs to analyze (see runs[] for definition)
     Int_t firstrun = 0;
-    Int_t lastrun = 15;
+    Int_t lastrun = 82;
 
     // load libraries
     gSystem->Load("libANALYSISalice");
