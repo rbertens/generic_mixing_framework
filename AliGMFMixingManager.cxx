@@ -6,7 +6,7 @@
 #include "TArrayI.h"
 #include "TMath.h"
 
-#include "AliLog.h"
+//#include "AliLog.h"
 
 #include "AliGMFMixingManager.h"
 #include "AliGMFEventReader.h"
@@ -105,7 +105,11 @@ void AliGMFMixingManager::InitializeMixingCache() {
     printf(" ::InitializeMixingCache:: \n");
 #endif
 
-    if(fMultiplicityMax < 1) AliFatal(" Maximum multiplicity is too low \n");
+    if(fMultiplicityMax < 1) {
+        printf(" Maximum multiplicity is too low, aborting \n");
+        return;
+    }
+
 
     fEventCache = new TObjArray(fMultiplicityMax, 0);
     fEventCache->SetOwner(kTRUE);
@@ -228,6 +232,7 @@ Int_t AliGMFMixingManager::DoPerChunkMixing() {
 
     // 1) initialize the mixing cache
     InitializeMixingCache();
+    if(!fEventCache) return -1;
 
 
     // 2) create new events, loop exits when end of true evens is reached
@@ -256,6 +261,9 @@ Int_t AliGMFMixingManager::DoPerChunkMixing() {
         printf(" Try re-running with less stringent event selection criteria. \n");
     }
 #endif
+    
+    // return success
+    return 0;
 }
 
 //_____________________________________________________________________________ 
