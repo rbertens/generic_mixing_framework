@@ -32,6 +32,7 @@ AliGMFMixingManager::AliGMFMixingManager() : TObject(),
     fEventPlaneMax(-1),
     fCentralityMin(1),
     fCentralityMax(-1),
+    fMaxEventsPerFile(1e9),
     fTree(0x0),
     fEvent(0x0),
     fBufferedEvent(0x0), 
@@ -239,7 +240,7 @@ Int_t AliGMFMixingManager::DoPerChunkMixing() {
     //    mixing only starts when the buffer is 100% full
     //    produces chunks of M mixed events
 #if VERBOSE > 0
-    Int_t i(0);
+    Int_t i(0), j(0);
 #endif
 
     while(FillMixingCache()) {
@@ -248,7 +249,12 @@ Int_t AliGMFMixingManager::DoPerChunkMixing() {
         i+=fMultiplicityMin;
         printf("   - created %i new events \n", i);
 #endif
-
+        j+=fMultiplicityMin;
+        if(j > fMaxEventsPerFile) {
+            // check if we've reached the max number of events for the file, and if so, reset counter and write the output
+            WriteCurrentTreeToFile(kTRUE);
+            j = 0;
+        }
     }
 
     // 3) write the tree to a file
@@ -330,8 +336,25 @@ void AliGMFMixingManager::CreateNewEventChunk()
     }
 }
 //_____________________________________________________________________________
-void AliGMFMixingManager::PushToTTree()
-{
+void AliGMFMixingManager::WriteCurrentTreeToFile(Bool_t createNewOutputStructures) {
+    // write current ttree to file
+    fTree->Write();
+    fOutputFile->Close();
+    delete fOutputFile;
+
+    // and creates a new output structure if requested
+    if(createNewOutputStructures) {
+        fOutputFile = new TFile(Form("myMixedEvents_%i.root", fEventBufferPosition), "RECREATE");
+        fTree = new TTree("tree", "mixed event data");
+        fEvent = new AliGMFTTreeHeader();
+        fTree->Branch("mixedEvent", &fEvent);
+
+        fTrackArray = new TClonesArray("AliGMFTTreeTrack", 1000);
+        fTree->Bronch("mixedTrack", "TClonesArray", &fTrackArray); 
+    }
+}
+//_____________________________________________________________________________
+void AliGMFMixingManager::PushToTTree() {
     // push info to tree and do cleanup for next iteration
     fTree->Fill();
     fTrackArray->Clear();
@@ -339,7 +362,6 @@ void AliGMFMixingManager::PushToTTree()
 //_____________________________________________________________________________
 void AliGMFMixingManager::Finish() {
     // write and close the files
-    fTree->Write();
-    fOutputFile->Close();
+    WriteCurrentTreeToFile(kFALSE);
     if(fQAManager) fQAManager->StoreManager("mixingQA.root");
 }

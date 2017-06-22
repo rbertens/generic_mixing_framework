@@ -50,6 +50,8 @@ class AliGMFMixingManager : public TObject {
         fCentralityMax = max;
     }
 
+    void SetMaxEventsPerFile(Int_t e)           {fMaxEventsPerFile = e;}
+
     void SetEventReader(AliGMFEventReader* r)   {fEventReader = r;}
     void DoQA();
 
@@ -63,6 +65,7 @@ class AliGMFMixingManager : public TObject {
     AliGMFTTreeTrack*   GetNextTrackFromEventI(Int_t i);
     AliGMFTTreeTrack*   GetRandomTrackFromEventI(Int_t i) {;}   // to be implemented
     void        CreateNewEventChunk();
+    void        WriteCurrentTreeToFile(Bool_t createNewOutputStructures);
     void        PushToTTree();
     void        Finish();
 
@@ -74,6 +77,7 @@ class AliGMFMixingManager : public TObject {
     Float_t     fEventPlaneMax;     // maximum event plane angle
     Float_t     fCentralityMin;     // minimum event centrality
     Float_t     fCentralityMax;     // maximum event centrality
+    Int_t       fMaxEventsPerFile;  // maximum number of mixed events written per file
 
     // data structures for mixed event output
     TTree*                      fTree;                  //! output data
