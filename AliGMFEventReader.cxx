@@ -52,7 +52,7 @@ Bool_t AliGMFEventReader::Initialize() {
         check += fInputChain->SetBranchAddress("mixedTrack", &fTracks);
         // see if there is still hope
         if(check != 0) AliFatal("Couldn't find input branches in the file you supplied \n");
-    } else printf(" Found mixed events - please ignore the two E-TChain messages \n");
+    } else printf(" \n   Found mixed events - please ignore the two E-TChain messages if shown\n");
     
     return kTRUE;
 }

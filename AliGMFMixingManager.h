@@ -88,6 +88,7 @@ class AliGMFMixingManager : public TObject {
     Int_t                       fTrackBufferPosition;   //! 'walks' trough the track cache 
     AliGMFHistogramManager*     fQAManager;             // run QA 
     TObjArray*                  fEventCache;            // event cache 
+    Int_t                       fTotalEventBuffer;      //! total number of events
 
     ClassDef(AliGMFMixingManager, 1);
 

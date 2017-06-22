@@ -107,7 +107,7 @@ void runEventMixer()
     mixer->SetEventReader(reader);
 
     // configure the mixer
-    mixer->SetMultiplicityRange(1000, 1110);
+    mixer->SetMultiplicityRange(200, 900);
     mixer->SetVertexRange(-5, 5);
     mixer->SetEventPlaneRange(-10, 10);
     mixer->SetCentralityRange(30, 50);

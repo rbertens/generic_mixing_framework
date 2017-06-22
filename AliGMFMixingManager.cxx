@@ -15,6 +15,11 @@
 #include "AliGMFTTreeHeader.h"
 #include "AliGMFHistogramManager.h"
 
+#if VERBOSE > 0
+#include<iostream>
+using namespace std;
+#endif
+
 ClassImp(AliGMFMixingManager);
 
 //_____________________________________________________________________________
@@ -53,12 +58,14 @@ void AliGMFMixingManager::DoQA() {
     // initialize the QA manager
     fQAManager = new AliGMFHistogramManager();
     fQAManager->BookTH1F("fHistRejectedMultiplicity", "counts", 1000, 0, 2000);
+    fQAManager->BookTH2F("fHistRejectedMultCent", "counts", "percentile", 100, 0, 2000, 100, 0, 100);
     fQAManager->BookTH1F("fHistRejectedVertex", "cm", 100, -12, 12);
     fQAManager->BookTH1F("fHistRejectedCentrality", "percentile", 100, 0, 100);
     fQAManager->BookTH1F("fHistAcceptedMultiplicity", "counts", 1000, 0, 2000);
+    fQAManager->BookTH2F("fHistAcceptedMultCent", "counts", "percentile", 100, 0, 2000, 100, 0, 100);
     fQAManager->BookTH1F("fHistAcceptedVertex", "cm", 100, -12, 12);
     fQAManager->BookTH1F("fHistAcceptedCentrality", "percentile", 100, 0, 100);
-    fQAManager->BookTH1F("fHistRejectionReason", "0 cen, 1 vtx, 2 ep, 3 cen", 4, 0, 4);
+    fQAManager->BookTH1F("fHistRejectionReason", "0=mult 1=vtx 2=ep 3=cen", 4, 0, 4);
     fQAManager->BookTH1F("fHistUnmixedPt", "#it{p}_{T} (GeV/c)", 100, 0, 10);
     fQAManager->BookTH1F("fHistUnmixedEta", "#eta", 100, -1, 1);
     fQAManager->BookTH1F("fHistUnmixedPhi", "#phi", 100, 0, TMath::TwoPi());
@@ -81,8 +88,10 @@ Bool_t AliGMFMixingManager::Initialize() {
     fTrackArray = new TClonesArray("AliGMFTTreeTrack", 1000);
     fTree->Bronch("mixedTrack", "TClonesArray", &fTrackArray); 
 
+    fTotalEventBuffer = fEventReader->GetNumberOfEvents();
+
 #if VERBOSE > 0
-    printf(" > %i events found ... this can take a while \n", fEventReader->GetNumberOfEvents());
+    printf("   ... %i events found,  this can take a while \n", fTotalEventBuffer);
 #endif
 
 }
@@ -92,14 +101,14 @@ void AliGMFMixingManager::InitializeMixingCache() {
     // the mixed classes . in a first step, we go through the input chain, and check which events in the input
     // chain fulfill our mixing criteria, these are stored the first in the 'cache' as a bookkeeping utility
     // memory for this is allocated in this routine
+#if VERBOSE > 0
+    printf(" ::InitializeMixingCache:: \n");
+#endif
 
     if(fMultiplicityMax < 1) AliFatal(" Maximum multiplicity is too low \n");
 
     fEventCache = new TObjArray(fMultiplicityMax, 0);
     fEventCache->SetOwner(kTRUE);
-
-
-
 
     for(Int_t i(0); i < fMultiplicityMax; i++) {
         // allocate the track buffer
@@ -114,6 +123,10 @@ void AliGMFMixingManager::InitializeMixingCache() {
                     i), // this is the container ID
                 i); // this is the iterator of the object array
     }
+#if VERBOSE > 0
+    printf("   ... created cache (this can allocate a lot of RAM)  \n");
+#endif
+
 }
 //_____________________________________________________________________________
 Bool_t AliGMFMixingManager::FillMixingCache() {
@@ -125,6 +138,10 @@ Bool_t AliGMFMixingManager::FillMixingCache() {
     AliGMFEventContainer* currentEvent(0x0);
     AliGMFEventContainer* cachedEvent(0x0);
     Int_t iCache(0);
+#if VERBOSE > 0
+    printf(" ::FillMixingCache:: \n");
+    printf("   ... filling cache from buffer position  %i \n", fEventBufferPosition);
+#endif
 
     while ((currentEvent = fEventReader->GetEvent(fEventBufferPosition))) {
         // the buffer position moves with each event 
@@ -134,8 +151,12 @@ Bool_t AliGMFMixingManager::FillMixingCache() {
             cachedEvent = static_cast<AliGMFEventContainer*>(fEventCache->At(iCache));
             cachedEvent->Fill(currentEvent);
             iCache++;
+#if VERBOSE > 0
+    std::cout << "     - caching event " << iCache << " at buffer position " << fEventBufferPosition << "\r"; cout.flush();
+#endif
             if(fQAManager) {
                 fQAManager->Fill("fHistAcceptedMultiplicity", currentEvent->GetMultiplicity());
+                fQAManager->Fill("fHistAcceptedMultCent", currentEvent->GetMultiplicity(), currentEvent->GetCentrality());
                 fQAManager->Fill("fHistAcceptedVertex", currentEvent->GetZvtx());
                 fQAManager->Fill("fHistAcceptedCentrality", currentEvent->GetCentrality());
                 for(Int_t i(0); i < fMultiplicityMin; i++) {
@@ -150,11 +171,16 @@ Bool_t AliGMFMixingManager::FillMixingCache() {
             fQAManager->Fill("fHistRejectedVertex", currentEvent->GetZvtx());
             fQAManager->Fill("fHistRejectedMultiplicity", currentEvent->GetMultiplicity());
             fQAManager->Fill("fHistRejectedCentrality", currentEvent->GetCentrality());
+            fQAManager->Fill("fHistRejectedMultCent", currentEvent->GetMultiplicity(), currentEvent->GetCentrality());
         }
 
         // if the cache is full, break the loop
-        if(iCache + 1 == fMultiplicityMax) break;
+       if(iCache + 1 == fMultiplicityMax) break;
     }
+#if VERBOSE > 0
+    cout << endl;
+#endif
+ 
     // exit status is false when the end of the event buffer is reached, otherwise true
     if(!currentEvent) return kFALSE;
     return kTRUE;
@@ -193,6 +219,9 @@ AliGMFTTreeTrack* AliGMFMixingManager::GetNextTrackFromEventI(Int_t i) {
 //_____________________________________________________________________________
 Int_t AliGMFMixingManager::DoPerChunkMixing() {
     // the heart of this manager
+#if VERBOSE > 0
+    printf(" ::DoPerCunkMixing:: \n");
+#endif
 
     // 0) general initialization
     Initialize();
@@ -220,7 +249,12 @@ Int_t AliGMFMixingManager::DoPerChunkMixing() {
     // 3) write the tree to a file
     Finish();
 #if VERBOSE > 0
-    printf(" Event mixer finished and should have written %i events and %i tracks \n", i, i*fMultiplicityMin);
+    if(i > 0) {
+        printf(" Event mixer finished and should have written %i events and %i tracks \n", i, i*fMultiplicityMin);
+    } else {
+        printf(" The mixer couldn't cache sufficient candidate events for mixing. \n");
+        printf(" Try re-running with less stringent event selection criteria. \n");
+    }
 #endif
 }
 
@@ -229,15 +263,15 @@ Bool_t AliGMFMixingManager::IsSelected(AliGMFEventContainer* event) {
     // check if this event meets the criteria for mixing
     Bool_t pass = kTRUE;
     if(!event) return kFALSE;
-    if(event->GetZvtx() < fVertexMin || event->GetZvtx() > fVertexMax) {
-        pass = kFALSE;
-        if(fQAManager) fQAManager->Fill("fHistRejectionReason", 1);
-    }
     if(event->GetMultiplicity() > fMultiplicityMax || event->GetMultiplicity() < fMultiplicityMin) {
         pass = kFALSE;
         if(fQAManager) fQAManager->Fill("fHistRejectionReason", 0);
     }
-    if(event->GetEventPlane() > fEventPlaneMax || event->GetEventPlane() < fEventPlaneMin) {
+    if(event->GetZvtx() < fVertexMin || event->GetZvtx() > fVertexMax) {
+        pass = kFALSE;
+        if(fQAManager) fQAManager->Fill("fHistRejectionReason", 1);
+    }
+   if(event->GetEventPlane() > fEventPlaneMax || event->GetEventPlane() < fEventPlaneMin) {
         pass = kFALSE;
         if(fQAManager) fQAManager->Fill("fHistRejectionReason", 2);
     }
@@ -250,6 +284,10 @@ Bool_t AliGMFMixingManager::IsSelected(AliGMFEventContainer* event) {
 //_____________________________________________________________________________
 void AliGMFMixingManager::CreateNewEventChunk() 
 {
+#if VERBOSE > 0
+    printf(" ::CreateNewEventChunk:: \n");
+#endif
+
     // and then get the tracks
     AliGMFTTreeTrack* track(0x0);
     Int_t iMixedTracks(0);
