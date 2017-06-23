@@ -60,7 +60,7 @@ Bool_t AliGMFDummyJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
     
     // check if event cuts are required, and if so, if the event passes
     if(fEventCuts) {
-        if(!fEventCuts->IsSelected(event)) return kTRUE;
+        if(!fEventCuts->IsSelected(event)) return kFALSE;
     }
 
     // define the fastjet input vector and create a pointer to a track

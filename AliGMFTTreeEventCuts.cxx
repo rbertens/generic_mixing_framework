@@ -6,7 +6,7 @@
 
 ClassImp(AliGMFTTreeEventCuts);
 
-AliGMFTTreeEventCuts::AliGMFEventCuts() : TObject(),
+AliGMFTTreeEventCuts::AliGMFTTreeEventCuts() : TObject(),
     fMultiplicityMin(1), 
     fMultiplicityMax(-1),
     fVertexMin(1),

@@ -3,7 +3,7 @@
 
 #include <TObject.h>
 
-:Exclass AliGMFEventContainer;
+class AliGMFEventContainer;
 
 
 class AliGMFTTreeEventCuts : public TObject {
@@ -13,7 +13,7 @@ class AliGMFTTreeEventCuts : public TObject {
 
     Bool_t IsSelected(AliGMFEventContainer* event);
 
-    Bool_t PassesCentralitySelection();
+    Bool_t PassesMultiplicitySelection();
     Bool_t PassesVertexSelection();
     Bool_t PassesCentralitySelection();
     Bool_t PassesEventPlaneSelection();
