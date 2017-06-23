@@ -202,6 +202,7 @@ void AliGMFMixingManager::FillHeaderWithCachedEventInfo() {
     if(fBufferedEvent) {
         fEvent->SetZvtx(fBufferedEvent->GetZvtx());
         fEvent->SetEventPlane(fBufferedEvent->GetEventPlane());
+        fEvent->SetCentrality(fBufferedEvent->SetCentrality());
         // and fill the qa hists
         fQAManager->Fill("fHistMixedVertex", fBufferedEvent->GetZvtx());
         fQAManager->Fill("fHistMixedEventPlane", fBufferedEvent->GetEventPlane());
