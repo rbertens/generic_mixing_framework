@@ -19,16 +19,16 @@
 
 #include "AliGMFEventContainer.h"
 #include "AliGMFTTreeTrack.h"
-#include "AliGMFDummyJetFinder.h"
+#include "AliGMFSimpleJetFinder.h"
 #include "AliGMFHistogramManager.h"
 #include "AliGMFTTreeEventCuts.h"
 
-ClassImp(AliGMFDummyJetFinder)
+ClassImp(AliGMFSimpleJetFinder)
 
 using namespace std;
 
 //_____________________________________________________________________________
-AliGMFDummyJetFinder::AliGMFDummyJetFinder() : TObject(),
+AliGMFSimpleJetFinder::AliGMFSimpleJetFinder() : TObject(),
     fDoBackgroundSubtraction(kFALSE),
     fJetResolution(.3),
     fLeadingHadronPt(.1),
@@ -39,7 +39,7 @@ AliGMFDummyJetFinder::AliGMFDummyJetFinder() : TObject(),
 }
     
 //_____________________________________________________________________________
-Bool_t AliGMFDummyJetFinder::Initialize() {
+Bool_t AliGMFSimpleJetFinder::Initialize() {
     // initialize
    fHistogramManager = new AliGMFHistogramManager();
    
@@ -49,19 +49,25 @@ Bool_t AliGMFDummyJetFinder::Initialize() {
    fHistogramManager->BookTH1F("fHistRho", "#rho", 100, 0, 150);
    fHistogramManager->BookTH2F("fHistJetPtArea", "p_{T}^{jet}", "area", 100, 0, 100, 100, 0, 1);
    fHistogramManager->BookTH2F("fHistJetEtaPhi", "#eta^{jet}", "#phi^{jet}", 100, -1, 1, 100, 0, TMath::TwoPi());
+   fHistogramManager->BookTH1F("fHistVertex", "cm", 100, -12, 12);
+   fHistogramManager->BookTH1F("fHistCentrality", "percentile", 100, 0, 100);
+   fHistogramManager->BookTH1F("fHistEventPlane", "#Psi", 100, -4, 4);
 
    return kTRUE;
 
 }
 //_____________________________________________________________________________
 
-Bool_t AliGMFDummyJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
+Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
     // called for each event
     
     // check if event cuts are required, and if so, if the event passes
     if(fEventCuts) {
         if(!fEventCuts->IsSelected(event)) return kFALSE;
     }
+    fHistogramManager->Fill("fHistVertex", event->GetZvtx());
+    fHistogramManager->Fill("fHistEventPlane", event->GetEventPlane());
+    fHistogramManager->Fill("fHistCentrality", event->GetCentrality());
 
     // define the fastjet input vector and create a pointer to a track
     std::vector <fastjet::PseudoJet> fjInputVector;
@@ -153,7 +159,7 @@ Bool_t AliGMFDummyJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
 }
 //_____________________________________________________________________________
 
-Bool_t AliGMFDummyJetFinder::Finalize(TString name) {
+Bool_t AliGMFSimpleJetFinder::Finalize(TString name) {
 
     fHistogramManager->StoreManager(Form("%s.root", name.Data()));
     return kTRUE;

@@ -6,10 +6,10 @@ class AliGMFEventContainer;
 class AliGMFHistogramManager;
 class AliGMFTTreeEventCuts;
 
-class AliGMFDummyJetFinder : public TObject {
+class AliGMFSimpleJetFinder : public TObject {
 
     public:
-        AliGMFDummyJetFinder();
+        AliGMFSimpleJetFinder();
 
         // 'task' type members
         Bool_t Initialize();
@@ -30,7 +30,7 @@ class AliGMFDummyJetFinder : public TObject {
         // histograms
         AliGMFHistogramManager* fHistogramManager;      // histogram manager
 
-        ClassDef(AliGMFDummyJetFinder, 1);
+        ClassDef(AliGMFSimpleJetFinder, 1);
 
 };
 

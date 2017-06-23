@@ -26,7 +26,7 @@ void runJetFindingOnTree()
     gROOT->LoadMacro("AliGMFTTreeEventCuts.cxx+");
 
     // compile the jet finding classes
-    gROOT->LoadMacro("AliGMFDummyJetFinder.cxx+");
+    gROOT->LoadMacro("AliGMFSimpleJetFinder.cxx+");
 
     TChain* myChain = new TChain("tree");
 //    myChain->Add("myMixedEvents.root");
@@ -123,14 +123,19 @@ void runJetFindingOnTree()
     AliGMFEventReader* reader = new AliGMFEventReader(myChain);
     cout << reader->GetNumberOfEvents() << " events available for analysis " << endl;
     
-    AliGMFDummyJetFinder* jetFinder = new AliGMFDummyJetFinder();
+    // create the jet finder
+    AliGMFSimpleJetFinder* jetFinder = new AliGMFSimpleJetFinder();
     jetFinder->Initialize();    // tbd pass enum on configuratioin
+    
+    // create the event cuts
     AliGMFTTreeEventCuts* eventCuts = new AliGMFTTreeEventCuts();
     eventCuts->SetMultiplicityRange(200, 900);
     eventCuts->SetVertexRange(-5, 5);
     eventCuts->SetEventPlaneRange(-10, 10);
     eventCuts->SetCentralityRange(30, 50);
 
+    // pass the event cuts to the jet finder
+    jetFinder->SetEventCuts(eventCuts);
 
     TStopwatch timer;
     timer.Start();
@@ -138,18 +143,18 @@ void runJetFindingOnTree()
     Int_t iEvents = reader->GetNumberOfEvents();
     Float_t remainingTime = -1;
 
-    // set max number of events
+    // set max number of accepted events
     iMaxEvents = 400000;
 
     for (int i = 0, j = 0 ; i < iEvents; i ++) {
-        if(!jetFinder->AnalyzeEvent(reader->GetEvent(i))) continue;
-        j++;
-        if(j > iMaxEvents) break;
-        cout << " Processed event " << i << "\r"; cout.flush();
         if(i==100) {
             remainingTime = timer.RealTime()/100.;
             cout << " - remaining time (min) approximately " << remainingTime*(iEvents-i)/60. << endl;
         } else if (i > 0 && i%1000 == 0) cout << " - remaining time (min) approximately " << remainingTime*(iEvents-i)/60. << endl; 
+        if(!jetFinder->AnalyzeEvent(reader->GetEvent(i))) continue;
+        j++;
+        if(j > iMaxEvents) break;
+        cout << " Processed event " << i << " of which accepted " << j << "\r"; cout.flush();
     }
 
     // write and clear memory

@@ -26,7 +26,7 @@ void runFullProcess()
     gROOT->LoadMacro("AliGMFMixingManager.cxx+");
 
     // compile the jet finding classes
-    gROOT->LoadMacro("AliGMFDummyJetFinder.cxx+");
+    gROOT->LoadMacro("AliGMFSimpleJetFinder.cxx+");
 
     TChain* myChain = new TChain("tree");
     myChain->Add("myFilteredTree.root");
@@ -36,7 +36,7 @@ void runFullProcess()
     AliGMFEventReader* reader = new AliGMFEventReader(myChain);
     cout << reader->GetNumberOfEvents() << " events available for analysis " << endl;
 /*    
-    AliGMFDummyJetFinder* jetFinder = new AliGMFDummyJetFinder();
+    AliGMFSimpleJetFinder* jetFinder = new AliGMFSimpleJetFinder();
     jetFinder->Initialize();    // tbd pass enum on configuration
 
     TStopwatch timer;
@@ -84,7 +84,7 @@ void runFullProcess()
 
     // initialize the reader and jet finder
     AliGMFEventReader* mixedReader = new AliGMFEventReader(myMixedChain);
-    AliGMFDummyJetFinder* mixedJetFinder = new AliGMFDummyJetFinder();
+    AliGMFSimpleJetFinder* mixedJetFinder = new AliGMFSimpleJetFinder();
     mixedJetFinder->Initialize();    // tbd pass enum on configuration
 
     iEvents = mixedReader->GetNumberOfEvents();
