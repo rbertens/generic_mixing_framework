@@ -129,7 +129,7 @@ void runJetFindingOnTree()
     
     // create the event cuts
     AliGMFTTreeEventCuts* eventCuts = new AliGMFTTreeEventCuts();
-    eventCuts->SetMultiplicityRange(200, 900);
+    eventCuts->SetMultiplicityRange(190, 210);
     eventCuts->SetVertexRange(-5, 5);
     eventCuts->SetEventPlaneRange(-10, 10);
     eventCuts->SetCentralityRange(30, 50);
@@ -144,7 +144,7 @@ void runJetFindingOnTree()
     Float_t remainingTime = -1;
 
     // set max number of accepted events
-    iMaxEvents = 400000;
+    Int_t iMaxEvents = 20000;
 
     for (int i = 0, j = 0 ; i < iEvents; i ++) {
         if(i==100) {

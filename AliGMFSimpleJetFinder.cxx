@@ -84,6 +84,12 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
             totalE = track->GetPt()*TMath::CosH(track->GetEta());
             if (totalE <= 0) continue;
             totalE = totalE*totalE + .14*.14;   // assume pion mass for each track
+            /*
+            printf("total E %.4f", totalE);
+            printf("track->GetPt()*TMath::Cos(track->GetPhi()), %.4f \n", track->GetPt()*TMath::Cos(track->GetPhi())); 
+            printf("track->GetPt()*TMath::Sin(track->GetPhi()), %.4f \n", track->GetPt()*TMath::Sin(track->GetPhi()));  
+            printf("track->GetPt()*TMath::SinH(track->GetEta()), %.4f \n", track->GetPt()*TMath::SinH(track->GetEta())); 
+            */
             fastjet::PseudoJet fjInputProtoJet(
                     track->GetPt()*TMath::Cos(track->GetPhi()), 
                     track->GetPt()*TMath::Sin(track->GetPhi()), 

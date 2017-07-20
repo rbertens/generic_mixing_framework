@@ -18,7 +18,8 @@ Bool_t AliGMFTrackCuts::IsSelected(AliVTrack* track) {
 
     if (!fAODTrack) return kFALSE;
     if (!fAODTrack->TestFilterBit(fFilterBit)) return kFALSE;
-    if (fAODTrack->Pt() < .2) return kFALSE;
+    if (fAODTrack->Pt() < .2 || fAODTrack->Pt() > 100) return kFALSE;
     if (TMath::Abs(fAODTrack->Eta() > .9)) return kFALSE;
+
     return kTRUE;
 }
