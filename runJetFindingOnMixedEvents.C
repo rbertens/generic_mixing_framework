@@ -29,42 +29,9 @@ void runJetFindingOnMixedEvents()
     gROOT->LoadMacro("AliGMFSimpleJetFinder.cxx+");
 
     TChain* myChain = new TChain("tree");
-    myChain->Add("mixed_events/myMixedEvents_10094412.root");
-    myChain->Add("mixed_events/myMixedEvents_10415011.root");
-    myChain->Add("mixed_events/myMixedEvents_1260299.root");
-    myChain->Add("mixed_events/myMixedEvents_1583352.root");
-    myChain->Add("mixed_events/myMixedEvents_1903627.root");
-    myChain->Add("mixed_events/myMixedEvents_2229188.root");
-    myChain->Add("mixed_events/myMixedEvents_2561387.root");
-    myChain->Add("mixed_events/myMixedEvents_2901218.root");
-    myChain->Add("mixed_events/myMixedEvents_320316.root");
-    myChain->Add("mixed_events/myMixedEvents_3231211.root");
-    myChain->Add("mixed_events/myMixedEvents_3555078.root");
-    myChain->Add("mixed_events/myMixedEvents_3880177.root");
-    myChain->Add("mixed_events/myMixedEvents_4206690.root");
-    myChain->Add("mixed_events/myMixedEvents_4536821.root");
-    myChain->Add("mixed_events/myMixedEvents_4865837.root");
-    myChain->Add("mixed_events/myMixedEvents_5188367.root");
-    myChain->Add("mixed_events/myMixedEvents_5512804.root");
-    myChain->Add("mixed_events/myMixedEvents_5839134.root");
-    myChain->Add("mixed_events/myMixedEvents_6159734.root");
-    myChain->Add("mixed_events/myMixedEvents_632466.root");
-    myChain->Add("mixed_events/myMixedEvents_6474073.root");
-    myChain->Add("mixed_events/myMixedEvents_6798072.root");
-    myChain->Add("mixed_events/myMixedEvents_7122085.root");
-    myChain->Add("mixed_events/myMixedEvents_7448835.root");
-    myChain->Add("mixed_events/myMixedEvents_7783848.root");
-    myChain->Add("mixed_events/myMixedEvents_8121898.root");
-    myChain->Add("mixed_events/myMixedEvents_8448438.root");
-    myChain->Add("mixed_events/myMixedEvents_8781515.root");
-    myChain->Add("mixed_events/myMixedEvents_9109226.root");
-    myChain->Add("mixed_events/myMixedEvents_942520.root");
-    myChain->Add("mixed_events/myMixedEvents_9434385.root");
-    myChain->Add("mixed_events/myMixedEvents_9765584.root");
-    myChain->Add("mixed_events/myMixedEvents.root");
-
-
-
+    myChain->Add("myMixedEvents.root");
+    myChain->Add("myMixedEvents_4182041.root");
+    myChain->Add("myMixedEvents_8401066.root");
 
 
 
@@ -100,7 +67,7 @@ void runJetFindingOnMixedEvents()
     Float_t remainingTime = -1;
 
     // set max number of accepted events
-    Int_t iMaxEvents = iEvents;
+    Int_t iMaxEvents = 100000;
 
     for (int i = 0, j = 0 ; i < iEvents; i ++) {
         if(i==100) {

@@ -29,7 +29,6 @@ void runJetFindingOnTree()
     gROOT->LoadMacro("AliGMFSimpleJetFinder.cxx+");
 
     TChain* myChain = new TChain("tree");
-//    myChain->Add("myMixedEvents.root");
     myChain->Add("merge/000137161.root");
     myChain->Add("merge/000137162.root");
     myChain->Add("merge/000137231.root");
@@ -129,10 +128,10 @@ void runJetFindingOnTree()
     
     // create the event cuts
     AliGMFTTreeEventCuts* eventCuts = new AliGMFTTreeEventCuts();
-    eventCuts->SetMultiplicityRange(190, 210);
+    eventCuts->SetMultiplicityRange(1200,1400);
     eventCuts->SetVertexRange(-5, 5);
     eventCuts->SetEventPlaneRange(-10, 10);
-    eventCuts->SetCentralityRange(30, 50);
+    eventCuts->SetCentralityRange(10, 20);
 
     // pass the event cuts to the jet finder
     jetFinder->SetEventCuts(eventCuts);
@@ -144,7 +143,7 @@ void runJetFindingOnTree()
     Float_t remainingTime = -1;
 
     // set max number of accepted events
-    Int_t iMaxEvents = 20000;
+    Int_t iMaxEvents = 100000;
 
     for (int i = 0, j = 0 ; i < iEvents; i ++) {
         if(i==100) {

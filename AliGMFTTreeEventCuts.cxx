@@ -27,6 +27,7 @@ Bool_t AliGMFTTreeEventCuts::IsSelected(AliGMFEventContainer* event) {
     if(!PassesCentralitySelection()) return kFALSE;
     if(!PassesVertexSelection()) return kFALSE;
     if(!PassesEventPlaneSelection()) return kFALSE;
+    if(!PassesMultiplicitySelection()) return kFALSE;
     // all is good, jay
     return kTRUE;
 }

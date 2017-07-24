@@ -45,6 +45,7 @@ Bool_t AliGMFSimpleJetFinder::Initialize() {
    
    // create the histograms (for now here)
    fHistogramManager->BookTH1F("fHistJetPt", "p_{T}^{jet}", 100, 0, 100);
+   fHistogramManager->BookTH1F("fHistJetPtSubtracted", "p_{T}^{jet sub} = p_{T}^{jet} - #rho A ", 100, -30, 70); 
    fHistogramManager->BookTH1F("fHistMultiplicity", "track multiplicity", 1000, 0, 2000);
    fHistogramManager->BookTH1F("fHistRho", "#rho", 100, 0, 150);
    fHistogramManager->BookTH2F("fHistJetPtArea", "p_{T}^{jet}", "area", 100, 0, 100, 100, 0, 1);
@@ -78,25 +79,32 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
     // store some event info
     fHistogramManager->Fill("fHistMultiplicity", event->GetNumberOfTracks());
 
+    Double_t px(0), py(0), pz(0);
+    Int_t j(0);
+
     for(Int_t i(0); i < event->GetNumberOfTracks(); i++) {
         track = event->GetTrack(i);
         if(track) {
-            totalE = track->GetPt()*TMath::CosH(track->GetEta());
+            px = track->GetPt()*TMath::Cos(track->GetPhi()); 
+            py = track->GetPt()*TMath::Sin(track->GetPhi());  
+            pz = track->GetPt()*TMath::SinH(track->GetEta()); 
+            totalE = px*px+py*py+pz*pz;
             if (totalE <= 0) continue;
-            totalE = totalE*totalE + .14*.14;   // assume pion mass for each track
             /*
-            printf("total E %.4f", totalE);
-            printf("track->GetPt()*TMath::Cos(track->GetPhi()), %.4f \n", track->GetPt()*TMath::Cos(track->GetPhi())); 
-            printf("track->GetPt()*TMath::Sin(track->GetPhi()), %.4f \n", track->GetPt()*TMath::Sin(track->GetPhi()));  
-            printf("track->GetPt()*TMath::SinH(track->GetEta()), %.4f \n", track->GetPt()*TMath::SinH(track->GetEta())); 
-            */
+            printf(" px %.4f \n", px);
+            printf(" py %.4f \n", py);
+            printf(" pz %.4f \n", pz);
+            printf(" E %.4f \n", TMath::Sqrt(totalE));
+*/
             fastjet::PseudoJet fjInputProtoJet(
-                    track->GetPt()*TMath::Cos(track->GetPhi()), 
-                    track->GetPt()*TMath::Sin(track->GetPhi()), 
-                    track->GetPt()*TMath::SinH(track->GetEta()), 
+                    px, 
+                    py, 
+                    pz, 
                     TMath::Sqrt(totalE));
-            fjInputProtoJet.set_user_index(i);
+
+            fjInputProtoJet.set_user_index(j);
             fjInputVector.push_back(fjInputProtoJet);
+            j++;
         }
     }
 
@@ -118,7 +126,24 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
 
     // get the jets
     std::vector <fastjet::PseudoJet> inclusiveJets = clusterSeq.inclusive_jets();
+    std::vector <fastjet::PseudoJet> backgroundJets = clusterSeqRho.inclusive_jets();
+ 
+ 
+    // do the background stuff
+    Double_t rhoVector[backgroundJets.size()];
 
+    for (UInt_t iJet = 0; iJet < backgroundJets.size(); iJet++) {
+        // TODO first pass to exclude n number of hard jets
+        if (!range.is_in_range(inclusiveJets[iJet])) continue;
+        rhoVector[iJet] = backgroundJets[iJet].perp() / backgroundJets[iJet].area();
+    }
+    Double_t rho = TMath::Median(backgroundJets.size(), rhoVector);
+    fHistogramManager->Fill(
+            "fHistRho", 
+            rho
+            );
+
+    // fill the jet histograms
     for (UInt_t iJet = 0; iJet < inclusiveJets.size(); iJet++) {
         if (!range.is_in_range(inclusiveJets[iJet])) continue;
         // loop over constituents to apply leading hadron cut
@@ -141,25 +166,16 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
                 inclusiveJets[iJet].area()
                 );
         fHistogramManager->Fill(
+                "fHistJetPtSubtracted",
+                inclusiveJets[iJet].perp() - rho * inclusiveJets[iJet].area()
+                );
+        fHistogramManager->Fill(
                 "fHistJetEtaPhi",
                 inclusiveJets[iJet].eta(),
                 inclusiveJets[iJet].phi()
                 );
     }
 
-    std::vector <fastjet::PseudoJet> backgroundJets = clusterSeqRho.inclusive_jets();
-    Double_t rhoVector[backgroundJets.size()];
-
-    for (UInt_t iJet = 0; iJet < backgroundJets.size(); iJet++) {
-        // TODO first pass to exclude n number of hard jets
-        if (!range.is_in_range(inclusiveJets[iJet])) continue;
-        rhoVector[iJet] = backgroundJets[iJet].perp() / backgroundJets[iJet].area();
-    }
-    Double_t rho = TMath::Median(backgroundJets.size(), rhoVector);
-    fHistogramManager->Fill(
-            "fHistRho", 
-            rho
-            );
 
     return kTRUE;
 }

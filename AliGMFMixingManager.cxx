@@ -111,6 +111,9 @@ void AliGMFMixingManager::InitializeMixingCache() {
         return;
     }
 
+#if VERBOSE > 0
+    printf("   ... created cache (this can allocate a lot of RAM)  ... ");
+#endif
 
     fEventCache = new TObjArray(fMultiplicityMax, 0);
     fEventCache->SetOwner(kTRUE);
@@ -129,9 +132,8 @@ void AliGMFMixingManager::InitializeMixingCache() {
                 i); // this is the iterator of the object array
     }
 #if VERBOSE > 0
-    printf("   ... created cache (this can allocate a lot of RAM)  \n");
+    printf("   ... done  \n");
 #endif
-
 }
 //_____________________________________________________________________________
 Bool_t AliGMFMixingManager::FillMixingCache() {
@@ -157,7 +159,7 @@ Bool_t AliGMFMixingManager::FillMixingCache() {
             cachedEvent->Fill(currentEvent);
             iCache++;
 #if VERBOSE > 0
-    std::cout << "     - caching event " << iCache << " at buffer position " << fEventBufferPosition << "\r"; cout.flush();
+    std::cout << "     - caching event " << iCache+1 << " at buffer position " << fEventBufferPosition << "\r"; cout.flush();
 #endif
             if(fQAManager) {
                 fQAManager->Fill("fHistAcceptedMultiplicity", currentEvent->GetMultiplicity());
@@ -202,7 +204,7 @@ void AliGMFMixingManager::FillHeaderWithCachedEventInfo() {
     if(fBufferedEvent) {
         fEvent->SetZvtx(fBufferedEvent->GetZvtx());
         fEvent->SetEventPlane(fBufferedEvent->GetEventPlane());
-        fEvent->SetCentrality(fBufferedEvent->SetCentrality());
+        fEvent->SetCentrality(fBufferedEvent->GetCentrality());
         // and fill the qa hists
         fQAManager->Fill("fHistMixedVertex", fBufferedEvent->GetZvtx());
         fQAManager->Fill("fHistMixedEventPlane", fBufferedEvent->GetEventPlane());

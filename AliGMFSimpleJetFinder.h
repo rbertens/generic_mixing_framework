@@ -26,7 +26,7 @@ class AliGMFSimpleJetFinder : public TObject {
         Bool_t  fDoBackgroundSubtraction;       // do background subtraction
         Float_t fJetResolution;                 // jet resolution parameter
         Float_t fLeadingHadronPt;               // leading hadron pt
-        AliGMFTTreeEventCuts* fEventCuts;       // event cuts
+        AliGMFTTreeEventCuts*        fEventCuts;       // event cuts
         // histograms
         AliGMFHistogramManager* fHistogramManager;      // histogram manager
 
