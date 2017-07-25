@@ -108,10 +108,10 @@ void runEventMixer()
 
     // configure the mixer
     mixer->SetMultiplicityRange(1200, 1400);
-    mixer->SetVertexRange(-5, 5);
+    mixer->SetVertexRange(-1, 1);
     mixer->SetEventPlaneRange(-10, 10);
     mixer->SetCentralityRange(10, 20);
-    mixer->SetMaxEventsPerFile(100000);
+    mixer->SetMaxEventsPerFile(10000);
     mixer->DoQA();
 
     // run the mixer

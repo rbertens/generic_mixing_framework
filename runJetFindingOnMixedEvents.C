@@ -30,8 +30,8 @@ void runJetFindingOnMixedEvents()
 
     TChain* myChain = new TChain("tree");
     myChain->Add("myMixedEvents.root");
-    myChain->Add("myMixedEvents_4182041.root");
-    myChain->Add("myMixedEvents_8401066.root");
+//    myChain->Add("myMixedEvents_4182041.root");
+//    myChain->Add("myMixedEvents_8401066.root");
 
 
 
@@ -49,16 +49,16 @@ void runJetFindingOnMixedEvents()
      *
      * no cuts are used here, the mixed events
      * are tuned specifically to what we want
-     *
-    AliGMFTTreeEventCuts* eventCuts = new AliGMFTTreeEventCuts();
-    eventCuts->SetMultiplicityRange(190, 210);
-    eventCuts->SetVertexRange(-5, 5);
-    eventCuts->SetEventPlaneRange(-10, 10);
-    eventCuts->SetCentralityRange(30, 50);
+     */
+  //  AliGMFTTreeEventCuts* eventCuts = new AliGMFTTreeEventCuts();
+  //  eventCuts->SetMultiplicityRange(190, 210);
+  //  eventCuts->SetVertexRange(-5, 5);
+  //  eventCuts->SetEventPlaneRange(-10, 10);
+  //  eventCuts->SetCentralityRange(10, 12);
 
     // pass the event cuts to the jet finder
-    jetFinder->SetEventCuts(eventCuts);
-    */
+  //  jetFinder->SetEventCuts(eventCuts);
+    
 
     TStopwatch timer;
     timer.Start();
@@ -67,7 +67,7 @@ void runJetFindingOnMixedEvents()
     Float_t remainingTime = -1;
 
     // set max number of accepted events
-    Int_t iMaxEvents = 100000;
+    Int_t iMaxEvents = iEvents;
 
     for (int i = 0, j = 0 ; i < iEvents; i ++) {
         if(i==100) {

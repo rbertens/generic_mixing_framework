@@ -72,12 +72,12 @@ void runJetFindingOnTree()
     myChain->Add("merge/000138197.root");
     myChain->Add("merge/000138201.root");
     myChain->Add("merge/000138225.root");
-//    myChain->Add("merge/000138275.root");
+    //    myChain->Add("merge/000138275.root");
     myChain->Add("merge/000138364.root");
     myChain->Add("merge/000138439.root");
     myChain->Add("merge/000138442.root");
     myChain->Add("merge/000138469.root");
-//    myChain->Add("merge/000138534.root");
+    //    myChain->Add("merge/000138534.root");
     myChain->Add("merge/000138578.root");
     myChain->Add("merge/000138579.root");
     myChain->Add("merge/000138582.root");
@@ -96,7 +96,7 @@ void runJetFindingOnTree()
     myChain->Add("merge/000139029.root");
     myChain->Add("merge/000139036.root");
     myChain->Add("merge/000139037.root");
-//    myChain->Add("merge/000139038.root");
+    //    myChain->Add("merge/000139038.root");
     myChain->Add("merge/000139105.root");
     myChain->Add("merge/000139107.root");
     myChain->Add("merge/000139173.root");
@@ -105,7 +105,7 @@ void runJetFindingOnTree()
     myChain->Add("merge/000139314.root");
     myChain->Add("merge/000139328.root");
     myChain->Add("merge/000139329.root");
-//    myChain->Add("merge/000139437.root");
+    //    myChain->Add("merge/000139437.root");
     myChain->Add("merge/000139438.root");
     myChain->Add("merge/000139503.root");
     myChain->Add("merge/000139505.root");
@@ -121,44 +121,53 @@ void runJetFindingOnTree()
     // initialize the reader and jet finder
     AliGMFEventReader* reader = new AliGMFEventReader(myChain);
     cout << reader->GetNumberOfEvents() << " events available for analysis " << endl;
-    
-    // create the jet finder
-    AliGMFSimpleJetFinder* jetFinder = new AliGMFSimpleJetFinder();
-    jetFinder->Initialize();    // tbd pass enum on configuratioin
-    
-    // create the event cuts
-    AliGMFTTreeEventCuts* eventCuts = new AliGMFTTreeEventCuts();
-    eventCuts->SetMultiplicityRange(1200,1400);
-    eventCuts->SetVertexRange(-5, 5);
-    eventCuts->SetEventPlaneRange(-10, 10);
-    eventCuts->SetCentralityRange(10, 20);
 
-    // pass the event cuts to the jet finder
-    jetFinder->SetEventCuts(eventCuts);
+    // create the jet finder
 
     TStopwatch timer;
     timer.Start();
-    
+
     Int_t iEvents = reader->GetNumberOfEvents();
     Float_t remainingTime = -1;
 
     // set max number of accepted events
-    Int_t iMaxEvents = 100000;
+    Int_t iMaxEvents = 10000;
 
-    for (int i = 0, j = 0 ; i < iEvents; i ++) {
-        if(i==100) {
-            remainingTime = timer.RealTime()/100.;
-            cout << " - remaining time (min) approximately " << remainingTime*(iEvents-i)/60. << endl;
-        } else if (i > 0 && i%1000 == 0) cout << " - remaining time (min) approximately " << remainingTime*(iEvents-i)/60. << endl; 
-        if(!jetFinder->AnalyzeEvent(reader->GetEvent(i))) continue;
-        j++;
-        if(j > iMaxEvents) break;
-        cout << " Processed event " << i << " of which accepted " << j << "\r"; cout.flush();
+    for(int a = 0; a < 6; a++) {
+        AliGMFSimpleJetFinder* jetFinder = new AliGMFSimpleJetFinder();
+        jetFinder->Initialize();    // tbd pass enum on configuratioin
+
+
+
+        // create the event cuts
+        AliGMFTTreeEventCuts* eventCuts = new AliGMFTTreeEventCuts();
+        eventCuts->SetMultiplicityRange(0,10000);
+        eventCuts->SetVertexRange(-5, 5);
+        eventCuts->SetEventPlaneRange(-10, 10);
+
+
+        eventCuts->SetCentralityRange(a*10, (a+1)*10);
+
+        // pass the event cuts to the jet finder
+        jetFinder->SetEventCuts(eventCuts);
+
+
+
+        for (int i = 0, j = 0 ; i < iEvents; i ++) {
+            if(i==100) {
+                remainingTime = timer.RealTime()/100.;
+                cout << " - remaining time (min) approximately " << remainingTime*(iEvents-i)/60. << endl;
+            } else if (i > 0 && i%1000 == 0) cout << " - remaining time (min) approximately " << remainingTime*(iEvents-i)/60. << endl; 
+            if(!jetFinder->AnalyzeEvent(reader->GetEvent(i))) continue;
+            j++;
+            if(j > iMaxEvents) break;
+            cout << " Processed event " << i << " of which accepted " << j << "\r"; cout.flush();
+        }
+
+        // write and clear memory
+        jetFinder->Finalize(Form("myJets_%i_%i", a, a+1));
+
     }
-
-    // write and clear memory
-    jetFinder->Finalize("myJets");
-
     delete jetFinder;
     delete reader;
 

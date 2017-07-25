@@ -31,7 +31,12 @@ class AliGMFMixingManager : public TObject {
     Bool_t      Initialize();
     Int_t       DoPerChunkMixing();
 
-    // setters
+    enum howToChooseMultiplicity {
+        kUseMinimum,
+        kUseRandom,
+        kUseDistribution};
+
+    // setters - ranges
     void SetMultiplicityRange(Int_t min, Int_t max) {
         fMultiplicityMin = min;
         fMultiplicityMax = max;
@@ -50,6 +55,13 @@ class AliGMFMixingManager : public TObject {
         fCentralityMax = max;
     }
 
+    // setters - behavior
+    void SetHowToChooseMultiplicity(howToChooseMultiplicity h) {
+        fHowToChooseMultiplicity = h;
+    }
+        
+    
+    // setters - IO
     void SetMaxEventsPerFile(Int_t e)           {fMaxEventsPerFile = e;}
 
     void SetEventReader(AliGMFEventReader* r)   {fEventReader = r;}
@@ -78,6 +90,8 @@ class AliGMFMixingManager : public TObject {
     Float_t     fCentralityMin;     // minimum event centrality
     Float_t     fCentralityMax;     // maximum event centrality
     Int_t       fMaxEventsPerFile;  // maximum number of mixed events written per file
+
+    howToChooseMultiplicity     fHowToChooseMultiplicity;       // how to choose multiplicity
 
     // data structures for mixed event output
     TTree*                      fTree;                  //! output data
