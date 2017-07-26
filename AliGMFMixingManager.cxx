@@ -161,6 +161,8 @@ Bool_t AliGMFMixingManager::FillMixingCache() {
             // this event meets out criteria, we make a local copy of it to the cache
             cachedEvent = static_cast<AliGMFEventContainer*>(fEventCache->At(iCache));
             cachedEvent->Fill(currentEvent);
+            // and shuffle the indices of the tracks
+            cachedEvent->ShuffleTrackIndices();
             iCache++;
 #if VERBOSE > 0
             std::cout << "     - caching event " << iCache+1 << " at buffer position " << fEventBufferPosition << "\r"; cout.flush();
@@ -225,15 +227,7 @@ AliGMFTTreeTrack* AliGMFMixingManager::GetNextTrackFromEventI(Int_t i) {
     // first stage the i-th event
     StageCachedEvent(i);
 
-    // then retrieve the track buffer position for this track and get the track itself
-    // TODO
-    // small hack; see if scrambling the index fixes the jet finder issue
-
-
-    //AliGMFTTreeTrack* track(fBufferedEvent->GetTrack(fTrackBufferPosition));
-    Int_t rand = gRandom->Uniform(0, fMultiplicityMax);
-    
-    AliGMFTTreeTrack* track(fBufferedEvent->GetTrack(rand));
+    AliGMFTTreeTrack* track(fBufferedEvent->GetTrack(fTrackBufferPosition));
     return track;
 
 }

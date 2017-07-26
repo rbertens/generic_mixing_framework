@@ -64,7 +64,7 @@ void runJetFindingOnMixedEvents()
     Float_t remainingTime = -1;
 
     // set max number of accepted events
-    Int_t iMaxEvents = 100000;
+    Int_t iMaxEvents = 100;
 
     for (int i = 0, j = 0 ; i < iEvents; i ++) {
         if(i==100) {
@@ -78,7 +78,7 @@ void runJetFindingOnMixedEvents()
     }
 
     // write and clear memory
-    jetFinder->Finalize("myMixedJets");
+    jetFinder->Finalize("myMixedJets_test");
 
     delete jetFinder;
     delete reader;

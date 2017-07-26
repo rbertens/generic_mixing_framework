@@ -88,9 +88,11 @@ void AliGMFEventContainer::ShuffleTrackIndices() {
     ResetTrackIndices();
 
     // shuffle the indices
-    std::random_shuffle(
+    auto engine = std::default_random_engine{};
+    std::shuffle(
             fTrackIndexMap.begin(), 
-            fTrackIndexMap.end());
+            fTrackIndexMap.end(),
+            engine);
 }
 //_____________________________________________________________________________
 void AliGMFEventContainer::ResetTrackIndices() {
