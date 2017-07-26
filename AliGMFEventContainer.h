@@ -9,6 +9,8 @@
 #include "AliGMFTTreeTrack.h"
 #include "AliGMFTTreeHeader.h"
 
+#include <vector>
+
 //forward declarations
 class AliGMFTTreeTrack;
 
@@ -32,8 +34,7 @@ class AliGMFEventContainer : public TObject {
 
        // interface
        Int_t                    GetNumberOfTracks()     { return fTracks->GetEntries();}
-       AliGMFTTreeTrack*        GetTrack(Int_t i)       { return static_cast<AliGMFTTreeTrack*>(fTracks->At(i));}
-
+       AliGMFTTreeTrack*        GetTrack(Int_t i);
        Int_t                    GetMultiplicity()       { return GetNumberOfTracks(); }
        Float_t                  GetEventPlane()         { return fHeader->GetEventPlane(); }
        Float_t                  GetZvtx()               { return fHeader->GetZvtx(); }
@@ -44,10 +45,15 @@ class AliGMFEventContainer : public TObject {
        
        void                     Dump() const;
 
+       void                     ShuffleTrackIndices();
+       void                     ResetTrackIndices();
+
    private:
        // members
        TClonesArray*            fTracks;        // tclones array with tracks
        AliGMFTTreeHeader*       fHeader;        // event header
+       std::vector<int>         fTrackIndexMap; // track index map
+       
 
        ClassDef(AliGMFEventContainer,1)
 };

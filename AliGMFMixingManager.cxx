@@ -226,8 +226,14 @@ AliGMFTTreeTrack* AliGMFMixingManager::GetNextTrackFromEventI(Int_t i) {
     StageCachedEvent(i);
 
     // then retrieve the track buffer position for this track and get the track itself
-    AliGMFTTreeTrack* track(fBufferedEvent->GetTrack(fTrackBufferPosition));
+    // TODO
+    // small hack; see if scrambling the index fixes the jet finder issue
 
+
+    //AliGMFTTreeTrack* track(fBufferedEvent->GetTrack(fTrackBufferPosition));
+    Int_t rand = gRandom->Uniform(0, fMultiplicityMax);
+    
+    AliGMFTTreeTrack* track(fBufferedEvent->GetTrack(rand));
     return track;
 
 }

@@ -131,9 +131,9 @@ void runJetFindingOnTree()
     Float_t remainingTime = -1;
 
     // set max number of accepted events
-    Int_t iMaxEvents = 10000;
+    Int_t iMaxEvents = 100000;
 
-    for(int a = 0; a < 6; a++) {
+    for(int a = 0; a < 5; a++) {
         AliGMFSimpleJetFinder* jetFinder = new AliGMFSimpleJetFinder();
         jetFinder->Initialize();    // tbd pass enum on configuratioin
 

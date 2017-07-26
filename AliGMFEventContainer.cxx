@@ -1,3 +1,10 @@
+// for the track shuffler
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <ctime>
+#include <cstdlib>
+
 // root includes
 #include "TClonesArray.h"
 
@@ -67,6 +74,40 @@ void AliGMFEventContainer::Dump() const {
     if(fTracks) {
         printf(" Dump array with %i tracks \n", fTracks->GetEntries());
         fTracks->Dump();
+    }
+}
+//_____________________________________________________________________________
+void AliGMFEventContainer::ShuffleTrackIndices() {
+    // the order of tracks is not necessarily 'random'
+    // this function shuffles the indices in the track so that the
+    // new index array is a random bijection of the old index array
+
+    // reset the current shuffled indices  or create a new map
+    // if there's no old in memory
+
+    ResetTrackIndices();
+
+    // shuffle the indices
+    std::random_shuffle(
+            fTrackIndexMap.begin(), 
+            fTrackIndexMap.end());
+}
+//_____________________________________________________________________________
+void AliGMFEventContainer::ResetTrackIndices() {
+    // reset the track indices to non-shuffled values
+    if(!fTrackIndexMap.empty()) {
+        fTrackIndexMap.clear();
+    }
+    for (Int_t i = 0; i < GetNumberOfTracks(); i++) fTrackIndexMap.push_back(i);
+}
+//_____________________________________________________________________________
+AliGMFTTreeTrack* AliGMFEventContainer::GetTrack(Int_t i) {
+    // return the i-th track of the event
+
+    if(fTrackIndexMap.empty()) {
+        return static_cast<AliGMFTTreeTrack*>(fTracks->At(i));
+    } else {
+        return static_cast<AliGMFTTreeTrack*>(fTracks->At(fTrackIndexMap[i]));
     }
 }
 

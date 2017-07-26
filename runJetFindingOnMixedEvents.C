@@ -30,9 +30,6 @@ void runJetFindingOnMixedEvents()
 
     TChain* myChain = new TChain("tree");
     myChain->Add("myMixedEvents.root");
-//    myChain->Add("myMixedEvents_4182041.root");
-//    myChain->Add("myMixedEvents_8401066.root");
-
 
 
     // add more files if desired, e.g. per class
@@ -67,7 +64,7 @@ void runJetFindingOnMixedEvents()
     Float_t remainingTime = -1;
 
     // set max number of accepted events
-    Int_t iMaxEvents = iEvents;
+    Int_t iMaxEvents = 100000;
 
     for (int i = 0, j = 0 ; i < iEvents; i ++) {
         if(i==100) {
