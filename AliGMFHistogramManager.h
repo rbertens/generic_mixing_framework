@@ -1,8 +1,8 @@
 #ifndef ALIGMFHISTOGRAMMANAGER_H
 #define ALIGMFHISTOGRAMMANAGER_H
 
-class TH1F;
-class TH2F;
+class TH1D;
+class TH2D;
 class TH3F;
 class TList;
 class TObject;
@@ -13,8 +13,8 @@ class AliGMFHistogramManager : public TObject {
         AliGMFHistogramManager();
 
         // adding histograms to the list
-        TH1F*   BookTH1F(const char* name, const char* x, Int_t bins, Double_t min, Double_t max, Bool_t append = kTRUE);
-        TH2F*   BookTH2F(const char* name, const char* x, const char* y, Int_t binsx, Double_t minx, Double_t maxx, Int_t binsy, Double_t miny, Double_t maxy, Bool_t append = kTRUE);
+        TH1D*   BookTH1D(const char* name, const char* x, Int_t bins, Double_t min, Double_t max, Bool_t append = kTRUE);
+        TH2D*   BookTH2D(const char* name, const char* x, const char* y, Int_t binsx, Double_t minx, Double_t maxx, Int_t binsy, Double_t miny, Double_t maxy, Bool_t append = kTRUE);
         TH3F*   BookTH3F(const char* name, const char* x, const char* y, const char* z, Int_t binsx, Double_t minx, Double_t maxx, Int_t binsy, Double_t miny, Double_t maxy, Int_t binsz, Double_t minz, Double_t maxz, Bool_t append = kTRUE); 
 
 

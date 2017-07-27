@@ -60,26 +60,26 @@ AliGMFMixingManager::~AliGMFMixingManager() {
 void AliGMFMixingManager::DoQA() {
     // initialize the QA manager
     fQAManager = new AliGMFHistogramManager();
-    fQAManager->BookTH1F("fHistRejectedMultiplicity", "counts", 1000, 0, 2000);
-    fQAManager->BookTH2F("fHistRejectedMultCent", "counts", "percentile", 100, 0, 2000, 100, 0, 100);
-    fQAManager->BookTH1F("fHistRejectedVertex", "cm", 100, -12, 12);
-    fQAManager->BookTH1F("fHistRejectedCentrality", "percentile", 100, 0, 100);
-    fQAManager->BookTH1F("fHistAcceptedMultiplicity", "counts", 1000, 0, 2000);
-    fQAManager->BookTH2F("fHistAcceptedMultCent", "counts", "percentile", 100, 0, 2000, 100, 0, 100);
-    fQAManager->BookTH1F("fHistAcceptedVertex", "cm", 100, -12, 12);
-    fQAManager->BookTH1F("fHistAcceptedCentrality", "percentile", 100, 0, 100);
-    fQAManager->BookTH1F("fHistRejectionReason", "0=mult 1=vtx 2=ep 3=cen", 4, 0, 4);
-    fQAManager->BookTH1F("fHistUnmixedPt", "#it{p}_{T} (GeV/c)", 100, 0, 20);
-    fQAManager->BookTH1F("fHistUnmixedEta", "#eta", 100, -1, 1);
-    fQAManager->BookTH1F("fHistUnmixedPhi", "#phi", 100, 0, TMath::TwoPi());
-    fQAManager->BookTH2F("fHistUnmixedEtaPhi", "#eta", "#phi", 100, -1, 1, 100, 0, TMath::TwoPi());
-    fQAManager->BookTH1F("fHistMixedPt", "#it{p}_{T} (GeV/c)", 100, 0, 20);
-    fQAManager->BookTH1F("fHistMixedEta", "#eta", 100, -1, 1);
-    fQAManager->BookTH1F("fHistMixedPhi", "#phi", 100, 0, TMath::TwoPi());
-    fQAManager->BookTH2F("fHistMixedEtaPhi", "#eta", "#phi", 100, -1, 1, 100, 0, TMath::TwoPi());
-    fQAManager->BookTH1F("fHistMixedVertex", "cm", 100, -12, 12);
-    fQAManager->BookTH1F("fHistMixedCentrality", "percentile", 100, 0, 100);
-    fQAManager->BookTH1F("fHistMixedEventPlane", "#Psi", 100, -4, 4);
+    fQAManager->BookTH1D("fHistRejectedMultiplicity", "counts", 1000, 0, 2000);
+    fQAManager->BookTH2D("fHistRejectedMultCent", "counts", "percentile", 100, 0, 2000, 100, 0, 100);
+    fQAManager->BookTH1D("fHistRejectedVertex", "cm", 100, -12, 12);
+    fQAManager->BookTH1D("fHistRejectedCentrality", "percentile", 100, 0, 100);
+    fQAManager->BookTH1D("fHistAcceptedMultiplicity", "counts", 1000, 0, 2000);
+    fQAManager->BookTH2D("fHistAcceptedMultCent", "counts", "percentile", 100, 0, 2000, 100, 0, 100);
+    fQAManager->BookTH1D("fHistAcceptedVertex", "cm", 100, -12, 12);
+    fQAManager->BookTH1D("fHistAcceptedCentrality", "percentile", 100, 0, 100);
+    fQAManager->BookTH1D("fHistRejectionReason", "0=mult 1=vtx 2=ep 3=cen", 4, 0, 4);
+    fQAManager->BookTH1D("fHistUnmixedPt", "#it{p}_{T} (GeV/c)", 100, 0, 20);
+    fQAManager->BookTH1D("fHistUnmixedEta", "#eta", 100, -1, 1);
+    fQAManager->BookTH1D("fHistUnmixedPhi", "#phi", 100, 0, TMath::TwoPi());
+    fQAManager->BookTH2D("fHistUnmixedEtaPhi", "#eta", "#phi", 100, -1, 1, 100, 0, TMath::TwoPi());
+    fQAManager->BookTH1D("fHistMixedPt", "#it{p}_{T} (GeV/c)", 100, 0, 20);
+    fQAManager->BookTH1D("fHistMixedEta", "#eta", 100, -1, 1);
+    fQAManager->BookTH1D("fHistMixedPhi", "#phi", 100, 0, TMath::TwoPi());
+    fQAManager->BookTH2D("fHistMixedEtaPhi", "#eta", "#phi", 100, -1, 1, 100, 0, TMath::TwoPi());
+    fQAManager->BookTH1D("fHistMixedVertex", "cm", 100, -12, 12);
+    fQAManager->BookTH1D("fHistMixedCentrality", "percentile", 100, 0, 100);
+    fQAManager->BookTH1D("fHistMixedEventPlane", "#Psi", 100, -4, 4);
 }
 //_____________________________________________________________________________
 Bool_t AliGMFMixingManager::Initialize() {

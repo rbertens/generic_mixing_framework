@@ -13,7 +13,7 @@
 #include <iostream>
 #include <vector>
 
-#include "TH1F.h"
+#include "TH1D.h"
 #include "TFile.h"
 #include "TMath.h"
 
@@ -44,15 +44,15 @@ Bool_t AliGMFSimpleJetFinder::Initialize() {
    fHistogramManager = new AliGMFHistogramManager();
    
    // create the histograms (for now here)
-   fHistogramManager->BookTH1F("fHistJetPt", "p_{T}^{jet}", 100, 0, 100);
-   fHistogramManager->BookTH1F("fHistJetPtSubtracted", "p_{T}^{jet sub} = p_{T}^{jet} - #rho A ", 100, -30, 70); 
-   fHistogramManager->BookTH1F("fHistMultiplicity", "track multiplicity", 1000, 0, 2000);
-   fHistogramManager->BookTH1F("fHistRho", "#rho", 100, 0, 150);
-   fHistogramManager->BookTH2F("fHistJetPtArea", "p_{T}^{jet}", "area", 100, 0, 100, 100, 0, 1);
-   fHistogramManager->BookTH2F("fHistJetEtaPhi", "#eta^{jet}", "#phi^{jet}", 100, -1, 1, 100, 0, TMath::TwoPi());
-   fHistogramManager->BookTH1F("fHistVertex", "cm", 100, -12, 12);
-   fHistogramManager->BookTH1F("fHistCentrality", "percentile", 100, 0, 100);
-   fHistogramManager->BookTH1F("fHistEventPlane", "#Psi", 100, -4, 4);
+   fHistogramManager->BookTH1D("fHistJetPt", "p_{T}^{jet}", 100, 0, 100);
+   fHistogramManager->BookTH1D("fHistJetPtSubtracted", "p_{T}^{jet sub} = p_{T}^{jet} - #rho A ", 100, -30, 70); 
+   fHistogramManager->BookTH1D("fHistMultiplicity", "track multiplicity", 1000, 0, 2000);
+   fHistogramManager->BookTH1D("fHistRho", "#rho", 100, 0, 150);
+   fHistogramManager->BookTH2D("fHistJetPtArea", "p_{T}^{jet}", "area", 100, 0, 100, 100, 0, 1);
+   fHistogramManager->BookTH2D("fHistJetEtaPhi", "#eta^{jet}", "#phi^{jet}", 100, -1, 1, 100, 0, TMath::TwoPi());
+   fHistogramManager->BookTH1D("fHistVertex", "cm", 100, -12, 12);
+   fHistogramManager->BookTH1D("fHistCentrality", "percentile", 100, 0, 100);
+   fHistogramManager->BookTH1D("fHistEventPlane", "#Psi", 100, -4, 4);
 
    return kTRUE;
 

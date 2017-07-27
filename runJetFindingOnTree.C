@@ -131,9 +131,9 @@ void runJetFindingOnTree()
     Float_t remainingTime = -1;
 
     // set max number of accepted events
-    Int_t iMaxEvents = 100000;
+    Int_t iMaxEvents = 1420;
 
-    for(int a = 0; a < 5; a++) {
+    for(int a = 4; a < 5; a++) {
         AliGMFSimpleJetFinder* jetFinder = new AliGMFSimpleJetFinder();
         jetFinder->Initialize();    // tbd pass enum on configuratioin
 
@@ -158,6 +158,8 @@ void runJetFindingOnTree()
                 remainingTime = timer.RealTime()/100.;
                 cout << " - remaining time (min) approximately " << remainingTime*(iEvents-i)/60. << endl;
             } else if (i > 0 && i%1000 == 0) cout << " - remaining time (min) approximately " << remainingTime*(iEvents-i)/60. << endl; 
+            
+    if(j==1421) {j++; continue;};
             if(!jetFinder->AnalyzeEvent(reader->GetEvent(i))) continue;
             j++;
             if(j > iMaxEvents) break;

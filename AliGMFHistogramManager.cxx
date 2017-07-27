@@ -3,8 +3,8 @@
 // Redmer Alexander Bertens, 2017 (UTK, CERN)
 
 
-#include "TH1F.h"
-#include "TH2F.h"
+#include "TH1D.h"
+#include "TH2D.h"
 #include "TH3F.h"
 #include "TList.h"
 #include "TFile.h"
@@ -25,25 +25,25 @@ AliGMFHistogramManager::AliGMFHistogramManager() : TObject(),
 }
 
    //_____________________________________________________________________________
-TH1F* AliGMFHistogramManager::BookTH1F(const char* name, const char* x, Int_t bins, Double_t min, Double_t max, Bool_t append)
+TH1D* AliGMFHistogramManager::BookTH1D(const char* name, const char* x, Int_t bins, Double_t min, Double_t max, Bool_t append)
 {
-    // book a TH1F and connect it to the output container
+    // book a TH1D and connect it to the output container
     if(append && !fOutputList) return 0x0;
     TString title(name);
     title += Form(";%s;[counts]", x);
-    TH1F* histogram = new TH1F(name, title.Data(), bins, min, max);
+    TH1D* histogram = new TH1D(name, title.Data(), bins, min, max);
     histogram->Sumw2();
     if(append) fOutputList->Add(histogram);
     return histogram;   
 }
 //_____________________________________________________________________________
-TH2F* AliGMFHistogramManager::BookTH2F(const char* name, const char* x, const char* y, Int_t binsx, Double_t minx, Double_t maxx, Int_t binsy, Double_t miny, Double_t maxy, Bool_t append)
+TH2D* AliGMFHistogramManager::BookTH2D(const char* name, const char* x, const char* y, Int_t binsx, Double_t minx, Double_t maxx, Int_t binsy, Double_t miny, Double_t maxy, Bool_t append)
 {
-    // book a TH2F and connect it to the output container
+    // book a TH2D and connect it to the output container
     if(append && !fOutputList) return 0x0;
     TString title(name);
     title += Form(";%s;%s", x, y);
-    TH2F* histogram = new TH2F(name, title.Data(), binsx, minx, maxx, binsy, miny, maxy);
+    TH2D* histogram = new TH2D(name, title.Data(), binsx, minx, maxx, binsy, miny, maxy);
     histogram->Sumw2();
     if(append) fOutputList->Add(histogram);
     return histogram;   
@@ -51,7 +51,7 @@ TH2F* AliGMFHistogramManager::BookTH2F(const char* name, const char* x, const ch
 //_____________________________________________________________________________
 TH3F* AliGMFHistogramManager::BookTH3F(const char* name, const char* x, const char* y, const char* z, Int_t binsx, Double_t minx, Double_t maxx, Int_t binsy, Double_t miny, Double_t maxy, Int_t binsz, Double_t minz, Double_t maxz, Bool_t append)
 {
-    // book a TH2F and connect it to the output container
+    // book a TH2D and connect it to the output container
     if(append && !fOutputList) return 0x0;
     TString title(name);
     title += Form(";%s;%s;%s", x, y, z);
