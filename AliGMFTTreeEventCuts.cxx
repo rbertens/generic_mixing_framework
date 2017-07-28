@@ -1,12 +1,12 @@
  // author: redmer alexander bertens (rbertnens@cern.ch)
 
-#include "AliGMFTTreeEventCuts.h"
+#include "AliGMFSimpleEventCuts.h"
 #include "AliCentrality.h"
 #include "AliGMFEventContainer.h"
 
-ClassImp(AliGMFTTreeEventCuts);
+ClassImp(AliGMFSimpleEventCuts);
 
-AliGMFTTreeEventCuts::AliGMFTTreeEventCuts() : TObject(),
+AliGMFSimpleEventCuts::AliGMFSimpleEventCuts() : TObject(),
     fMultiplicityMin(1), 
     fMultiplicityMax(-1),
     fVertexMin(1),
@@ -19,7 +19,7 @@ AliGMFTTreeEventCuts::AliGMFTTreeEventCuts() : TObject(),
   // default constructor
 }
 
-Bool_t AliGMFTTreeEventCuts::IsSelected(AliGMFEventContainer* event) {
+Bool_t AliGMFSimpleEventCuts::IsSelected(AliGMFEventContainer* event) {
     // check event cuts
     fCurrentEvent = event;
     
@@ -32,25 +32,25 @@ Bool_t AliGMFTTreeEventCuts::IsSelected(AliGMFEventContainer* event) {
     return kTRUE;
 }
 
-Bool_t AliGMFTTreeEventCuts::PassesCentralitySelection() {
+Bool_t AliGMFSimpleEventCuts::PassesCentralitySelection() {
     // check centrality criteria
     if(fCurrentEvent->GetCentrality() > fCentralityMin && fCurrentEvent->GetCentrality() < fCentralityMax) return kTRUE;
     return kFALSE;
 }
 
-Bool_t AliGMFTTreeEventCuts::PassesVertexSelection() {
+Bool_t AliGMFSimpleEventCuts::PassesVertexSelection() {
     // check vertex criteria
     if(fCurrentEvent->GetZvtx() > fVertexMin && fCurrentEvent->GetZvtx() < fVertexMax) return kTRUE;
     return kFALSE;
 }
 
-Bool_t AliGMFTTreeEventCuts::PassesEventPlaneSelection() {
+Bool_t AliGMFSimpleEventCuts::PassesEventPlaneSelection() {
     // check event plane criteria
     if(fCurrentEvent->GetEventPlane() > fEventPlaneMin && fCurrentEvent->GetEventPlane() < fEventPlaneMax) return kTRUE;
     return kFALSE;
 }
 
-Bool_t AliGMFTTreeEventCuts::PassesMultiplicitySelection() {
+Bool_t AliGMFSimpleEventCuts::PassesMultiplicitySelection() {
     // check multiplicity criteria
     if(fCurrentEvent->GetMultiplicity() > fMultiplicityMin && fCurrentEvent->GetMultiplicity() < fMultiplicityMax) return kTRUE;
     return kFALSE;

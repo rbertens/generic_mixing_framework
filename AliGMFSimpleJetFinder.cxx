@@ -21,7 +21,7 @@
 #include "AliGMFTTreeTrack.h"
 #include "AliGMFSimpleJetFinder.h"
 #include "AliGMFHistogramManager.h"
-#include "AliGMFTTreeEventCuts.h"
+#include "AliGMFSimpleEventCuts.h"
 
 ClassImp(AliGMFSimpleJetFinder)
 

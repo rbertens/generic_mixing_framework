@@ -1,15 +1,15 @@
-#ifndef AliGMFTTreeEventCuts_H
-#define AliGMFTTreeEventCuts_H
+#ifndef AliGMFSimpleEventCuts_H
+#define AliGMFSimpleEventCuts_H
 
 #include <TObject.h>
 
 class AliGMFEventContainer;
 
 
-class AliGMFTTreeEventCuts : public TObject {
+class AliGMFSimpleEventCuts : public TObject {
 
  public:
-    AliGMFTTreeEventCuts();
+    AliGMFSimpleEventCuts();
 
     Bool_t IsSelected(AliGMFEventContainer* event);
 
@@ -49,7 +49,7 @@ class AliGMFTTreeEventCuts : public TObject {
     Float_t     fCentralityMin;     // minimum event centrality
     Float_t     fCentralityMax;     // maximum event centrality
 
-    ClassDef(AliGMFTTreeEventCuts, 1);    // Help class
+    ClassDef(AliGMFSimpleEventCuts, 1);    // Help class
 
 };
 
