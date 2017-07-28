@@ -10,6 +10,7 @@
 #include "AliGMFEventContainer.h"
 
 class TTree;
+class TH1;
 class AliGMFTTreeHeader;
 class AliGMFTTreeTrack;
 class TClonesArray;
@@ -40,6 +41,9 @@ class AliGMFMixingManager : public TObject {
     void SetMultiplicityRange(Int_t min, Int_t max) {
         fMultiplicityMin = min;
         fMultiplicityMax = max;
+    }
+    void SetMultiplicityDistribution(TH1* dist) {
+        fMultiplicityDistribution = dist;
     }
     void SetVertexRange(Float_t min, Float_t max) {
         fVertexMin = min;
@@ -83,6 +87,7 @@ class AliGMFMixingManager : public TObject {
 
     Int_t       fMultiplicityMin;   // minimum multiplicity
     Int_t       fMultiplicityMax;   // maximum multiplicity
+    TH1*        fMultiplicityDistribution;      // distribution from which M is sampled
     Float_t     fVertexMin;         // minimum vertexz
     Float_t     fVertexMax;         // maximum vertexz
     Float_t     fEventPlaneMin;     // minimum event plane angle

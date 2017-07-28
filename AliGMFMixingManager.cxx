@@ -6,8 +6,7 @@
 #include "TArrayI.h"
 #include "TMath.h"
 #include "TRandom.h"
-
-//#include "AliLog.h"
+#include "TH1.h"
 
 #include "AliGMFMixingManager.h"
 #include "AliGMFEventReader.h"
@@ -27,6 +26,7 @@ ClassImp(AliGMFMixingManager);
 AliGMFMixingManager::AliGMFMixingManager() : TObject(),
     fMultiplicityMin(1), 
     fMultiplicityMax(-1),
+    fMultiplicityDistribution(0x0),
     fVertexMin(1),
     fVertexMax(-1),
     fEventPlaneMin(1),
@@ -50,9 +50,6 @@ AliGMFMixingManager::AliGMFMixingManager() : TObject(),
 //_____________________________________________________________________________
 AliGMFMixingManager::~AliGMFMixingManager() {
     // class destructor - only delete what the manager allocates
-    /*    delete fOutputFile;
-          delete fBufferedEvent;
-          delete fOutputFile;   */
     delete fQAManager;    
     delete fEventCache;  
 }
@@ -359,7 +356,9 @@ void AliGMFMixingManager::CreateNewEventChunk()
                 // bookkeep the total number of tracks that is added to the array
                 iMixedTracks = 0;
                 // enter the track loop
-                mult = gRandom->Uniform(fMultiplicityMin, fMultiplicityMax);
+                if(fMultiplicityDistribution) {
+                    mult = fMultiplicityDistribution->GetRandom();
+                } else mult = gRandom->Uniform(fMultiplicityMin, fMultiplicityMax);
                 for(Int_t i(0); i < mult; i++) {
                     // go through all the buffered events i, and take the next
                     // 'unused' track from them
