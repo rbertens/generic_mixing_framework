@@ -53,6 +53,12 @@ Bool_t AliGMFSimpleJetFinder::Initialize() {
    fHistogramManager->BookTH1D("fHistVertex", "cm", 100, -12, 12);
    fHistogramManager->BookTH1D("fHistCentrality", "percentile", 100, 0, 100);
    fHistogramManager->BookTH1D("fHistEventPlane", "#Psi", 100, -4, 4);
+   fHistogramManager->BookTH1D("fHistJetFinderSettings", 3, -.5, 2.5);
+
+   TH1D* settings = fHistogramManager->GetHistogram("fHistogramManager");
+   settings->GetXaxis()->SetBinLabel(1, "fJetResolution");
+   settings->SetBinContent(1, fJetResolution);
+
 
    return kTRUE;
 
@@ -101,7 +107,6 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
                     py, 
                     pz, 
                     TMath::Sqrt(totalE));
-
             fjInputProtoJet.set_user_index(j);
             fjInputVector.push_back(fjInputProtoJet);
             j++;

@@ -159,6 +159,9 @@ Bool_t AliAnalysisTaskTTreeFilter::ParseEvent(AliVEvent* event)
     // store event plane orientation
     fEvent->SetEventPlane(GetEventPlane());
 
+    // store the run numner
+    fEvent->SetRunNumber(InputEvent()->GetRunNumber());
+    
     // parse the tracks
     ParseTracks(event);
 

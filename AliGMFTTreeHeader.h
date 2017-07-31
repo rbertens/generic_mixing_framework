@@ -17,6 +17,7 @@ class AliGMFTTreeHeader : public TObject{
   // manipulators - persistent
   void  SetZvtx(Float_t Zvtx)           {fZvtx  = Zvtx;}
   void  SetEventPlane(Float_t ep)       {fEventPlane = ep;}
+  void  SetRunNumber(Short_t rn)        {fRunNumber = rn;}
 
   // manipulators - no persistent
   void SetEventID(Int_t id)             {fEventID = id;}
@@ -33,6 +34,7 @@ class AliGMFTTreeHeader : public TObject{
   Bool_t        GetUsed() const         {return fUsed;}
   Short_t       GetMultiplicity() const {return fMultiplicity;}
   Float_t       GetCentrality() const   {return fCentrality;}
+  Short_t       GetRunNumber() const    {return fRunNumber;}
 
  private:
   // first the persistent members are listed. these are written to disk
@@ -54,6 +56,8 @@ class AliGMFTTreeHeader : public TObject{
   Float_t       fCentrality;    // collision centrality
 #endif
 
+  // non-transient non compressable numbers
+  Short_t       fRunNumber;     // run number
   // transient members are not written to disk, they
   // can be optimized for speed
   Int_t         fEventID;       //! event identifier

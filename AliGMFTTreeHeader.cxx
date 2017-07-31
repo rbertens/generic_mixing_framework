@@ -9,7 +9,8 @@ AliGMFTTreeHeader::AliGMFTTreeHeader(): TObject(),
   fEventID(-1),
   fUsed(kFALSE),
   fMultiplicity(0),
-  fCentrality(-1)
+  fCentrality(-1),
+  fRunNumber(-1)
 {
   // default constructor
 }
@@ -26,4 +27,5 @@ void AliGMFTTreeHeader::Fill(AliGMFTTreeHeader* event) {
    fUsed = event->GetUsed();
    fMultiplicity = event->GetMultiplicity();
    fCentrality = event->GetCentrality();
+   fRunNumber = event->GetRunNumber();
 }
