@@ -17,6 +17,7 @@ class AliGMFSimpleEventCuts : public TObject {
     Bool_t PassesVertexSelection();
     Bool_t PassesCentralitySelection();
     Bool_t PassesEventPlaneSelection();
+    Bool_t PassesRunNumberSelection();
 
     // setters
     void SetMultiplicityRange(Int_t min, Int_t max) {
@@ -36,6 +37,11 @@ class AliGMFSimpleEventCuts : public TObject {
         fCentralityMin = min;
         fCentralityMax = max;
     }
+    
+    void SetRunNumberRange(Short_t min, Short_t max) {
+        fRunNumberMin = min;
+        fRunNumberMax = max;
+    }
      
  private:
 
@@ -48,6 +54,8 @@ class AliGMFSimpleEventCuts : public TObject {
     Float_t     fEventPlaneMax;     // maximum event plane angle
     Float_t     fCentralityMin;     // minimum event centrality
     Float_t     fCentralityMax;     // maximum event centrality
+    Short_t     fRunNumberMin;      // minimum run number
+    Short_t     fRunNumberMax;      // maximum run number
 
     ClassDef(AliGMFSimpleEventCuts, 1);    // Help class
 
