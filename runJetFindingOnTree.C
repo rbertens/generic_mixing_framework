@@ -1,4 +1,8 @@
-void runJetFindingOnTree()
+void runJetFindingOnTree(
+        Int_t cenMin = 10,
+        Int_t cenMax = 20,
+        Int_t fileMin = 0,
+        Int_t fileMax = 10)
 {
 
     // example macro to read data from a ttree and perform simple analysis
@@ -28,95 +32,15 @@ void runJetFindingOnTree()
     // compile the jet finding classes
     gROOT->LoadMacro("AliGMFSimpleJetFinder.cxx+");
 
+    // the filtered runnumbers
+    Int_t runNumbers = {137161,137162,137231,137232,137235,137236,137243,137430,137431,137432,137434,137439,137440,137441,137443,137530,137531,137539,137541,137544,137549,137595,137608,137638,137639,137685,137686,137691,137692,137693,137704,137718,137722,137724,137751,137752,137844,137848,138190,138192,138197,138201,138225,138364,138439,138442,138469,138578,138579,138582,138583,138621,138624,138638,138652,138653,138662,138837,138870,138871,138872,139028,139029,139036,139037,139105,139107,139173,139309,139310,139314,139328,139329,139438,139503,139505,139507,139510};
+
+
+    // add the desired numbers to a chain (not exception safe for now!)
     TChain* myChain = new TChain("tree");
-    myChain->Add("merge/000137161.root");
-    myChain->Add("merge/000137162.root");
-    myChain->Add("merge/000137231.root");
-    myChain->Add("merge/000137232.root");
-    myChain->Add("merge/000137235.root");
-    myChain->Add("merge/000137236.root");
-    myChain->Add("merge/000137243.root");
-    myChain->Add("merge/000137430.root");
-    myChain->Add("merge/000137431.root");
-    myChain->Add("merge/000137432.root");
-    myChain->Add("merge/000137434.root");
-    myChain->Add("merge/000137439.root");
-    myChain->Add("merge/000137440.root");
-    myChain->Add("merge/000137441.root");
-    myChain->Add("merge/000137443.root");
-    myChain->Add("merge/000137530.root");
-    myChain->Add("merge/000137531.root");
-    myChain->Add("merge/000137539.root");
-    myChain->Add("merge/000137541.root");
-    myChain->Add("merge/000137544.root");
-    myChain->Add("merge/000137549.root");
-    myChain->Add("merge/000137595.root");
-    myChain->Add("merge/000137608.root");
-    myChain->Add("merge/000137638.root");
-    myChain->Add("merge/000137639.root");
-    myChain->Add("merge/000137685.root");
-    myChain->Add("merge/000137686.root");
-    myChain->Add("merge/000137691.root");
-    myChain->Add("merge/000137692.root");
-    myChain->Add("merge/000137693.root");
-    myChain->Add("merge/000137704.root");
-    myChain->Add("merge/000137718.root");
-    myChain->Add("merge/000137722.root");
-    myChain->Add("merge/000137724.root");
-    myChain->Add("merge/000137751.root");
-    myChain->Add("merge/000137752.root");
-    myChain->Add("merge/000137844.root");
-    myChain->Add("merge/000137848.root");
-    myChain->Add("merge/000138190.root");
-    myChain->Add("merge/000138192.root");
-    myChain->Add("merge/000138197.root");
-    myChain->Add("merge/000138201.root");
-    myChain->Add("merge/000138225.root");
-    //    myChain->Add("merge/000138275.root");
-    myChain->Add("merge/000138364.root");
-    myChain->Add("merge/000138439.root");
-    myChain->Add("merge/000138442.root");
-    myChain->Add("merge/000138469.root");
-    //    myChain->Add("merge/000138534.root");
-    myChain->Add("merge/000138578.root");
-    myChain->Add("merge/000138579.root");
-    myChain->Add("merge/000138582.root");
-    myChain->Add("merge/000138583.root");
-    myChain->Add("merge/000138621.root");
-    myChain->Add("merge/000138624.root");
-    myChain->Add("merge/000138638.root");
-    myChain->Add("merge/000138652.root");
-    myChain->Add("merge/000138653.root");
-    myChain->Add("merge/000138662.root");
-    myChain->Add("merge/000138837.root");
-    myChain->Add("merge/000138870.root");
-    myChain->Add("merge/000138871.root");
-    myChain->Add("merge/000138872.root");
-    myChain->Add("merge/000139028.root");
-    myChain->Add("merge/000139029.root");
-    myChain->Add("merge/000139036.root");
-    myChain->Add("merge/000139037.root");
-    //    myChain->Add("merge/000139038.root");
-    myChain->Add("merge/000139105.root");
-    myChain->Add("merge/000139107.root");
-    myChain->Add("merge/000139173.root");
-    myChain->Add("merge/000139309.root");
-    myChain->Add("merge/000139310.root");
-    myChain->Add("merge/000139314.root");
-    myChain->Add("merge/000139328.root");
-    myChain->Add("merge/000139329.root");
-    //    myChain->Add("merge/000139437.root");
-    myChain->Add("merge/000139438.root");
-    myChain->Add("merge/000139503.root");
-    myChain->Add("merge/000139505.root");
-    myChain->Add("merge/000139507.root");
-    myChain->Add("merge/000139510.root");
-
-
-
-
-
-    // add more files if desired, e.g. per class
+    for(Int_t i = fileMin ; i < fileMax; i++) {
+        myChain->Add(Form("$PATH_TO_DATA/000%i.root", runNumbers[i]));
+    }
 
     // initialize the reader and jet finder
     AliGMFEventReader* reader = new AliGMFEventReader(myChain);
@@ -131,45 +55,38 @@ void runJetFindingOnTree()
     Float_t remainingTime = -1;
 
     // set max number of accepted events
-    Int_t iMaxEvents = 1420;
+    Int_t iMaxEvents = iEvents;
 
-    for(int a = 4; a < 5; a++) {
-        AliGMFSimpleJetFinder* jetFinder = new AliGMFSimpleJetFinder();
-        jetFinder->Initialize();    // tbd pass enum on configuratioin
+    // initialize the jet finder
+    AliGMFSimpleJetFinder* jetFinder = new AliGMFSimpleJetFinder();
+    jetFinder->Initialize();
 
+    // create the event cuts
+    AliGMFSimpleEventCuts* eventCuts = new AliGMFSimpleEventCuts();
+    eventCuts->SetCentralityRange(cenMin, cenMax);
 
-
-        // create the event cuts
-        AliGMFSimpleEventCuts* eventCuts = new AliGMFSimpleEventCuts();
-        eventCuts->SetMultiplicityRange(0,10000);
-        eventCuts->SetVertexRange(-5, 5);
-        eventCuts->SetEventPlaneRange(-10, 10);
-
-
-        eventCuts->SetCentralityRange(a*10, (a+1)*10);
-
-        // pass the event cuts to the jet finder
-        jetFinder->SetEventCuts(eventCuts);
+    // pass the event cuts to the jet finder
+    jetFinder->SetEventCuts(eventCuts);
 
 
 
-        for (int i = 0, j = 0 ; i < iEvents; i ++) {
-            if(i==100) {
-                remainingTime = timer.RealTime()/100.;
-                cout << " - remaining time (min) approximately " << remainingTime*(iEvents-i)/60. << endl;
-            } else if (i > 0 && i%1000 == 0) cout << " - remaining time (min) approximately " << remainingTime*(iEvents-i)/60. << endl; 
-            
-    if(j==1421) {j++; continue;};
-            if(!jetFinder->AnalyzeEvent(reader->GetEvent(i))) continue;
-            j++;
-            if(j > iMaxEvents) break;
-            cout << " Processed event " << i << " of which accepted " << j << "\r"; cout.flush();
-        }
-
-        // write and clear memory
-        jetFinder->Finalize(Form("myJets_%i_%i", a, a+1));
-
+    for (int i = 0, j = 0 ; i < iEvents; i ++) {
+        if(i==100) {
+            remainingTime = timer.RealTime()/100.;
+            cout << " - remaining time (min) approximately " << remainingTime*(iEvents-i)/60. << endl;
+        } else if (i > 0 && i%1000 == 0) cout << " - remaining time (min) approximately " << remainingTime*(iEvents-i)/60. << endl; 
+        
+    ==1421) {j++; continue;};
+        if(!jetFinder->AnalyzeEvent(reader->GetEvent(i))) continue;
+        j++;
+        if(j > iMaxEvents) break;
+        cout << " Processed event " << i << " of which accepted " << j << "\r"; cout.flush();
     }
+
+    // write and clear memory
+    jetFinder->Finalize("myJets");
+
+    
     delete jetFinder;
     delete reader;
 

@@ -1,4 +1,4 @@
-void runJetFindingOnMixedEvents()
+void runJetFindingOnMixedEvents(TString fileName = "myMixedEvents.root")
 {
 
     // example macro to read data from a ttree and perform simple analysis
@@ -6,10 +6,10 @@ void runJetFindingOnMixedEvents()
 
     // include paths, necessary for compilation
     gSystem->AddIncludePath("-Wno-deprecated");
-    gSystem->AddIncludePath("-I$FASTJET/include");
+    gSystem->AddIncludePath("-I$FASTJET/include -I$PATH_TO_SOURCE/");
 
     // load fastjet libraries
-    gSystem->Load("libCGAL");
+//    gSystem->Load("libCGAL");
     gSystem->Load("libfastjet");
     gSystem->Load("libsiscone");
     gSystem->Load("libsiscone_spherical");
@@ -18,18 +18,18 @@ void runJetFindingOnMixedEvents()
     gSystem->Load("libfastjetcontribfragile");
 
     // compile the encapsulated classes
-    gROOT->LoadMacro("AliGMFHistogramManager.cxx+");
-    gROOT->LoadMacro("AliGMFTTreeHeader.cxx+");
-    gROOT->LoadMacro("AliGMFTTreeTrack.cxx+");
-    gROOT->LoadMacro("AliGMFEventContainer.cxx+");
-    gROOT->LoadMacro("AliGMFEventReader.cxx+");
-    gROOT->LoadMacro("AliGMFSimpleEventCuts.cxx+");
+    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFHistogramManager.cxx+");
+    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFTTreeHeader.cxx+");
+    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFTTreeTrack.cxx+");
+    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFEventContainer.cxx+");
+    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFEventReader.cxx+");
+    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFSimpleEventCuts.cxx+");
 
     // compile the jet finding classes
-    gROOT->LoadMacro("AliGMFSimpleJetFinder.cxx+");
+    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFSimpleJetFinder.cxx+");
 
     TChain* myChain = new TChain("tree");
-    myChain->Add("myMixedEvents.root");
+    myChain->Add(fileName.Data());
 
 
     // add more files if desired, e.g. per class
