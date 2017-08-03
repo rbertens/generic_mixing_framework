@@ -33,8 +33,11 @@ AliGMFMixingManager::AliGMFMixingManager() : TObject(),
     fEventPlaneMax(-1),
     fCentralityMin(1),
     fCentralityMax(-1),
+    fMaxEvents(-1),
     fMaxEventsPerFile(1e9),
     fHowToChooseMultiplicity(kUseRandom),
+    fSplittingThreshold(1e9),
+    fSplitTrackPt(3),
     fTree(0x0),
     fEvent(0x0),
     fBufferedEvent(0x0), 
@@ -87,7 +90,7 @@ Bool_t AliGMFMixingManager::Initialize() {
     fEvent = new AliGMFTTreeHeader();
     fTree->Branch("mixedEvent", &fEvent);
 
-    fTrackArray = new TClonesArray("AliGMFTTreeTrack", 1000);
+    fTrackArray = new TClonesArray("AliGMFTTreeTrack", fMultiplicityMax);
     fTree->Bronch("mixedTrack", "TClonesArray", &fTrackArray); 
 
     fTotalEventBuffer = fEventReader->GetNumberOfEvents();
@@ -159,7 +162,7 @@ Bool_t AliGMFMixingManager::FillMixingCache() {
             cachedEvent = static_cast<AliGMFEventContainer*>(fEventCache->At(iCache));
             cachedEvent->Fill(currentEvent);
             // and shuffle the indices of the tracks
-            cachedEvent->ShuffleTrackIndices();
+//            cachedEvent->ShuffleTrackIndices();
             iCache++;
 #if VERBOSE > 0
             std::cout << "     - caching event " << iCache+1 << " at buffer position " << fEventBufferPosition << "\r"; cout.flush();
@@ -246,14 +249,12 @@ Int_t AliGMFMixingManager::DoPerChunkMixing() {
     // 2) create new events, loop exits when end of true evens is reached
     //    mixing only starts when the buffer is 100% full
     //    produces chunks of M mixed events
-#if VERBOSE > 0
     Int_t i(0), j(0);
-#endif
 
     while(FillMixingCache()) {
         CreateNewEventChunk();
-#if VERBOSE > 0
         i+=fMultiplicityMin;
+#if VERBOSE > 0
         printf("   - created %i new events \n", i);
 #endif
         j+=fMultiplicityMin;
@@ -262,6 +263,11 @@ Int_t AliGMFMixingManager::DoPerChunkMixing() {
             WriteCurrentTreeToFile(kTRUE);
             j = 0;
         }
+        if(fMaxEvents > 0 && i > fMaxEvents) {
+            WriteCurrentTreeToFile(kTRUE);
+            break;
+        }
+
     }
 
     // 3) write the tree to a file
@@ -328,8 +334,24 @@ void AliGMFMixingManager::CreateNewEventChunk()
                     // go through all the buffered events i, and take the next
                     // 'unused' track from them
                     track = GetNextTrackFromEventI(i);
-                    //            // the track should always be there ... but ok
-                    //            if(!track) continue;
+                    while(track->GetPt() > fSplittingThreshold) {
+                        // as long as the track pt is too high, create
+                        // new tracks which have fixed pt
+                        // and are collinear to the original track
+                        AliGMFTTreeTrack* mixedTrack = new((*fTrackArray)[iMixedTracks]) AliGMFTTreeTrack();
+                        mixedTrack->Fill(track);
+                        mixedTrack->SetPt(fSplitTrackPt);
+                        track->SetPt(track->GetPt() - fSplitTrackPt);
+                        printf(" found high pt track, splitting it into track %i \n    continuing with pt of %.4f \n", iMixedTracks, track->GetPt());
+                        // if requested do some qa
+                        if(fQAManager) {
+                            fQAManager->Fill("fHistMixedPt", mixedTrack->GetPt());
+                            fQAManager->Fill("fHistMixedEta", mixedTrack->GetEta());
+                            fQAManager->Fill("fHistMixedPhi", mixedTrack->GetPhi());
+                            fQAManager->Fill("fHistMixedEtaPhi", mixedTrack->GetEta(), mixedTrack->GetPhi());
+                        }
+                        iMixedTracks++;
+                    }
                     // build the new track and fill it
                     AliGMFTTreeTrack* mixedTrack = new((*fTrackArray)[iMixedTracks]) AliGMFTTreeTrack();
                     mixedTrack->Fill(track);
@@ -363,8 +385,28 @@ void AliGMFMixingManager::CreateNewEventChunk()
                     // go through all the buffered events i, and take the next
                     // 'unused' track from them
                     track = GetNextTrackFromEventI(i);
-                    //            // the track should always be there ... but ok
-                    //            if(!track) continue;
+                    // if the pt is too high, split the track
+                    while(track->GetPt() > fSplittingThreshold) {
+                        // as long as the track pt is too high, create
+                        // new tracks which have fixed pt
+                        // and are collinear to the original track
+                        //
+                        // this operation is inherently UNSAFE when oversampling is allowed
+                        // as it changes tracks in the track buffer
+                        AliGMFTTreeTrack* mixedTrack = new((*fTrackArray)[iMixedTracks]) AliGMFTTreeTrack();
+                        mixedTrack->Fill(track);
+                        mixedTrack->SetPt(fSplitTrackPt);
+                        track->SetPt(track->GetPt() - fSplitTrackPt);
+                        printf(" found high pt track, splitting it into track %i \n    continuing with pt of %.4f \n", iMixedTracks, track->GetPt());
+                        // if requested do some qa
+                        if(fQAManager) {
+                            fQAManager->Fill("fHistMixedPt", mixedTrack->GetPt());
+                            fQAManager->Fill("fHistMixedEta", mixedTrack->GetEta());
+                            fQAManager->Fill("fHistMixedPhi", mixedTrack->GetPhi());
+                            fQAManager->Fill("fHistMixedEtaPhi", mixedTrack->GetEta(), mixedTrack->GetPhi());
+                        }
+                        iMixedTracks++;
+                    }
                     // build the new track and fill it
                     AliGMFTTreeTrack* mixedTrack = new((*fTrackArray)[iMixedTracks]) AliGMFTTreeTrack();
                     mixedTrack->Fill(track);

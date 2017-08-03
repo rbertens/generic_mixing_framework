@@ -63,9 +63,17 @@ class AliGMFMixingManager : public TObject {
     void SetHowToChooseMultiplicity(howToChooseMultiplicity h) {
         fHowToChooseMultiplicity = h;
     }
-        
+
+    void SetSplittingForTracksWithPtHigherThan(Float_t pt) {
+        fSplittingThreshold = pt;
+    }
+
+    void SetSplitTrackPt(Float_t pt) {
+        fSplitTrackPt = pt;
+    }
     
     // setters - IO
+    void SetMaxEvents(Int_t e)                  {fMaxEvents = e;}
     void SetMaxEventsPerFile(Int_t e)           {fMaxEventsPerFile = e;}
 
     void SetEventReader(AliGMFEventReader* r)   {fEventReader = r;}
@@ -94,9 +102,12 @@ class AliGMFMixingManager : public TObject {
     Float_t     fEventPlaneMax;     // maximum event plane angle
     Float_t     fCentralityMin;     // minimum event centrality
     Float_t     fCentralityMax;     // maximum event centrality
+    Int_t       fMaxEvents;         // maximum number of mixed events that will be generated
     Int_t       fMaxEventsPerFile;  // maximum number of mixed events written per file
 
     howToChooseMultiplicity     fHowToChooseMultiplicity;       // how to choose multiplicity
+    Float_t     fSplittingThreshold;// tracks with pt > this will be split collinearly
+    Float_t     fSplitTrackPt;      // pt of tracks that are split off    
 
     // data structures for mixed event output
     TTree*                      fTree;                  //! output data

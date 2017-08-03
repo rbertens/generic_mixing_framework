@@ -43,7 +43,7 @@ AliAnalysisTaskTTreeFilter::AliAnalysisTaskTTreeFilter():
     fEventCuts(0x0),
     fTrackCuts(0x0),
     fEventPlaneN(2),
-    fDetectorType(kVZEROComb),
+    fDetectorType(kTPC),
     fCollisionPeriod(kPbPb10h),
     fOADB(0x0),
     fRunNumber(-1)
@@ -68,7 +68,7 @@ AliAnalysisTaskTTreeFilter::AliAnalysisTaskTTreeFilter(const char *name):
     fEventCuts(0x0),
     fTrackCuts(0x0),
     fEventPlaneN(2),
-    fDetectorType(kVZEROComb),
+    fDetectorType(kTPC),
     fCollisionPeriod(kPbPb10h),
     fOADB(0x0),
     fRunNumber(-1)

@@ -85,14 +85,43 @@ void AliGMFEventContainer::ShuffleTrackIndices() {
     // reset the current shuffled indices  or create a new map
     // if there's no old in memory
 
+
+  // print out content:
+  std::cout << "myvector contains at the verhy very verystart:";
+  for (std::vector<int>::iterator it=fTrackIndexMap.begin(); it!=fTrackIndexMap.end(); ++it)
+    std::cout << ' ' << *it;
+
+  std::cout << '\n';
+
     ResetTrackIndices();
 
+
+  // print out content:
+  std::cout << "myvector contains at the start:";
+  for (std::vector<int>::iterator it=fTrackIndexMap.begin(); it!=fTrackIndexMap.end(); ++it)
+    std::cout << ' ' << *it;
+
+  std::cout << '\n';
+
+
+
+
     // shuffle the indices
-//    auto engine = std::default_random_engine{};
     std::random_shuffle(
             fTrackIndexMap.begin(), 
-            fTrackIndexMap.end());//,
-//            engine);
+            fTrackIndexMap.end());
+
+  // print out content:
+  std::cout << "myvector contains at the end";
+  for (std::vector<int>::iterator it=fTrackIndexMap.begin(); it!=fTrackIndexMap.end(); ++it)
+    std::cout << ' ' << *it;
+
+  std::cout << '\n';
+
+
+
+
+
 }
 //_____________________________________________________________________________
 void AliGMFEventContainer::ResetTrackIndices() {
