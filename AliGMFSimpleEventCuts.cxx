@@ -14,8 +14,8 @@ AliGMFSimpleEventCuts::AliGMFSimpleEventCuts() : TObject(),
     fEventPlaneMax(-1),
     fCentralityMin(1),
     fCentralityMax(-1),
-    fRunNumberMin(-1),
-    fRunNumberMax(1e9)
+    fRunNumberMin(SHRT_MIN),
+    fRunNumberMax(SHRT_MAX)
 {
   // default constructor
 }
