@@ -6,7 +6,7 @@ void runJetFindingOnMixedEvents()
 
     // include paths, necessary for compilation
     gSystem->AddIncludePath("-Wno-deprecated");
-    gSystem->AddIncludePath("-I$ALICE_ROOT -I$ALICE_ROOT/include -I$ALICE_PHYSICS/include -I$FASTJET/include");
+    gSystem->AddIncludePath("-I$FASTJET/include");
 
     // load fastjet libraries
     gSystem->Load("libCGAL");

@@ -6,7 +6,6 @@ void runEventMixer()
 
     // include paths, necessary for compilation
     gSystem->AddIncludePath("-Wno-deprecated");
-    gSystem->AddIncludePath("-I$ALICE_ROOT -I$ALICE_ROOT/include -I$ALICE_PHYSICS/include");
  
     // compile the encapsulated classes
     gROOT->LoadMacro("AliGMFTTreeHeader.cxx+");
