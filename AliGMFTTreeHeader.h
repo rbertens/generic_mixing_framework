@@ -66,7 +66,7 @@ class AliGMFTTreeHeader : public TObject{
 
   virtual ~AliGMFTTreeHeader(); // default destructor
 
-  ClassDef(AliGMFTTreeHeader, 1);    // Help class
+  ClassDef(AliGMFTTreeHeader, 2);    // Help class
 };
 
 #endif
