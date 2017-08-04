@@ -14,7 +14,7 @@ class TClonesArray;
 class AliGMFTTreeHeader;
 class AliGMFEventCuts;
 class AliGMFTrackCuts;
-
+class AliGMFHistogramManager;
 
 class AliAnalysisTaskTTreeFilter : public AliAnalysisTaskSE {
 
@@ -37,6 +37,7 @@ class AliAnalysisTaskTTreeFilter : public AliAnalysisTaskSE {
   void          SetEventPlaneN(Int_t n)                 {fEventPlaneN = n;}
   void          SetReferenceDetector(eventPlaneDetector type) {fDetectorType = type; }
   void          SetCollisionPeriod(collisionPeriod period)    {fCollisionPeriod = period; }
+  void          SetDoQA(Bool_t qa)                      {fDoQA = qa;}
 
 
   // getters
@@ -50,7 +51,10 @@ class AliAnalysisTaskTTreeFilter : public AliAnalysisTaskSE {
   Bool_t        PassesCuts(AliVEvent* event);
   Bool_t        PassesCuts(AliVTrack* track);
 
-  Float_t       GetEventPlane();
+  void          FillEventQA(Bool_t cutsApplied, AliVEvent* event);
+  void          FillTrackQA(Bool_t cutsApplied, AliVTrack* track);
+
+  Float_t       GetEventPlane(Bool_t useCache = kFALSE);
   void          CalculateEventPlaneVZERO(Double_t vzero[2][2]) const;
   void          CalculateEventPlaneCombinedVZERO(Double_t* comb) const;
   void          CalculateEventPlaneTPC(Double_t* tpc);
@@ -65,13 +69,18 @@ class AliAnalysisTaskTTreeFilter : public AliAnalysisTaskSE {
   Int_t                 fEventPlaneN;   // event plane harmonic
   eventPlaneDetector    fDetectorType;  // detector used for event plane estimation
   collisionPeriod       fCollisionPeriod;       // period
+  Bool_t                fDoQA;          // do qa
+  Float_t               fCachedEP;      // cached EP
 
   // Output objects
   TTree*                fTree;          //! output data
   AliGMFTTreeHeader*    fEvent;         //! custom event
   TClonesArray*         fTrackArray;    //! custom tracks
+  AliGMFHistogramManager*       fHistogramManager;      //! histogram manager
 
-  // vzero event plane calibration cache for 10h data
+
+
+  // vzero event plane calibration cache
   Float_t               fMeanQ[9][2][2];                //! recentering
   Float_t               fWidthQ[9][2][2];               //! recentering
   Float_t               fMeanQv3[9][2][2];              //! recentering

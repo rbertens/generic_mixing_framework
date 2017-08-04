@@ -7,7 +7,11 @@
 ClassImp(AliGMFTrackCuts);
 
 AliGMFTrackCuts::AliGMFTrackCuts() : TObject(),
-    fFilterBit(768)
+    fFilterBit(768),
+    fMinPt(.2),
+    fMaxPt(100),
+    fMinEta(-.9),
+    fMaxEta(.9)
 {
   // default constructor
 }
@@ -18,8 +22,8 @@ Bool_t AliGMFTrackCuts::IsSelected(AliVTrack* track) {
 
     if (!fAODTrack) return kFALSE;
     if (!fAODTrack->TestFilterBit(fFilterBit)) return kFALSE;
-    if (fAODTrack->Pt() < .2 || fAODTrack->Pt() > 100) return kFALSE;
-    if (TMath::Abs(fAODTrack->Eta() > .9)) return kFALSE;
+    if (fAODTrack->Pt() < fMinPt || fAODTrack->Pt() > fMaxPt) return kFALSE;
+    if (fAODTrack->Eta() < fMinEta || fAODTrack->Eta() > fMaxEta) return kFALSE;
 
     return kTRUE;
 }

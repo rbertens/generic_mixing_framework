@@ -42,13 +42,15 @@ void runTTreeFilter() {
     gROOT->LoadMacro("AliGMFTrackCuts.cxx+");
     gROOT->LoadMacro("AliGMFTTreeHeader.cxx+");
     gROOT->LoadMacro("AliGMFTTreeTrack.cxx+");
+    gROOT->LoadMacro("AliGMFHistogramManager.cxx+");
     gROOT->LoadMacro("AliAnalysisTaskTTreeFilter.cxx+");
 
     // load the addtask
     gROOT->LoadMacro("add_task_macros/AddTaskTTreeFilter.C");
 
     // launch the task
-    AddTaskTTreeFilter();
+    AliAnalysisTaskTTreeFilter* task = AddTaskTTreeFilter();
+    task->SetDoQA(kTRUE);
 
     // check if we can initialize the manager
     if(!mgr->InitAnalysis()) return;   

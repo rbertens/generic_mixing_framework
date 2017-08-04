@@ -31,7 +31,7 @@
 #include "AliGMFTTreeTrack.h"
 #include "AliGMFEventCuts.h"
 #include "AliGMFTrackCuts.h"
-
+#include "AliGMFHistogramManager.h"
 
 ClassImp(AliAnalysisTaskTTreeFilter)
 
@@ -40,11 +40,14 @@ AliAnalysisTaskTTreeFilter::AliAnalysisTaskTTreeFilter():
     AliAnalysisTaskSE(),
     fEvent(0x0),
     fTrackArray(0x0),
+    fHistogramManager(0x0),
     fEventCuts(0x0),
     fTrackCuts(0x0),
     fEventPlaneN(2),
     fDetectorType(kTPC),
     fCollisionPeriod(kPbPb10h),
+    fDoQA(kFALSE),
+    fCachedEP(0),
     fOADB(0x0),
     fRunNumber(-1)
 {
@@ -65,11 +68,14 @@ AliAnalysisTaskTTreeFilter::AliAnalysisTaskTTreeFilter(const char *name):
     AliAnalysisTaskSE(name),
     fEvent(0x0),
     fTrackArray(0x0),
+    fHistogramManager(0x0),
     fEventCuts(0x0),
     fTrackCuts(0x0),
     fEventPlaneN(2),
     fDetectorType(kTPC),
     fCollisionPeriod(kPbPb10h),
+    fDoQA(kFALSE),
+    fCachedEP(0),
     fOADB(0x0),
     fRunNumber(-1)
 {
@@ -117,6 +123,26 @@ void AliAnalysisTaskTTreeFilter::UserCreateOutputObjects()
     AliInputEventHandler *inputHandler=static_cast<AliInputEventHandler*>(man->GetInputEventHandler());
     if (!inputHandler) AliFatal(" > no input detected - aborting <");
 
+    // if qa is requested, initialize the manager
+    if(fDoQA) {
+        fHistogramManager = new AliGMFHistogramManager();
+        fHistogramManager->BookTH1D("fHistBeforePt", "#it{p}_{T} (GeV/c)", 100, 0, 20);
+        fHistogramManager->BookTH1D("fHistBeforeEta", "#eta", 100, -1, 1);
+        fHistogramManager->BookTH1D("fHistBeforePhi", "#phi", 100, 0, TMath::TwoPi());
+        fHistogramManager->BookTH2D("fHistBeforeEtaPhi", "#eta", "#phi", 100, -1, 1, 100, 0, TMath::TwoPi());
+        fHistogramManager->BookTH1D("fHistBeforeVertex", "cm", 100, -12, 12);
+        fHistogramManager->BookTH1D("fHistBeforeCentrality", "percentile", 100, 0, 100);
+        fHistogramManager->BookTH1D("fHistBeforeEventPlane", "#Psi", 100, -4, 4);
+        fHistogramManager->BookTH1D("fHistAfterPt", "#it{p}_{T} (GeV/c)", 100, 0, 20);
+        fHistogramManager->BookTH1D("fHistAfterEta", "#eta", 100, -1, 1);
+        fHistogramManager->BookTH1D("fHistAfterPhi", "#phi", 100, 0, TMath::TwoPi());
+        fHistogramManager->BookTH2D("fHistAfterEtaPhi", "#eta", "#phi", 100, -1, 1, 100, 0, TMath::TwoPi());
+        fHistogramManager->BookTH1D("fHistAfterVertex", "cm", 100, -12, 12);
+        fHistogramManager->BookTH1D("fHistAfterCentrality", "percentile", 100, 0, 100);
+        fHistogramManager->BookTH1D("fHistAfterEventPlane", "#Psi", 100, -4, 4);
+    }
+
+
     // open file at slot 1 for large output to avoid buffer overflow
     AliAnalysisTask::OpenFile(1);
 
@@ -149,6 +175,7 @@ Bool_t AliAnalysisTaskTTreeFilter::ParseEvent(AliVEvent* event)
 {
     // parse the input event
     if(!PassesCuts(event)) return kFALSE;
+    if(fDoQA) FillEventQA(kTRUE, event);
 
     // store zvertex position
     fEvent->SetZvtx(event->GetPrimaryVertex()->GetZ());
@@ -159,7 +186,7 @@ Bool_t AliAnalysisTaskTTreeFilter::ParseEvent(AliVEvent* event)
     // store event plane orientation
     fEvent->SetEventPlane(GetEventPlane());
 
-    // store the run numner
+    // store the run number
     fEvent->SetRunNumber(InputEvent()->GetRunNumber());
     
     // parse the tracks
@@ -180,6 +207,7 @@ void AliAnalysisTaskTTreeFilter::ParseTracks(AliVEvent* event)
         AliVTrack* track(static_cast<AliVTrack*>(event->GetTrack(i)));
         if(!PassesCuts(track)) continue;
 
+        if(fDoQA) FillTrackQA(kTRUE, track);
         // push accepted track to tree
         AliGMFTTreeTrack* acceptedTrack = new((*fTrackArray)[acceptedTracks]) AliGMFTTreeTrack();
         acceptedTracks++;
@@ -192,8 +220,14 @@ void AliAnalysisTaskTTreeFilter::ParseTracks(AliVEvent* event)
     return;
 }
 //________________________________________________________________________
-Float_t AliAnalysisTaskTTreeFilter::GetEventPlane() {
+Float_t AliAnalysisTaskTTreeFilter::GetEventPlane(Bool_t useCache) {
     // return the n-th order event plane
+
+    // cache value can be used when the EP is called
+    // multiple times per event
+    if(useCache) return fCachedEP;
+
+    // otherwise recalculate it
     Double_t vzero[2][2];
     Double_t tpc[2];
     Double_t vzeroComb[2];
@@ -222,8 +256,14 @@ Float_t AliAnalysisTaskTTreeFilter::GetEventPlane() {
         }  break;
         default : break;
     }
-    if(fEventPlaneN == 2) return psi2;
-    if(fEventPlaneN == 3) return psi3;
+    if(fEventPlaneN == 2) {
+        fCachedEP = psi2;
+        return psi2;
+    }
+    if(fEventPlaneN == 3) {
+        fCachedEP = psi3;
+        return psi3;
+    }
 
     return 0;
 }
@@ -422,21 +462,24 @@ void AliAnalysisTaskTTreeFilter::PushToTTree()
 Bool_t AliAnalysisTaskTTreeFilter::PassesCuts(AliVEvent* event)
 {
     // check the event cuts
+    if(fDoQA && event) FillEventQA(kFALSE, event);
     return fEventCuts->IsSelected(event);
 }
 //________________________________________________________________________
 Bool_t AliAnalysisTaskTTreeFilter::PassesCuts(AliVTrack* track)
 {
     // track cuts would go here
+    if(fDoQA && track) FillTrackQA(kFALSE, track);
     return fTrackCuts->IsSelected(track);
 }
 //________________________________________________________________________
 void AliAnalysisTaskTTreeFilter::Terminate(Option_t *)
 { 
     // terminate
+    if(fDoQA) {
+        fHistogramManager->StoreManager("TTreeFilterQA.root");
+    }
 }
-
-
 //_____________________________________________________________________________
 void AliAnalysisTaskTTreeFilter::ReadVZEROCalibration2010h()
 {
@@ -546,4 +589,35 @@ Int_t AliAnalysisTaskTTreeFilter::GetVZEROCentralityBin() const
     else if(v0Centr < 70) return  7;
     else return 8;
 }
+//_____________________________________________________________________________
+void AliAnalysisTaskTTreeFilter::FillEventQA(Bool_t cutsApplied, AliVEvent* event) {
+    // fill event QA
+    if(!fHistogramManager) return;
 
+    if(!cutsApplied) {
+        fHistogramManager->Fill("fHistBeforeVertex", event->GetPrimaryVertex()->GetZ());
+        fHistogramManager->Fill("fHistBeforeCentrality", event->GetCentrality()->GetCentralityPercentile("V0M"));
+        fHistogramManager->Fill("fHistBeforeEventPlane", GetEventPlane(kTRUE));
+    } else {
+        fHistogramManager->Fill("fHistAfterVertex", event->GetPrimaryVertex()->GetZ());
+        fHistogramManager->Fill("fHistAfterCentrality", event->GetCentrality()->GetCentralityPercentile("V0M"));
+        fHistogramManager->Fill("fHistAfterEventPlane", GetEventPlane(kTRUE));
+    }
+}
+//_____________________________________________________________________________
+void AliAnalysisTaskTTreeFilter::FillTrackQA(Bool_t cutsApplied, AliVTrack* track) {
+    // fill track QA
+    if(!fHistogramManager) return;
+
+    if(!cutsApplied) {
+        fHistogramManager->Fill("fHistBeforePt", track->Pt());
+        fHistogramManager->Fill("fHistBeforeEta", track->Eta());
+        fHistogramManager->Fill("fHistBeforePhi", track->Phi());
+        fHistogramManager->Fill("fHistBeforeEtaPhi", track->Eta(), track->Phi());
+    } else {
+        fHistogramManager->Fill("fHistAfterPt", track->Pt());
+        fHistogramManager->Fill("fHistAfterEta", track->Eta());
+        fHistogramManager->Fill("fHistAfterPhi", track->Phi());
+        fHistogramManager->Fill("fHistAfterEtaPhi", track->Eta(), track->Phi());
+    }
+}

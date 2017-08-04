@@ -74,17 +74,15 @@ void runTTreeFilterOnGrid() {
     gROOT->LoadMacro("AliAnalysisTaskTTreeFilter.cxx+");
 
     // load the addtask
-    gROOT->LoadMacro("add_task_macros/AddTaskTTreeFilter.C");
+    gROOT->LoadMacro("AddTaskTTreeFilter.C");
 
     // launch the task
     AddTaskTTreeFilter();
 
     // check if we can initialize the manager
     if(!mgr->InitAnalysis()) return;   
+
     // print the status of the manager to screen 
     mgr->PrintStatus();
-    // print to screen how the analysis is progressing
-    mgr->SetUseProgressBar(1, 25);
-    // start the analysis locally, reading the events from the tchain
     mgr->StartAnalysis("grid");
 }
