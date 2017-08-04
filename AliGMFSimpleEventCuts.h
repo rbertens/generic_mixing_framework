@@ -38,7 +38,7 @@ class AliGMFSimpleEventCuts : public TObject {
         fCentralityMax = max;
     }
     
-    void SetRunNumberRange(Short_t min, Short_t max) {
+    void SetRunNumberRange(ULong_t min, ULong_t max) {
         fRunNumberMin = min;
         fRunNumberMax = max;
     }
@@ -54,8 +54,8 @@ class AliGMFSimpleEventCuts : public TObject {
     Float_t     fEventPlaneMax;     // maximum event plane angle
     Float_t     fCentralityMin;     // minimum event centrality
     Float_t     fCentralityMax;     // maximum event centrality
-    Short_t     fRunNumberMin;      // minimum run number
-    Short_t     fRunNumberMax;      // maximum run number
+    ULong_t     fRunNumberMin;      // minimum run number
+    ULong_t     fRunNumberMax;      // maximum run number
 
     ClassDef(AliGMFSimpleEventCuts, 1);    // Help class
 
