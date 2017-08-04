@@ -106,14 +106,17 @@ Bool_t AliAnalysisTaskTTreeFilter::Notify()
 {
     if(fRunNumber != InputEvent()->GetRunNumber()) {
         fRunNumber = InputEvent()->GetRunNumber();        // set the current run number
-        switch (fCollisionPeriod) {
-            case kPbPb10h : {
-                ReadVZEROCalibration2010h(); 
-                return kTRUE;
-            } break;
-            default : break;
+        if(fDetectorType != kTPC) {
+            switch (fCollisionPeriod) {
+                case kPbPb10h : {
+                    ReadVZEROCalibration2010h(); 
+                    return kTRUE;
+                } break;
+                default : break;
+            }
         }
     }
+    return kTRUE;
 }
 //______________________________________________________________________________
 void AliAnalysisTaskTTreeFilter::UserCreateOutputObjects()

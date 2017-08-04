@@ -26,6 +26,8 @@ AliAnalysisTaskTTreeFilter* AddTaskTTreeFilter(
     // set the trigger selection
     filter->SelectCollisionCandidates(trigger);
 
+    // do not store QA on the grid runs
+    filter->SetDoQA(kTRUE);
     // create the event and track cut objects
     AliGMFEventCuts* eventCuts = new AliGMFEventCuts();
     filter->SetEventCuts(eventCuts);
