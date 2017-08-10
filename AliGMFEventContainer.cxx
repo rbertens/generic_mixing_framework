@@ -65,10 +65,22 @@ void AliGMFEventContainer::Flush() {
     }
 }
 //-----------------------------------------------------------------------------
-Bool_t AliGMFEventContainer::FlushAndFill(AliGMFEventContainer* event) {
+Int_t AliGMFEventContainer::FlushAndFill(AliGMFEventContainer* event) {
     // clear out the event (no deallocation) and fill it with new event info
     Flush();
-    return Fill(event);
+    // fill the new events
+    Fill(event);
+    // remove 'holes' from the index array
+    return FlushOutZeroes();
+
+}
+//-----------------------------------------------------------------------------
+Int_t AliGMFEventContainer::FlushOutZeroes() {
+    // remove any zeroes from the track index buffer
+
+    // put numbers from the back in the holes :)
+
+    return 0;
 }
 //-----------------------------------------------------------------------------
 void AliGMFEventContainer::SetUsed(Bool_t used) {

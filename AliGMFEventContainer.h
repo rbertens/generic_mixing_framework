@@ -57,6 +57,7 @@ class AliGMFEventContainer : public TObject {
        AliGMFTTreeHeader*       fHeader;        // event header
        std::vector<int>         fTrackIndexMap; // track index map
        
+       void     FlushOutZeroes();
 
        ClassDef(AliGMFEventContainer,1)
 };
