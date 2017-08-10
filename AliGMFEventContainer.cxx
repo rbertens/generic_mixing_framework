@@ -50,6 +50,25 @@ Bool_t AliGMFEventContainer::Fill(AliGMFEventContainer* event) {
             GetTrack(i)->Fill(event->GetTrack(i));
         } else printf(" Warning, tried to fill track %i but memory is not allocated - skipping track ! \n ");
     }
+    return kTRUE;
+}
+//-----------------------------------------------------------------------------
+void AliGMFEventContainer::Flush() {
+    // reset this event
+    if(GetHeader()) GetHeader()->Reset();
+    AliGMFTTreeTrack* track(0x0);
+    // important is that the track flag 'filled'
+    // is set to kFALSE
+    for(Int_t i(0); i < GetNumberOfTracks(); i++) {
+        track = GetTrack(i);
+        if(track) track->Reset();
+    }
+}
+//-----------------------------------------------------------------------------
+Bool_t AliGMFEventContainer::FlushAndFill(AliGMFEventContainer* event) {
+    // clear out the event (no deallocation) and fill it with new event info
+    Flush();
+    return Fill(event);
 }
 //-----------------------------------------------------------------------------
 void AliGMFEventContainer::SetUsed(Bool_t used) {
@@ -84,44 +103,12 @@ void AliGMFEventContainer::ShuffleTrackIndices() {
 
     // reset the current shuffled indices  or create a new map
     // if there's no old in memory
-
-
-  // print out content:
-  std::cout << "myvector contains at the verhy very verystart:";
-  for (std::vector<int>::iterator it=fTrackIndexMap.begin(); it!=fTrackIndexMap.end(); ++it)
-    std::cout << ' ' << *it;
-
-  std::cout << '\n';
-
     ResetTrackIndices();
-
-
-  // print out content:
-  std::cout << "myvector contains at the start:";
-  for (std::vector<int>::iterator it=fTrackIndexMap.begin(); it!=fTrackIndexMap.end(); ++it)
-    std::cout << ' ' << *it;
-
-  std::cout << '\n';
-
-
-
 
     // shuffle the indices
     std::random_shuffle(
             fTrackIndexMap.begin(), 
             fTrackIndexMap.end());
-
-  // print out content:
-  std::cout << "myvector contains at the end";
-  for (std::vector<int>::iterator it=fTrackIndexMap.begin(); it!=fTrackIndexMap.end(); ++it)
-    std::cout << ' ' << *it;
-
-  std::cout << '\n';
-
-
-
-
-
 }
 //_____________________________________________________________________________
 void AliGMFEventContainer::ResetTrackIndices() {

@@ -29,3 +29,14 @@ void AliGMFTTreeHeader::Fill(AliGMFTTreeHeader* event) {
    fCentrality = event->GetCentrality();
    fRunNumber = event->GetRunNumber();
 }
+//_____________________________________________________________________________
+void AliGMFTTreeHeader::Reset() {
+   // fill current header with info from another header
+   fZvtx = -999;
+   fEventPlane = -999;
+   fEventID = -1;
+   fUsed = kFALSE;
+   fMultiplicity = 0;
+   fCentrality = -1;
+   fRunNumber = -1;
+}

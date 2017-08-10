@@ -25,7 +25,9 @@ class AliGMFTTreeTrack : public TObject {
         Float_t    GetPhi() const                   {return fPhi;}
         Float_t    GetCharge() const                {return fCharge;}
         Bool_t     GetUsed() const                  {return fUsed;}
+        Bool_t     GetFilled() const                {return fFilled;}
 
+        void       Reset();
     private:
 #if COMPRESSION_LEVEL > 1
         // maximum compression level
@@ -47,6 +49,7 @@ class AliGMFTTreeTrack : public TObject {
 
         // some transient members that we'll use for bookkeeping, but dont want to store now
         Bool_t        fUsed;        //! was track used for mixing ? 
+        Bool_t        fFilled;      //! was track filled ? 
 
         virtual ~AliGMFTTreeTrack(); // default destructor
 

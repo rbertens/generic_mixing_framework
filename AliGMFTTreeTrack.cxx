@@ -9,7 +9,8 @@ AliGMFTTreeTrack::AliGMFTTreeTrack() : TObject(),
     fEta         (0.),
     fPhi         (0.),
     fCharge      (0.),
-    fUsed        (kFALSE)
+    fUsed        (kFALSE),
+    fFilled      (kFALSE)
 {
   // default constructor
 }
@@ -23,4 +24,15 @@ void AliGMFTTreeTrack::Fill(AliGMFTTreeTrack* track) {
     fPhi = track->GetPhi();
     fCharge = track->GetCharge();
     fUsed = track->GetUsed();
+    fFilled = kTRUE;
+}
+//_____________________________________________________________________________
+void AliGMFTTreeTrack::Reset() {
+    // fill current track with info from supplied track
+    fPt = -1;
+    fEta = -1;
+    fPhi = -1;
+    fCharge = -1;
+    fUsed = kFALSE;
+    fFilled = kFALSE;
 }

@@ -36,6 +36,7 @@ class AliGMFTTreeHeader : public TObject{
   Float_t       GetCentrality() const   {return fCentrality;}
   ULong_t       GetRunNumber() const    {return fRunNumber;}
 
+  void          Reset();
  private:
   // first the persistent members are listed. these are written to disk
   // so extra care is taken to minimize the space they take

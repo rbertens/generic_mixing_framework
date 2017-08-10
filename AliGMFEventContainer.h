@@ -27,6 +27,8 @@ class AliGMFEventContainer : public TObject {
                AliGMFTTreeHeader* header,
                TClonesArray* tracks, Int_t eventID);
        Bool_t  Fill(AliGMFEventContainer* event);
+       void    Flush();
+       Bool_t  FlushAndFill(AliGMFEventContainer* event);
 
        void SetUsed(Bool_t used);
 
