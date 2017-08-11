@@ -91,6 +91,7 @@ class AliGMFMixingManager : public TObject {
     void        CreateNewEventChunk();
     void        WriteCurrentTreeToFile(Bool_t createNewOutputStructures);
     void        PushToTTree();
+    void        FlushCurrentTTree();
     void        Finish();
 
     Int_t       fMultiplicityMin;   // minimum multiplicity
@@ -123,6 +124,7 @@ class AliGMFMixingManager : public TObject {
     AliGMFHistogramManager*     fQAManager;             // run QA 
     TObjArray*                  fEventCache;            // event cache 
     Int_t                       fTotalEventBuffer;      //! total number of events
+    TH1*                        fOnTheFlyMultDist;      //! on the fly multiplicity distribution
 
     ClassDef(AliGMFMixingManager, 1);
 

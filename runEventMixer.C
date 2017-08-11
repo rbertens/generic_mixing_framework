@@ -2,8 +2,8 @@
 //#include "AliGMFMixingManager.h"
 
 void runEventMixer(
-        Int_t minMult = 1000,
-        Int_t maxMult = 1700,
+        Int_t minMult = 1600,
+        Int_t maxMult = 1650,
         Float_t minVtx = -2,
         Float_t maxVtx = 2,
         Float_t minEp = 0,
@@ -125,8 +125,8 @@ void runEventMixer(
     mixer->SetVertexRange(minVtx, maxVtx);
     mixer->SetEventPlaneRange(minEp, maxEp);
     mixer->SetCentralityRange(minCen, maxCen);
-    mixer->SetMaxEventsPerFile(1000);
-    mixer->SetMaxEvents(1000);
+    mixer->SetMaxEventsPerFile(10000);
+    mixer->SetMaxEvents(100000);
     mixer->DoQA();
 
     // run the mixer

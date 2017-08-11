@@ -7,6 +7,7 @@
 #include "TMath.h"
 #include "TRandom.h"
 #include "TH1.h"
+#include "TH1I.h"
 
 #include "AliGMFMixingManager.h"
 #include "AliGMFEventReader.h"
@@ -46,7 +47,8 @@ AliGMFMixingManager::AliGMFMixingManager() : TObject(),
     fEventBufferPosition(0),
     fTrackBufferPosition(0),
     fQAManager(0x0),
-    fEventCache(0x0)
+    fEventCache(0x0),
+    fOnTheFlyMultDist(0x0)
 {
     // default constructor
 }
@@ -55,6 +57,7 @@ AliGMFMixingManager::~AliGMFMixingManager() {
     // class destructor - only delete what the manager allocates
     delete fQAManager;    
     delete fEventCache;  
+//    delete fOnTheFlyMultDist;
 }
 //_____________________________________________________________________________
 void AliGMFMixingManager::DoQA() {
@@ -99,6 +102,9 @@ Bool_t AliGMFMixingManager::Initialize() {
 #if VERBOSE > 0
     printf("   ... %i events found,  this can take a while \n", fTotalEventBuffer);
 #endif
+
+    // used to on the fly sample multiplicities from a realistic distribution
+    fOnTheFlyMultDist = new TH1I("fOnTheFlyMultDist", "fOnTheFlyMultDist", fMultiplicityMin, fMultiplicityMax, fMultiplicityMax-fMultiplicityMin);
 
     return (fTotalEventBuffer > 0); 
 }
@@ -151,6 +157,7 @@ Bool_t AliGMFMixingManager::FillMixingCache() {
     AliGMFEventContainer* currentEvent(0x0);
     AliGMFEventContainer* cachedEvent(0x0);
     Int_t iCache(0);
+//    fOnTheFlyMultDist->Reset();
 #if VERBOSE > 0
     printf(" ::FillMixingCache:: \n");
     printf("   ... filling cache from buffer position  %i \n", fEventBufferPosition);
@@ -165,6 +172,7 @@ Bool_t AliGMFMixingManager::FillMixingCache() {
             cachedEvent->FlushAndFill(currentEvent);
             // and shuffle the indices of the tracks
             cachedEvent->ShuffleTrackIndices();
+            fOnTheFlyMultDist->Fill(currentEvent->GetMultiplicity());
             iCache++;
 #if VERBOSE > 0
             std::cout << "     - caching event " << iCache << " found at buffer position " << fEventBufferPosition << "\r"; cout.flush();
@@ -321,7 +329,7 @@ void AliGMFMixingManager::CreateNewEventChunk()
 
     // and then get the tracks
     AliGMFTTreeTrack* track(0x0);
-    Int_t iMixedTracks(0), skip(0);
+    Int_t iMixedTracks(0), sampledMultiplicity(0), maxMultChoices(0);
     // this outer loop only changes the gobal track index
     // and at the same time serves as event iterator
     // (in 'square' mixing, event i is created by sampling the i-th track
@@ -329,7 +337,13 @@ void AliGMFMixingManager::CreateNewEventChunk()
     for(fTrackBufferPosition = 0; fTrackBufferPosition < fMultiplicityMax; fTrackBufferPosition++) {
         // bookkeep the total number of tracks that is added to the array
         iMixedTracks = 0;
-        skip = 0;
+        // select a desired multiplicity , try again if zero (not likely)
+        sampledMultiplicity = (int)(fOnTheFlyMultDist->GetRandom());
+        while(sampledMultiplicity == 0) {
+            maxMultChoices++;
+            sampledMultiplicity = (int)(fOnTheFlyMultDist->GetRandom());
+            if(maxMultChoices == 99) sampledMultiplicity = gRandom->Uniform(fMultiplicityMin, fMultiplicityMax);
+        }
         // enter the track loop
         for(Int_t i(0); i < fMultiplicityMax; i++) {
             // go through all the buffered events i, and take the next
@@ -364,10 +378,14 @@ void AliGMFMixingManager::CreateNewEventChunk()
                 fQAManager->Fill("fHistMixedEtaPhi", mixedTrack->GetEta(), mixedTrack->GetPhi());
             }
             iMixedTracks++;
+            if(iMixedTracks >= sampledMultiplicity) break;
         }
         // write the tree and perform cleanup
-        if(fQAManager) fQAManager->Fill("fHistMixedMultiplicity", iMixedTracks);
-        PushToTTree();
+        if(iMixedTracks < sampledMultiplicity) FlushCurrentTTree();
+        else {
+            if(fQAManager) fQAManager->Fill("fHistMixedMultiplicity", iMixedTracks);
+            PushToTTree();
+        }
     }
 }
 //_____________________________________________________________________________
@@ -392,6 +410,10 @@ void AliGMFMixingManager::WriteCurrentTreeToFile(Bool_t createNewOutputStructure
 void AliGMFMixingManager::PushToTTree() {
     // push info to tree and do cleanup for next iteration
     fTree->Fill();
+    fTrackArray->Clear();
+}
+//_____________________________________________________________________________
+void AliGMFMixingManager::FlushCurrentTTree() {
     fTrackArray->Clear();
 }
 //_____________________________________________________________________________
