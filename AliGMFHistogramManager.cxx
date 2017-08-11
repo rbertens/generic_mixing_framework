@@ -1,5 +1,3 @@
-// simple jet finder on generic input vector
-//
 // Redmer Alexander Bertens, 2017 (UTK, CERN)
 
 

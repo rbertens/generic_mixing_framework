@@ -80,7 +80,6 @@ Int_t AliGMFEventContainer::FlushOutZeroes() {
     // first get the size of the index map
     UInt_t lastEntry = fTrackIndexMap.size()-1;
     Int_t tempEntry;
-Int_t skip(0);
     // loop over all entries in the track map
     for(UInt_t i(0); i < fTrackIndexMap.size(); i++) {
         if(lastEntry <= i) break;
@@ -96,7 +95,6 @@ Int_t skip(0);
                 fTrackIndexMap.at(i) = fTrackIndexMap.at(lastEntry);
                 fTrackIndexMap.at(lastEntry) = tempEntry;
                 lastEntry--;
-                skip++;
             }
         }
     }
