@@ -57,7 +57,6 @@ AliGMFMixingManager::~AliGMFMixingManager() {
     // class destructor - only delete what the manager allocates
     delete fQAManager;    
     delete fEventCache;  
-//    delete fOnTheFlyMultDist;
 }
 //_____________________________________________________________________________
 void AliGMFMixingManager::DoQA() {
@@ -88,6 +87,11 @@ void AliGMFMixingManager::DoQA() {
 //_____________________________________________________________________________
 Bool_t AliGMFMixingManager::Initialize() {
 
+    // used to on the fly sample multiplicities from a realistic distribution
+    fOnTheFlyMultDist = new TH1I("fOnTheFlyMultDist", "fOnTheFlyMultDist", fMultiplicityMin, fMultiplicityMax, fMultiplicityMax-fMultiplicityMin);
+    fOnTheFlyMultDist->SetDirectory(0);
+
+    // initialize output structure
     fOutputFile = new TFile("myMixedEvents.root", "RECREATE");
 
     fTree = new TTree("tree", "mixed event data");
@@ -103,8 +107,6 @@ Bool_t AliGMFMixingManager::Initialize() {
     printf("   ... %i events found,  this can take a while \n", fTotalEventBuffer);
 #endif
 
-    // used to on the fly sample multiplicities from a realistic distribution
-    fOnTheFlyMultDist = new TH1I("fOnTheFlyMultDist", "fOnTheFlyMultDist", fMultiplicityMin, fMultiplicityMax, fMultiplicityMax-fMultiplicityMin);
 
     return (fTotalEventBuffer > 0); 
 }
@@ -157,7 +159,6 @@ Bool_t AliGMFMixingManager::FillMixingCache() {
     AliGMFEventContainer* currentEvent(0x0);
     AliGMFEventContainer* cachedEvent(0x0);
     Int_t iCache(0);
-//    fOnTheFlyMultDist->Reset();
 #if VERBOSE > 0
     printf(" ::FillMixingCache:: \n");
     printf("   ... filling cache from buffer position  %i \n", fEventBufferPosition);
