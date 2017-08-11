@@ -77,6 +77,18 @@ void AliGMFEventContainer::FlushAndFill(AliGMFEventContainer* event) {
 Int_t AliGMFEventContainer::FlushOutZeroes() {
     // remove any zeroes from the track index buffer
 
+#ifdef __CLING__
+
+    // if cling is defined, use modern stuff
+    auto checkStatus = [&](int i) -> bool {
+        return GetTrack(fTrackIndexMap.at(i))->GetFilled();
+    };
+    std::remove_if(
+            fTrackIndexMap.begin(), 
+            fTrackIndexMap.end(), 
+            checkStatus);
+#else
+
     // first get the size of the index map
     UInt_t lastEntry = fTrackIndexMap.size()-1;
     Int_t tempEntry;
@@ -98,6 +110,8 @@ Int_t AliGMFEventContainer::FlushOutZeroes() {
             }
         }
     }
+#endif
+
     return fTrackIndexMap.size();
 }
 //-----------------------------------------------------------------------------
