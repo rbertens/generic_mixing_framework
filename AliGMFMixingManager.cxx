@@ -335,15 +335,7 @@ void AliGMFMixingManager::CreateNewEventChunk()
             // go through all the buffered events i, and take the next
             // 'unused' track from them
             track = GetNextTrackFromEventI(i);
-            if(!track) {
-                printf(" event %i track %i skipped \n", fTrackBufferPosition, i);
-skip++;                
-                continue;
-            }
-
-
-
-
+            if(!track)  continue;
             while(track->GetPt() > fSplittingThreshold) {
                 // as long as the track pt is too high, create
                 // new tracks which have fixed pt

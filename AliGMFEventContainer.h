@@ -51,6 +51,7 @@ class AliGMFEventContainer : public TObject {
 
        void                     ShuffleTrackIndices();
        void                     ResetTrackIndices();
+       Int_t                    FlushOutZeroes();
 
    private:
        // members
@@ -59,7 +60,6 @@ class AliGMFEventContainer : public TObject {
        std::vector<int>         fTrackIndexMap; // track index map
        Int_t                    fTrackIterator; // container specific track iterator
        
-       Int_t     FlushOutZeroes();
 
        ClassDef(AliGMFEventContainer,1)
 };

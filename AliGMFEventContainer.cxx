@@ -77,7 +77,6 @@ void AliGMFEventContainer::FlushAndFill(AliGMFEventContainer* event) {
 Int_t AliGMFEventContainer::FlushOutZeroes() {
     // remove any zeroes from the track index buffer
 
-
     // first get the size of the index map
     UInt_t lastEntry = fTrackIndexMap.size()-1;
     Int_t tempEntry;
@@ -88,14 +87,11 @@ Int_t skip(0);
         // check if an index points to an unused track
         if(!(GetTrack(fTrackIndexMap.at(i))->GetFilled())) {
             // if so, find the used track with the highest index number
-//            std::cout << " track " << i << " not filled , goin for idx " << lastEntry << endl;
             while(!GetTrack(fTrackIndexMap.at(lastEntry))->GetFilled()) {
-//                std::cout << " idx " << lastEntry << "also not filled, decreasing to retry " << endl;
                 lastEntry--;
             }
             if(lastEntry > i) {
-//            std::cout << " found candidate, swapping " << i << " with " << lastEntry << endl;
-            // and then swap the used and unused track
+                // and then swap the used and unused track
                 tempEntry = fTrackIndexMap.at(i);
                 fTrackIndexMap.at(i) = fTrackIndexMap.at(lastEntry);
                 fTrackIndexMap.at(lastEntry) = tempEntry;
@@ -104,12 +100,6 @@ Int_t skip(0);
             }
         }
     }
-    std::cout << " i flushed " << skip << " tracks " << endl;
-/*
-    for(UInt_t i(0); i < fTrackIndexMap.size();i++) {
-        printf(" %i %i \n", i, (int)(GetTrack(fTrackIndexMap.at(i))->GetFilled()));
-    }
-*/
     return fTrackIndexMap.size();
 }
 //-----------------------------------------------------------------------------
@@ -153,7 +143,6 @@ void AliGMFEventContainer::ShuffleTrackIndices() {
             fTrackIndexMap.end());
 
     // then order the tracks again, to remove any 'holes'
-//    FlushOutZeroes();
 }
 //_____________________________________________________________________________
 void AliGMFEventContainer::ResetTrackIndices() {
@@ -178,8 +167,10 @@ AliGMFTTreeTrack* AliGMFEventContainer::GetNextTrack() {
     // return the i-th filled track of the event
 
     fTrackIterator++;
-    std::cout << " iterator " << fTrackIterator << endl;
-    if(fTrackIterator > GetMultiplicity()-1 || fTrackIterator < 0) return 0x0;
+    if(fTrackIterator > GetMultiplicity()-1 || fTrackIterator < 0) {
+        std::cout << " Something is *very* wrong in your event containers ! " << endl;
+        return 0x0;
+    }
 
     AliGMFTTreeTrack* track(0x0);
 
