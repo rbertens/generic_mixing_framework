@@ -157,6 +157,7 @@ AliGMFTTreeTrack* AliGMFEventContainer::GetTrack(Int_t i) {
     // return the i-th track of the event
 
     if(fTrackIndexMap.empty()) {
+        if(i > GetMultiplicity()) return 0x0;
         return static_cast<AliGMFTTreeTrack*>(fTracks->At(i));
     } else {
         return static_cast<AliGMFTTreeTrack*>(fTracks->At(fTrackIndexMap.at(i)));
@@ -167,10 +168,9 @@ AliGMFTTreeTrack* AliGMFEventContainer::GetNextTrack() {
     // return the i-th filled track of the event
 
     fTrackIterator++;
-    if(fTrackIterator > GetMultiplicity()-1 || fTrackIterator < 0) {
-        std::cout << " Something is *very* wrong in your event containers ! " << endl;
-        return 0x0;
-    }
+
+    // if many tracks are skipped (not filled) these conditions can happen
+    if(fTrackIterator > GetMultiplicity()-1 || fTrackIterator < 0) return 0x0;
 
     AliGMFTTreeTrack* track(0x0);
 

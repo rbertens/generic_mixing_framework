@@ -167,7 +167,7 @@ Bool_t AliGMFMixingManager::FillMixingCache() {
             cachedEvent->ShuffleTrackIndices();
             iCache++;
 #if VERBOSE > 0
-            std::cout << "     - caching event " << iCache+1 << " at buffer position " << fEventBufferPosition << "\r"; cout.flush();
+            std::cout << "     - caching event " << iCache << " found at buffer position " << fEventBufferPosition << "\r"; cout.flush();
 #endif
             if(fQAManager) {
                 // multiplicity is retrieved from the current event, otherwise we just get the buffer mult
@@ -175,7 +175,7 @@ Bool_t AliGMFMixingManager::FillMixingCache() {
                 fQAManager->Fill("fHistAcceptedMultCent", currentEvent->GetMultiplicity(), cachedEvent->GetCentrality());
                 fQAManager->Fill("fHistAcceptedVertex", cachedEvent->GetZvtx());
                 fQAManager->Fill("fHistAcceptedCentrality", cachedEvent->GetCentrality());
-                for(Int_t i(0); i < fMultiplicityMin; i++) {
+                for(Int_t i(0); i < fMultiplicityMax; i++) {
                     if((track = cachedEvent->GetTrack(i))) {
                         fQAManager->Fill("fHistUnmixedPt", track->GetPt());
                         fQAManager->Fill("fHistUnmixedEta", track->GetEta());
@@ -366,7 +366,6 @@ void AliGMFMixingManager::CreateNewEventChunk()
             iMixedTracks++;
         }
         // write the tree and perform cleanup
-        printf(" I skipped %i tracks \n", skip);
         if(fQAManager) fQAManager->Fill("fHistMixedMultiplicity", iMixedTracks);
         PushToTTree();
     }
