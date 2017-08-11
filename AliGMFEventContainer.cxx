@@ -48,8 +48,9 @@ Bool_t AliGMFEventContainer::Fill(AliGMFEventContainer* event) {
     for(Int_t i(0); i < event->GetNumberOfTracks(); i++) {
         if(GetTrack(i) && event->GetTrack(i)) {
             GetTrack(i)->Fill(event->GetTrack(i));
-        } else printf(" Warning, tried to fill track %i but memory is not allocated - skipping track ! \n ");
+        } else printf(" Warning, tried to fill track %i but memory is not allocated - skipping track ! \n ", i);
     }
+    fTrackIterator = -1;
     return kTRUE;
 }
 //-----------------------------------------------------------------------------
@@ -63,24 +64,53 @@ void AliGMFEventContainer::Flush() {
         track = GetTrack(i);
         if(track) track->Reset();
     }
+    fTrackIterator = -1;
 }
 //-----------------------------------------------------------------------------
-Int_t AliGMFEventContainer::FlushAndFill(AliGMFEventContainer* event) {
+void AliGMFEventContainer::FlushAndFill(AliGMFEventContainer* event) {
     // clear out the event (no deallocation) and fill it with new event info
     Flush();
     // fill the new events
     Fill(event);
-    // remove 'holes' from the index array
-    return FlushOutZeroes();
-
 }
 //-----------------------------------------------------------------------------
 Int_t AliGMFEventContainer::FlushOutZeroes() {
     // remove any zeroes from the track index buffer
 
-    // put numbers from the back in the holes :)
 
-    return 0;
+    // first get the size of the index map
+    UInt_t lastEntry = fTrackIndexMap.size()-1;
+    Int_t tempEntry;
+Int_t skip(0);
+    // loop over all entries in the track map
+    for(UInt_t i(0); i < fTrackIndexMap.size(); i++) {
+        if(lastEntry <= i) break;
+        // check if an index points to an unused track
+        if(!(GetTrack(fTrackIndexMap.at(i))->GetFilled())) {
+            // if so, find the used track with the highest index number
+//            std::cout << " track " << i << " not filled , goin for idx " << lastEntry << endl;
+            while(!GetTrack(fTrackIndexMap.at(lastEntry))->GetFilled()) {
+//                std::cout << " idx " << lastEntry << "also not filled, decreasing to retry " << endl;
+                lastEntry--;
+            }
+            if(lastEntry > i) {
+//            std::cout << " found candidate, swapping " << i << " with " << lastEntry << endl;
+            // and then swap the used and unused track
+                tempEntry = fTrackIndexMap.at(i);
+                fTrackIndexMap.at(i) = fTrackIndexMap.at(lastEntry);
+                fTrackIndexMap.at(lastEntry) = tempEntry;
+                lastEntry--;
+                skip++;
+            }
+        }
+    }
+    std::cout << " i flushed " << skip << " tracks " << endl;
+/*
+    for(UInt_t i(0); i < fTrackIndexMap.size();i++) {
+        printf(" %i %i \n", i, (int)(GetTrack(fTrackIndexMap.at(i))->GetFilled()));
+    }
+*/
+    return fTrackIndexMap.size();
 }
 //-----------------------------------------------------------------------------
 void AliGMFEventContainer::SetUsed(Bool_t used) {
@@ -121,6 +151,9 @@ void AliGMFEventContainer::ShuffleTrackIndices() {
     std::random_shuffle(
             fTrackIndexMap.begin(), 
             fTrackIndexMap.end());
+
+    // then order the tracks again, to remove any 'holes'
+//    FlushOutZeroes();
 }
 //_____________________________________________________________________________
 void AliGMFEventContainer::ResetTrackIndices() {
@@ -137,7 +170,36 @@ AliGMFTTreeTrack* AliGMFEventContainer::GetTrack(Int_t i) {
     if(fTrackIndexMap.empty()) {
         return static_cast<AliGMFTTreeTrack*>(fTracks->At(i));
     } else {
-        return static_cast<AliGMFTTreeTrack*>(fTracks->At(fTrackIndexMap[i]));
+        return static_cast<AliGMFTTreeTrack*>(fTracks->At(fTrackIndexMap.at(i)));
     }
+}
+//_____________________________________________________________________________
+AliGMFTTreeTrack* AliGMFEventContainer::GetNextTrack() {
+    // return the i-th filled track of the event
+
+    fTrackIterator++;
+    std::cout << " iterator " << fTrackIterator << endl;
+    if(fTrackIterator > GetMultiplicity()-1 || fTrackIterator < 0) return 0x0;
+
+    AliGMFTTreeTrack* track(0x0);
+
+    // try to get a track
+    if(fTrackIndexMap.empty()) {
+        track = static_cast<AliGMFTTreeTrack*>(fTracks->At(fTrackIterator));
+    } else {
+        track = static_cast<AliGMFTTreeTrack*>(fTracks->At(fTrackIndexMap.at(fTrackIterator)));
+    }
+
+    // keep trying until it's filled or we reach the end of the buffer
+    while(!track->GetFilled()) {
+        fTrackIterator++;
+        if(fTrackIterator > GetMultiplicity()-1) return 0x0;
+        if(fTrackIndexMap.empty()) {
+            track = static_cast<AliGMFTTreeTrack*>(fTracks->At(fTrackIterator));
+        } else {
+            track = static_cast<AliGMFTTreeTrack*>(fTracks->At(fTrackIndexMap.at(fTrackIterator)));
+        }
+    }
+    return track;
 }
 

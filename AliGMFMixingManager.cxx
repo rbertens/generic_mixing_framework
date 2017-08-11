@@ -100,6 +100,7 @@ Bool_t AliGMFMixingManager::Initialize() {
     printf("   ... %i events found,  this can take a while \n", fTotalEventBuffer);
 #endif
 
+    return (fTotalEventBuffer > 0); 
 }
 //_____________________________________________________________________________
 void AliGMFMixingManager::InitializeMixingCache() {
@@ -191,7 +192,7 @@ Bool_t AliGMFMixingManager::FillMixingCache() {
         }
 
         // if the cache is full, break the loop
-        if(iCache + 1 == fMultiplicityMax) break;
+        if(iCache == fMultiplicityMax) break;
     }
 #if VERBOSE > 0
     cout << endl;
@@ -205,7 +206,7 @@ Bool_t AliGMFMixingManager::FillMixingCache() {
 void AliGMFMixingManager::StageCachedEvent(Int_t i) {
     // retrieve the i-th good event and put it in the event buffer 
     fBufferedEvent = static_cast<AliGMFEventContainer*>(fEventCache->At(i));
-    FillHeaderWithCachedEventInfo();
+    //    FillHeaderWithCachedEventInfo();
 }
 //_____________________________________________________________________________
 void AliGMFMixingManager::FillHeaderWithCachedEventInfo() {
@@ -229,7 +230,8 @@ AliGMFTTreeTrack* AliGMFMixingManager::GetNextTrackFromEventI(Int_t i) {
     // first stage the i-th event
     StageCachedEvent(i);
 
-    AliGMFTTreeTrack* track(fBufferedEvent->GetTrack(fTrackBufferPosition));
+//    AliGMFTTreeTrack* track(fBufferedEvent->GetTrack(fTrackBufferPosition));
+    AliGMFTTreeTrack* track(fBufferedEvent->GetNextTrack());    
     return track;
 
 }
@@ -319,168 +321,62 @@ void AliGMFMixingManager::CreateNewEventChunk()
 
     // and then get the tracks
     AliGMFTTreeTrack* track(0x0);
-    Int_t iMixedTracks(0);
+    Int_t iMixedTracks(0), skip(0);
+    // this outer loop only changes the gobal track index
+    // and at the same time serves as event iterator
+    // (in 'square' mixing, event i is created by sampling the i-th track
+    // from all buffered events
+    for(fTrackBufferPosition = 0; fTrackBufferPosition < fMultiplicityMax; fTrackBufferPosition++) {
+        // bookkeep the total number of tracks that is added to the array
+        iMixedTracks = 0;
+        skip = 0;
+        // enter the track loop
+        for(Int_t i(0); i < fMultiplicityMax; i++) {
+            // go through all the buffered events i, and take the next
+            // 'unused' track from them
+            track = GetNextTrackFromEventI(i);
+            if(!track) {
+                printf(" event %i track %i skipped \n", fTrackBufferPosition, i);
+skip++;                
+                continue;
+            }
 
 
-    switch (fHowToChooseMultiplicity) {
-        case kUseMinimum : {
-            // this outer loop only changes the gobal track index
-            // and at the same time serves as event iterator
-            // (in 'square' mixing, event i is created by sampling the i-th track
-            // from all buffered events
-            for(fTrackBufferPosition = 0; fTrackBufferPosition < fMultiplicityMin; fTrackBufferPosition++) {
-                // bookkeep the total number of tracks that is added to the array
-                iMixedTracks = 0;
-                // enter the track loop
-                for(Int_t i(0); i < fMultiplicityMin; i++) {
-                    // go through all the buffered events i, and take the next
-                    // 'unused' track from them
-                    track = GetNextTrackFromEventI(i);
-                    while(track->GetPt() > fSplittingThreshold) {
-                        // as long as the track pt is too high, create
-                        // new tracks which have fixed pt
-                        // and are collinear to the original track
-                        AliGMFTTreeTrack* mixedTrack = new((*fTrackArray)[iMixedTracks]) AliGMFTTreeTrack();
-                        mixedTrack->Fill(track);
-                        mixedTrack->SetPt(fSplitTrackPt);
-                        track->SetPt(track->GetPt() - fSplitTrackPt);
-                        printf(" found high pt track, splitting it into track %i \n    continuing with pt of %.4f \n", iMixedTracks, track->GetPt());
-                        // if requested do some qa
-                        if(fQAManager) {
-                            fQAManager->Fill("fHistMixedPt", mixedTrack->GetPt());
-                            fQAManager->Fill("fHistMixedEta", mixedTrack->GetEta());
-                            fQAManager->Fill("fHistMixedPhi", mixedTrack->GetPhi());
-                            fQAManager->Fill("fHistMixedEtaPhi", mixedTrack->GetEta(), mixedTrack->GetPhi());
-                        }
-                        iMixedTracks++;
-                    }
-                    // build the new track and fill it
-                    AliGMFTTreeTrack* mixedTrack = new((*fTrackArray)[iMixedTracks]) AliGMFTTreeTrack();
-                    mixedTrack->Fill(track);
-                    // if requested do some qa
-                    if(fQAManager) {
-                        fQAManager->Fill("fHistMixedPt", mixedTrack->GetPt());
-                        fQAManager->Fill("fHistMixedEta", mixedTrack->GetEta());
-                        fQAManager->Fill("fHistMixedPhi", mixedTrack->GetPhi());
-                        fQAManager->Fill("fHistMixedEtaPhi", mixedTrack->GetEta(), mixedTrack->GetPhi());
-                    }
-                    iMixedTracks++;
-                }
-                // write the tree and perform cleanup
-                PushToTTree();
-            }
-        } break;
-        case kUseDistribution : {
-            // this outer loop only changes the gobal track index
-            // and at the same time serves as event iterator
-            // (in 'square' mixing, event i is created by sampling the i-th track
-            // from all buffered events
-            for(fTrackBufferPosition = 0; fTrackBufferPosition < fMultiplicityMax; fTrackBufferPosition++) {
-                // bookkeep the total number of tracks that is added to the array
-                iMixedTracks = 0;
-                // enter the track loop
-                for(Int_t i(0); i < fMultiplicityMax; i++) {
-                    // go through all the buffered events i, and take the next
-                    // 'unused' track from them
-                    track = GetNextTrackFromEventI(i);
-                    if(!track->GetFilled()) continue;
-                    while(track->GetPt() > fSplittingThreshold) {
-                        // as long as the track pt is too high, create
-                        // new tracks which have fixed pt
-                        // and are collinear to the original track
-                        AliGMFTTreeTrack* mixedTrack = new((*fTrackArray)[iMixedTracks]) AliGMFTTreeTrack();
-                        mixedTrack->Fill(track);
-                        mixedTrack->SetPt(fSplitTrackPt);
-                        track->SetPt(track->GetPt() - fSplitTrackPt);
-                        printf(" found high pt track, splitting it into track %i \n    continuing with pt of %.4f \n", iMixedTracks, track->GetPt());
-                        // if requested do some qa
-                        if(fQAManager) {
-                            fQAManager->Fill("fHistMixedPt", mixedTrack->GetPt());
-                            fQAManager->Fill("fHistMixedEta", mixedTrack->GetEta());
-                            fQAManager->Fill("fHistMixedPhi", mixedTrack->GetPhi());
-                            fQAManager->Fill("fHistMixedEtaPhi", mixedTrack->GetEta(), mixedTrack->GetPhi());
-                        }
-                        iMixedTracks++;
-                    }
-                    // build the new track and fill it
-                    AliGMFTTreeTrack* mixedTrack = new((*fTrackArray)[iMixedTracks]) AliGMFTTreeTrack();
-                    mixedTrack->Fill(track);
-                    // if requested do some qa
-                    if(fQAManager) {
-                        fQAManager->Fill("fHistMixedPt", mixedTrack->GetPt());
-                        fQAManager->Fill("fHistMixedEta", mixedTrack->GetEta());
-                        fQAManager->Fill("fHistMixedPhi", mixedTrack->GetPhi());
-                        fQAManager->Fill("fHistMixedEtaPhi", mixedTrack->GetEta(), mixedTrack->GetPhi());
-                    }
-                    iMixedTracks++;
-                }
-                // write the tree and perform cleanup
-                if(fQAManager) fQAManager->Fill("fHistMixedMultiplicity", iMixedTracks);
-                PushToTTree();
-            }
-        } break;
-         case kUseRandom : {
-            // this outer loop only changes the gobal track index
-            // and at the same time serves as event iterator
-            // (in 'square' mixing, event i is created by sampling the i-th track
-            // from all buffered events
-            Int_t mult(0);
-            for(fTrackBufferPosition = 0; fTrackBufferPosition < fMultiplicityMin; fTrackBufferPosition++) {
-                // bookkeep the total number of tracks that is added to the array
-                iMixedTracks = 0;
-                // enter the track loop
-                if(fMultiplicityDistribution) {
-                    mult = fMultiplicityDistribution->GetRandom();
-                } else mult = gRandom->Uniform(fMultiplicityMin, fMultiplicityMax);
-                for(Int_t i(0); i < mult; i++) {
-                    // go through all the buffered events i, and take the next
-                    // 'unused' track from them
-                    track = GetNextTrackFromEventI(i);
-                    // if the pt is too high, split the track
-                    while(track->GetPt() > fSplittingThreshold) {
-                        // as long as the track pt is too high, create
-                        // new tracks which have fixed pt
-                        // and are collinear to the original track
-                        //
-                        // this operation is inherently UNSAFE when oversampling is allowed
-                        // as it changes tracks in the track buffer
-                        AliGMFTTreeTrack* mixedTrack = new((*fTrackArray)[iMixedTracks]) AliGMFTTreeTrack();
-                        mixedTrack->Fill(track);
-                        mixedTrack->SetPt(fSplitTrackPt);
-                        track->SetPt(track->GetPt() - fSplitTrackPt);
-                        printf(" found high pt track, splitting it into track %i \n    continuing with pt of %.4f \n", iMixedTracks, track->GetPt());
-                        // if requested do some qa
-                        if(fQAManager) {
-                            fQAManager->Fill("fHistMixedPt", mixedTrack->GetPt());
-                            fQAManager->Fill("fHistMixedEta", mixedTrack->GetEta());
-                            fQAManager->Fill("fHistMixedPhi", mixedTrack->GetPhi());
-                            fQAManager->Fill("fHistMixedEtaPhi", mixedTrack->GetEta(), mixedTrack->GetPhi());
-                        }
-                        iMixedTracks++;
-                    }
-                    // build the new track and fill it
-                    AliGMFTTreeTrack* mixedTrack = new((*fTrackArray)[iMixedTracks]) AliGMFTTreeTrack();
-                    mixedTrack->Fill(track);
-                    // if requested do some qa
-                    if(fQAManager) {
-                        if(mixedTrack->GetPt() > 0.) {
-                        fQAManager->Fill("fHistMixedPt", mixedTrack->GetPt());
-                        fQAManager->Fill("fHistMixedEta", mixedTrack->GetEta());
-                        fQAManager->Fill("fHistMixedPhi", mixedTrack->GetPhi());
-                        fQAManager->Fill("fHistMixedEtaPhi", mixedTrack->GetEta(), mixedTrack->GetPhi());
-                        }
-                        //printf(" ----- track %i ------- \n", iMixedTracks);
-//                        mixedTrack->Dump();
 
-                    }
-                    iMixedTracks++;
+
+            while(track->GetPt() > fSplittingThreshold) {
+                // as long as the track pt is too high, create
+                // new tracks which have fixed pt
+                // and are collinear to the original track
+                AliGMFTTreeTrack* mixedTrack = new((*fTrackArray)[iMixedTracks]) AliGMFTTreeTrack();
+                mixedTrack->Fill(track);
+                mixedTrack->SetPt(fSplitTrackPt);
+                track->SetPt(track->GetPt() - fSplitTrackPt);
+                // if requested do some qa
+                if(fQAManager) {
+                    fQAManager->Fill("fHistMixedPt", mixedTrack->GetPt());
+                    fQAManager->Fill("fHistMixedEta", mixedTrack->GetEta());
+                    fQAManager->Fill("fHistMixedPhi", mixedTrack->GetPhi());
+                    fQAManager->Fill("fHistMixedEtaPhi", mixedTrack->GetEta(), mixedTrack->GetPhi());
                 }
-                // write the tree and perform cleanup
-                if(fQAManager) fQAManager->Fill("fHistMixedMultiplicity", iMixedTracks);
-                PushToTTree();
+                iMixedTracks++;
             }
-        } break;
-        default : break;
+            // build the new track and fill it
+            AliGMFTTreeTrack* mixedTrack = new((*fTrackArray)[iMixedTracks]) AliGMFTTreeTrack();
+            mixedTrack->Fill(track);
+            // if requested do some qa
+            if(fQAManager) {
+                fQAManager->Fill("fHistMixedPt", mixedTrack->GetPt());
+                fQAManager->Fill("fHistMixedEta", mixedTrack->GetEta());
+                fQAManager->Fill("fHistMixedPhi", mixedTrack->GetPhi());
+                fQAManager->Fill("fHistMixedEtaPhi", mixedTrack->GetEta(), mixedTrack->GetPhi());
+            }
+            iMixedTracks++;
+        }
+        // write the tree and perform cleanup
+        printf(" I skipped %i tracks \n", skip);
+        if(fQAManager) fQAManager->Fill("fHistMixedMultiplicity", iMixedTracks);
+        PushToTTree();
     }
 }
 //_____________________________________________________________________________

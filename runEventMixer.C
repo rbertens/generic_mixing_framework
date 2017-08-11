@@ -1,5 +1,8 @@
+//#include "AliGMFEventReader.h"
+//#include "AliGMFMixingManager.h"
+
 void runEventMixer(
-        Int_t minMult = 1600,
+        Int_t minMult = 1000,
         Int_t maxMult = 1700,
         Float_t minVtx = -2,
         Float_t maxVtx = 2,
@@ -19,7 +22,6 @@ void runEventMixer(
 
     // include paths, necessary for compilation
     gSystem->AddIncludePath("-Wno-deprecated -I$PATH_TO_SOURCE");
-
     // compile the classes
     gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFTTreeHeader.cxx+");
     gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFTTreeTrack.cxx+");
@@ -123,8 +125,8 @@ void runEventMixer(
     mixer->SetVertexRange(minVtx, maxVtx);
     mixer->SetEventPlaneRange(minEp, maxEp);
     mixer->SetCentralityRange(minCen, maxCen);
-    mixer->SetMaxEventsPerFile(100000);
-    mixer->SetMaxEvents(10000);
+    mixer->SetMaxEventsPerFile(1000);
+    mixer->SetMaxEvents(1000);
     mixer->DoQA();
 
     // run the mixer

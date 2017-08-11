@@ -28,7 +28,7 @@ class AliGMFEventContainer : public TObject {
                TClonesArray* tracks, Int_t eventID);
        Bool_t  Fill(AliGMFEventContainer* event);
        void    Flush();
-       Bool_t  FlushAndFill(AliGMFEventContainer* event);
+       void    FlushAndFill(AliGMFEventContainer* event);
 
        void SetUsed(Bool_t used);
 
@@ -37,6 +37,7 @@ class AliGMFEventContainer : public TObject {
        // interface
        Int_t                    GetNumberOfTracks()     { return fTracks->GetEntries();}
        AliGMFTTreeTrack*        GetTrack(Int_t i);
+       AliGMFTTreeTrack*        GetNextTrack();
        Int_t                    GetMultiplicity()       { return GetNumberOfTracks(); }
        Float_t                  GetEventPlane()         { return fHeader->GetEventPlane(); }
        Float_t                  GetZvtx()               { return fHeader->GetZvtx(); }
@@ -56,8 +57,9 @@ class AliGMFEventContainer : public TObject {
        TClonesArray*            fTracks;        // tclones array with tracks
        AliGMFTTreeHeader*       fHeader;        // event header
        std::vector<int>         fTrackIndexMap; // track index map
+       Int_t                    fTrackIterator; // container specific track iterator
        
-       void     FlushOutZeroes();
+       Int_t     FlushOutZeroes();
 
        ClassDef(AliGMFEventContainer,1)
 };
