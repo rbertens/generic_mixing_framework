@@ -71,6 +71,7 @@ class AliGMFMixingManager : public TObject {
     void SetSplitTrackPt(Float_t pt) {
         fSplitTrackPt = pt;
     }
+    void SetMultInvariantSplitting(Bool_t b)    {fMultInvariantSplitting = b;}
     
     // setters - IO
     void SetMaxEvents(Int_t e)                  {fMaxEvents = e;}
@@ -109,6 +110,7 @@ class AliGMFMixingManager : public TObject {
     howToChooseMultiplicity     fHowToChooseMultiplicity;       // how to choose multiplicity
     Float_t     fSplittingThreshold;// tracks with pt > this will be split collinearly
     Float_t     fSplitTrackPt;      // pt of tracks that are split off    
+    Bool_t      fMultInvariantSplitting;        // set to false if a split track should change the multiplicity
 
     // data structures for mixed event output
     TTree*                      fTree;                  //! output data

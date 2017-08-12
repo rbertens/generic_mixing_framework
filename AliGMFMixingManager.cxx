@@ -39,6 +39,7 @@ AliGMFMixingManager::AliGMFMixingManager() : TObject(),
     fHowToChooseMultiplicity(kUseDistribution),
     fSplittingThreshold(1e9),
     fSplitTrackPt(3),
+    fMultInvariantSplitting(kTRUE),
     fTree(0x0),
     fEvent(0x0),
     fBufferedEvent(0x0), 
@@ -85,6 +86,7 @@ void AliGMFMixingManager::DoQA() {
     fQAManager->BookTH1D("fHistMixedCentrality", "percentile", 100, 0, 100);
     fQAManager->BookTH1D("fHistMixedEventPlane", "#Psi", 100, -4, 4);
     fQAManager->BookTH1D("fHistMixedMultiplicity", "counts", 1000, 0, 4000);
+    fQAManager->BookTH1D("fHistMixedMultiplicityNoSplitting", "counts", 1000, 0, 4000);
 }
 //_____________________________________________________________________________
 Bool_t AliGMFMixingManager::Initialize() {
@@ -334,7 +336,7 @@ void AliGMFMixingManager::CreateNewEventChunk()
 
     // and then get the tracks
     AliGMFTTreeTrack* track(0x0);
-    Int_t iMixedTracks(0), sampledMultiplicity(0), maxMultChoices(0);
+    Int_t iMixedTracks(0), sampledMultiplicity(0), maxMultChoices(0), splitTracks(0);
     // this outer loop only changes the gobal track index
     // and at the same time serves as event iterator
     // (in 'square' mixing, event i is created by sampling the i-th track
@@ -371,6 +373,13 @@ void AliGMFMixingManager::CreateNewEventChunk()
                     fQAManager->Fill("fHistMixedEtaPhi", mixedTrack->GetEta(), mixedTrack->GetPhi());
                 }
                 iMixedTracks++;
+                // tricky part: if we dont want to change energy density, increase the mult
+                // of this event by the number of split tracks. this changes the resulting multiplicity
+                // distribution, but *not* the sampled one
+                if(fMultInvariantSplitting) {
+                    splitTracks++;
+                    sampledMultiplicity++;
+                }
             }
             // build the new track and fill it
             AliGMFTTreeTrack* mixedTrack = new((*fTrackArray)[iMixedTracks]) AliGMFTTreeTrack();
@@ -388,7 +397,9 @@ void AliGMFMixingManager::CreateNewEventChunk()
         // write the tree and perform cleanup
         if(iMixedTracks < sampledMultiplicity) FlushCurrentTTree();
         else {
-            if(fQAManager) fQAManager->Fill("fHistMixedMultiplicity", iMixedTracks);
+            if(fQAManager) {
+                fQAManager->Fill("fHistMixedMultiplicity", iMixedTracks);
+                fQAManager->Fill("fHistMixedMultiplicityNoSplitting", iMixedTracks - splitTracks);
             PushToTTree();
         }
     }
