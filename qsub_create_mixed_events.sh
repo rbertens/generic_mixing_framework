@@ -1,4 +1,3 @@
-clear
 echo " -------------------------------- "
 echo "    welcome to the event mixer "
 echo "--------------------------------- "

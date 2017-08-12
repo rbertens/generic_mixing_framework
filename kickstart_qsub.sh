@@ -7,10 +7,10 @@
 cen=(0 10)
 
 # vertex arrays
-vertex=(-10 -6 -2 2 6 10)
+vertex=(-2 2)
 
 # event plane array
-ep=(-1.6 -.785 0, .785 1.6)
+ep=(-1.6 -.785 0 .785 1.6)
 
 # multiplicity array
 
