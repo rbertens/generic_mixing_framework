@@ -41,11 +41,11 @@ cd m_$1_$2_$3_$4_$5_$6_$7_$8
 
 
 # prepare running through bash, priority, name in the queue
-echo "#!/bin/bash" >> create_mixed_events_autoscript.sh    
-echo "#$ -N GMF_$1_$2_$3_$4_$5_$6_$7_$8" >> create_mixed_events_autoscript.sh    
-echo "#$ -q medium*" >> create_mixed_events_autoscript.sh    
-echo "#$ -S /bin/bash" >> create_mixed_events_autoscript.sh    
-echo "#$ -cwd" >> create_mixed_events_autoscript.sh    
+echo "#PBS -S /bin/bash" >> create_mixed_events_autoscript.sh    
+echo "#PBS -N GMF_$1_$2_$3_$4_$5_$6_$7_$8" >> create_mixed_events_autoscript.sh    
+#echo "# $-cwd" >> create_mixed_events_autoscript.sh    
+echo "#PBS -l walltime=05:00:00" >> create_mixed_events_autoscript.sh
+echo "cd $PBS_O_WORKDIR" >> create_mixed_events_autoscript.sh
 
 # set some specific paths. ugly, but no other way
 echo "export rd=/nics/c/home/rbertens" >> create_mixed_events_autoscript.sh
