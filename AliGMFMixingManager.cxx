@@ -66,10 +66,12 @@ void AliGMFMixingManager::DoQA() {
     fQAManager->BookTH2D("fHistRejectedMultCent", "counts", "percentile", 100, 0, 4000, 100, 0, 100);
     fQAManager->BookTH1D("fHistRejectedVertex", "cm", 100, -12, 12);
     fQAManager->BookTH1D("fHistRejectedCentrality", "percentile", 100, 0, 100);
+    fQAManager->BookTH1D("fHistRejectedEP", "rad", 100, -2, 2);
     fQAManager->BookTH1D("fHistAcceptedMultiplicity", "counts", 1000, 0, 4000);
     fQAManager->BookTH2D("fHistAcceptedMultCent", "counts", "percentile", 100, 0, 4000, 100, 0, 100);
     fQAManager->BookTH1D("fHistAcceptedVertex", "cm", 100, -12, 12);
     fQAManager->BookTH1D("fHistAcceptedCentrality", "percentile", 100, 0, 100);
+    fQAManager->BookTH1D("fHistAcceptedEP", "rad", 100, -2, 2);
     fQAManager->BookTH1D("fHistRejectionReason", "0=mult 1=vtx 2=ep 3=cen", 4, 0, 4);
     fQAManager->BookTH1D("fHistUnmixedPt", "#it{p}_{T} (GeV/c)", 100, 0, 20);
     fQAManager->BookTH1D("fHistUnmixedEta", "#eta", 100, -1, 1);
@@ -184,6 +186,7 @@ Bool_t AliGMFMixingManager::FillMixingCache() {
                 fQAManager->Fill("fHistAcceptedMultCent", currentEvent->GetMultiplicity(), cachedEvent->GetCentrality());
                 fQAManager->Fill("fHistAcceptedVertex", cachedEvent->GetZvtx());
                 fQAManager->Fill("fHistAcceptedCentrality", cachedEvent->GetCentrality());
+                fQAManager->Fill("fHistAcceptedEP", cachedEvent->GetEventPlane());
                 for(Int_t i(0); i < fMultiplicityMax; i++) {
                     if((track = cachedEvent->GetTrack(i))) {
                         fQAManager->Fill("fHistUnmixedPt", track->GetPt());
@@ -198,6 +201,7 @@ Bool_t AliGMFMixingManager::FillMixingCache() {
             fQAManager->Fill("fHistRejectedMultiplicity", currentEvent->GetMultiplicity());
             fQAManager->Fill("fHistRejectedCentrality", currentEvent->GetCentrality());
             fQAManager->Fill("fHistRejectedMultCent", currentEvent->GetMultiplicity(), currentEvent->GetCentrality());
+            fQAManager->Fill("fHistRejectedEP", currentEvent->GetEventPlane());
         }
 
         // if the cache is full, break the loop
