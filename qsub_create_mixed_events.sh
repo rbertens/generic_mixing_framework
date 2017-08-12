@@ -45,6 +45,7 @@ echo "#PBS -S /bin/bash" >> create_mixed_events_autoscript.sh
 echo "#PBS -N GMF_$1_$2_$3_$4_$5_$6_$7_$8" >> create_mixed_events_autoscript.sh    
 #echo "# $-cwd" >> create_mixed_events_autoscript.sh    
 echo "#PBS -l walltime=05:00:00" >> create_mixed_events_autoscript.sh
+export PBS_O_WORKDIR=`pwd`
 echo "cd $PBS_O_WORKDIR" >> create_mixed_events_autoscript.sh
 
 # set some specific paths. ugly, but no other way
