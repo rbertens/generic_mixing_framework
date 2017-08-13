@@ -122,7 +122,14 @@ void runTTreeFilterOnGrid() {
     gROOT->LoadMacro("add_task_macros/AddTaskTTreeFilter.C");
 
     // launch the task
-    AddTaskTTreeFilter();
+    if(year == 2010) AddTaskTTreeFilter();
+    else {
+        AddTaskTTreeFilter(
+                TString("myFilteredTTree2011.root"),
+                AliVEvent::kMB | AliVEvent::kCentral | AliVEvent::kSemiCentral);
+    }
+
+
 
     // check if we can initialize the manager
     if(!mgr->InitAnalysis()) return;   
