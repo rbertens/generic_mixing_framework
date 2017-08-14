@@ -5,6 +5,8 @@
 #ifndef AliGMFMixingManager_H
 #define AliGMFMixingManager_H
 
+#include <vector>
+
 #include <TObject.h>
 
 #include "AliGMFEventContainer.h"
@@ -42,9 +44,6 @@ class AliGMFMixingManager : public TObject {
         fMultiplicityMin = min;
         fMultiplicityMax = max;
     }
-    void SetMultiplicityDistribution(TH1* dist) {
-        fMultiplicityDistribution = dist;
-    }
     void SetVertexRange(Float_t min, Float_t max) {
         fVertexMin = min;
         fVertexMax = max;
@@ -62,6 +61,9 @@ class AliGMFMixingManager : public TObject {
     // setters - behavior
     void SetHowToChooseMultiplicity(howToChooseMultiplicity h) {
         fHowToChooseMultiplicity = h;
+    }
+    void SetForceExactMultiplicity(Bool_t f) {
+        fForceExactMultiplicity = f;
     }
 
     void SetSplittingForTracksWithPtHigherThan(Float_t pt) {
@@ -97,7 +99,6 @@ class AliGMFMixingManager : public TObject {
 
     Int_t       fMultiplicityMin;   // minimum multiplicity
     Int_t       fMultiplicityMax;   // maximum multiplicity
-    TH1*        fMultiplicityDistribution;      // distribution from which M is sampled
     Float_t     fVertexMin;         // minimum vertexz
     Float_t     fVertexMax;         // maximum vertexz
     Float_t     fEventPlaneMin;     // minimum event plane angle
@@ -108,6 +109,7 @@ class AliGMFMixingManager : public TObject {
     Int_t       fMaxEventsPerFile;  // maximum number of mixed events written per file
 
     howToChooseMultiplicity     fHowToChooseMultiplicity;       // how to choose multiplicity
+    Bool_t      fForceExactMultiplicity;        // input mult exactly equals output mult
     Float_t     fSplittingThreshold;// tracks with pt > this will be split collinearly
     Float_t     fSplitTrackPt;      // pt of tracks that are split off    
     Bool_t      fMultInvariantSplitting;        // set to false if a split track should change the multiplicity
@@ -127,6 +129,8 @@ class AliGMFMixingManager : public TObject {
     TObjArray*                  fEventCache;            // event cache 
     Int_t                       fTotalEventBuffer;      //! total number of events
     TH1*                        fOnTheFlyMultDist;      //! on the fly multiplicity distribution
+    std::vector<int>            fMultiplicityDist;      // multiplicity distribution of current buffer
+    Bool_t                      fRandomMultiplicity;    // choose mult randomly from input dist
 
     ClassDef(AliGMFMixingManager, 1);
 

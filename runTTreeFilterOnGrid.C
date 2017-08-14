@@ -15,9 +15,9 @@ void runTTreeFilterOnGrid() {
 
 
     // select range of runs to analyze (see runs[] for definition)
-    Int_t firstrun = 0;
-    Int_t lastrun = 15;// max 91 for 2010
-    Int_t year = 2011;  // set to 
+    Int_t firstrun = 12;
+    Int_t lastrun = 24;// max 91 for 2010
+    Int_t year = 20112;  // set to 
                                 // 2010 for 2010
                                 // 2011 for good 2011 runs
                                 // 20111 for irocc13 issue runs
@@ -52,7 +52,7 @@ void runTTreeFilterOnGrid() {
         // settings for 10h
         alienHandler->SetGridDataDir("/alice/data/2010/LHC10h");
         alienHandler->SetDataPattern("*ESDs/pass2/AOD160/*AOD.root");
-    } else if(year == 2011) {
+    } else if(year == 2011 || year == 20111 || year == 20112) {
         // settings for 11h
         alienHandler->SetGridDataDir("/alice/data/2011/LHC11h_2");
         alienHandler->SetDataPattern("*ESDs/pass2/AOD145/*AOD.root");

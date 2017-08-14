@@ -126,7 +126,7 @@ void runEventMixer(
     mixer->SetEventPlaneRange(minEp, maxEp);
     mixer->SetCentralityRange(minCen, maxCen);
     mixer->SetMaxEventsPerFile(10000);
-    mixer->SetMaxEvents(-1);
+    mixer->SetMaxEvents(10000);
     mixer->DoQA();
 
     // run the mixer

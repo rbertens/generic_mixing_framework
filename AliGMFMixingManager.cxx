@@ -27,7 +27,6 @@ ClassImp(AliGMFMixingManager);
 AliGMFMixingManager::AliGMFMixingManager() : TObject(),
     fMultiplicityMin(1), 
     fMultiplicityMax(-1),
-    fMultiplicityDistribution(0x0),
     fVertexMin(1),
     fVertexMax(-1),
     fEventPlaneMin(1),
@@ -49,7 +48,8 @@ AliGMFMixingManager::AliGMFMixingManager() : TObject(),
     fTrackBufferPosition(0),
     fQAManager(0x0),
     fEventCache(0x0),
-    fOnTheFlyMultDist(0x0)
+    fOnTheFlyMultDist(0x0),
+    fRandomMultiplicity(kTRUE)
 {
     // default constructor
 }
@@ -168,6 +168,8 @@ Bool_t AliGMFMixingManager::FillMixingCache() {
     printf("   ... filling cache from buffer position  %i \n", fEventBufferPosition);
 #endif
 
+    if(!fMultiplicityDist.empty()) fMultiplicityDist.clear();
+
     while ((currentEvent = fEventReader->GetEvent(fEventBufferPosition))) {
         // the buffer position moves with each event 
         fEventBufferPosition++;
@@ -178,6 +180,7 @@ Bool_t AliGMFMixingManager::FillMixingCache() {
             // and shuffle the indices of the tracks
             cachedEvent->ShuffleTrackIndices();
             fOnTheFlyMultDist->Fill(currentEvent->GetMultiplicity());
+            fMultiplicityDist.push_back(currentEvent->GetMultiplicity());
             iCache++;
 #if VERBOSE > 0
             std::cout << "     - caching event " << iCache << " found at buffer position " << fEventBufferPosition << "\r"; cout.flush();
@@ -245,7 +248,7 @@ AliGMFTTreeTrack* AliGMFMixingManager::GetNextTrackFromEventI(Int_t i) {
     // first stage the i-th event
     StageCachedEvent(i);
 
-//    AliGMFTTreeTrack* track(fBufferedEvent->GetTrack(fTrackBufferPosition));
+    //    AliGMFTTreeTrack* track(fBufferedEvent->GetTrack(fTrackBufferPosition));
     AliGMFTTreeTrack* track(fBufferedEvent->GetNextTrack());    
     return track;
 
@@ -345,11 +348,15 @@ void AliGMFMixingManager::CreateNewEventChunk()
         // bookkeep the total number of tracks that is added to the array
         iMixedTracks = 0;
         // select a desired multiplicity , try again if zero (not likely)
-        sampledMultiplicity = (int)(fOnTheFlyMultDist->GetRandom());
-        while(sampledMultiplicity == 0) {
-            maxMultChoices++;
+        if(!fRandomMultiplicity) {
+            sampledMultiplicity = fMultiplicityDist.at(fTrackBufferPosition);
+        } else {
             sampledMultiplicity = (int)(fOnTheFlyMultDist->GetRandom());
-            if(maxMultChoices == 99) sampledMultiplicity = gRandom->Uniform(fMultiplicityMin, fMultiplicityMax);
+            while(sampledMultiplicity == 0) {
+                maxMultChoices++;
+                sampledMultiplicity = (int)(fOnTheFlyMultDist->GetRandom());
+                if(maxMultChoices == 99) sampledMultiplicity = gRandom->Uniform(fMultiplicityMin, fMultiplicityMax);
+            } 
         }
         // enter the track loop
         for(Int_t i(0); i < fMultiplicityMax; i++) {
@@ -400,7 +407,8 @@ void AliGMFMixingManager::CreateNewEventChunk()
             if(fQAManager) {
                 fQAManager->Fill("fHistMixedMultiplicity", iMixedTracks);
                 fQAManager->Fill("fHistMixedMultiplicityNoSplitting", iMixedTracks - splitTracks);
-            PushToTTree();
+                PushToTTree();
+            }
         }
     }
 }
