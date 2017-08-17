@@ -10,7 +10,7 @@ class TObject;
 class AliGMFHistogramManager : public TObject {
 
     public:
-        AliGMFHistogramManager();
+        AliGMFHistogramManager(TString name = "");
 
         // adding histograms to the list
         TH1D*   BookTH1D(const char* name, const char* x, Int_t bins, Double_t min, Double_t max, Bool_t append = kTRUE);
@@ -27,7 +27,8 @@ class AliGMFHistogramManager : public TObject {
     private:
 
         // histograms
-        TList*   fOutputList;                     // list of histograms
+        TList*   fOutputList;                   // list of histograms
+        TString  fManagerName;                  // manager name
 
         ClassDef(AliGMFHistogramManager, 1);
 

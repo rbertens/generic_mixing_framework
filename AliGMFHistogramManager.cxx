@@ -15,11 +15,14 @@ ClassImp(AliGMFHistogramManager)
 using namespace std;
 
 //_____________________________________________________________________________
-AliGMFHistogramManager::AliGMFHistogramManager() : TObject(),
-    fOutputList(0x0) {
+AliGMFHistogramManager::AliGMFHistogramManager(TString name) : TObject(),
+    fOutputList(0x0),
+    fManagerName("") {
     // default constructor
     fOutputList = new TList();
     fOutputList->SetOwner(kTRUE);
+    fManagerName += name;
+
 }
 
    //_____________________________________________________________________________
@@ -29,7 +32,7 @@ TH1D* AliGMFHistogramManager::BookTH1D(const char* name, const char* x, Int_t bi
     if(append && !fOutputList) return 0x0;
     TString title(name);
     title += Form(";%s;[counts]", x);
-    TH1D* histogram = new TH1D(name, title.Data(), bins, min, max);
+    TH1D* histogram = new TH1D(Form("%s_%s", name, fManagerName.Data()), title.Data(), bins, min, max);
     histogram->Sumw2();
     if(append) fOutputList->Add(histogram);
     return histogram;   
@@ -41,7 +44,7 @@ TH2D* AliGMFHistogramManager::BookTH2D(const char* name, const char* x, const ch
     if(append && !fOutputList) return 0x0;
     TString title(name);
     title += Form(";%s;%s", x, y);
-    TH2D* histogram = new TH2D(name, title.Data(), binsx, minx, maxx, binsy, miny, maxy);
+    TH2D* histogram = new TH2D(Form("%s_%s", name, fManagerName.Data()), title.Data(), binsx, minx, maxx, binsy, miny, maxy);
     histogram->Sumw2();
     if(append) fOutputList->Add(histogram);
     return histogram;   
@@ -53,7 +56,7 @@ TH3F* AliGMFHistogramManager::BookTH3F(const char* name, const char* x, const ch
     if(append && !fOutputList) return 0x0;
     TString title(name);
     title += Form(";%s;%s;%s", x, y, z);
-    TH3F* histogram = new TH3F(name, title.Data(), binsx, minx, maxx, binsy, miny, maxy, binsz, minz, maxz);
+    TH3F* histogram = new TH3F(Form("%s_%s", name, fManagerName.Data()), title.Data(), binsx, minx, maxx, binsy, miny, maxy, binsz, minz, maxz);
     histogram->Sumw2();
     if(append) fOutputList->Add(histogram);
     return histogram;   
@@ -61,7 +64,7 @@ TH3F* AliGMFHistogramManager::BookTH3F(const char* name, const char* x, const ch
 //_____________________________________________________________________________
 TObject* AliGMFHistogramManager::GetHistogram(TString name) {
     // return a pointer to a histogram named 'name'
-    return (dynamic_cast<TH1*>(fOutputList->FindObject(name.Data())));
+    return static_cast<TH1*>(fOutputList->FindObject(Form("%s_%s", name.Data(), fManagerName.Data())));
 }
 
 //_____________________________________________________________________________
@@ -74,7 +77,7 @@ void AliGMFHistogramManager::StoreManager(TString title) {
 //_____________________________________________________________________________
 Bool_t  AliGMFHistogramManager::Fill(TString name, Double_t valx) {
     // find and fill histogram
-    TH1* _temp = dynamic_cast<TH1*>(GetHistogram(name));
+    TH1* _temp = static_cast<TH1*>(GetHistogram(name));
     if (_temp) {
         _temp->Fill(valx);
         return kTRUE;
@@ -84,7 +87,7 @@ Bool_t  AliGMFHistogramManager::Fill(TString name, Double_t valx) {
 //_____________________________________________________________________________
 Bool_t  AliGMFHistogramManager::Fill(TString name, Double_t valx, Double_t valy) {
     // find and fill histogram
-    TH2* _temp = dynamic_cast<TH2*>(GetHistogram(name));
+    TH2* _temp = static_cast<TH2*>(GetHistogram(name));
     if (_temp) {
         _temp->Fill(valx, valy);
         return kTRUE;

@@ -41,12 +41,12 @@ AliGMFSimpleJetFinder::AliGMFSimpleJetFinder() : TObject(),
 //_____________________________________________________________________________
 Bool_t AliGMFSimpleJetFinder::Initialize() {
     // initialize
-   fHistogramManager = new AliGMFHistogramManager();
+   fHistogramManager = new AliGMFHistogramManager(TString(Form("_R%i", (int)(10*fJetResolution))));
    
    // create the histograms (for now here)
    fHistogramManager->BookTH1D("fHistJetPt", "p_{T}^{jet}", 100, 0, 100);
    fHistogramManager->BookTH1D("fHistJetPtSubtracted", "p_{T}^{jet sub} = p_{T}^{jet} - #rho A ", 100, -30, 70); 
-   fHistogramManager->BookTH1D("fHistMultiplicity", "track multiplicity", 1000, 0, 2000);
+   fHistogramManager->BookTH1D("fHistMultiplicity", "track multiplicity", 1000, 0, 4000);
    fHistogramManager->BookTH1D("fHistRho", "#rho", 100, 0, 150);
    fHistogramManager->BookTH2D("fHistJetPtArea", "p_{T}^{jet}", "area", 100, 0, 100, 100, 0, 1);
    fHistogramManager->BookTH2D("fHistJetEtaPhi", "#eta^{jet}", "#phi^{jet}", 100, -1, 1, 100, 0, TMath::TwoPi());
@@ -83,7 +83,6 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
 
 
     // store some event info
-    fHistogramManager->Fill("fHistMultiplicity", event->GetNumberOfTracks());
 
     Double_t px(0), py(0), pz(0);
     Int_t j(0);
@@ -95,13 +94,13 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
             py = track->GetPt()*TMath::Sin(track->GetPhi());  
             pz = track->GetPt()*TMath::SinH(track->GetEta()); 
             totalE = px*px+py*py+pz*pz;
-            if (totalE <= 0) continue;
-            /*
-            printf(" px %.4f \n", px);
-            printf(" py %.4f \n", py);
-            printf(" pz %.4f \n", pz);
-            printf(" E %.4f \n", TMath::Sqrt(totalE));
-*/
+            
+//            printf(" px %d \n", px);
+//            printf(" py %d \n", py);
+//            printf(" pz %d \n", pz);
+//            printf(" E %d \n", TMath::Sqrt(totalE));
+
+            if (!(totalE >  0)) continue;
             fastjet::PseudoJet fjInputProtoJet(
                     px, 
                     py, 
@@ -112,15 +111,18 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
             j++;
         }
     }
-
+    fHistogramManager->Fill("fHistMultiplicity", j);
+    
     // setup the jet finder for signal and background jets
-    fastjet::GhostedAreaSpec     ghostSpec(.9, 1, 0.001);
+    fastjet::GhostedAreaSpec     ghostSpec(.9, 1, 0.005, 1, .1, 1e-100);
     fastjet::Strategy            strategy = fastjet::Best;
     fastjet::RecombinationScheme recombScheme = fastjet::BIpt_scheme;
     fastjet::AreaType            areaType = fastjet::active_area;
     fastjet::AreaDefinition      areaDef = fastjet::AreaDefinition(areaType, ghostSpec);
 
     // some bookkeeping
+    // FIXME change range definition to selector 
+//    fastjet::Selector range(fastjet::SelectorAbsRapMax(1.-.95*fJetResolution));
     fastjet::RangeDefinition range(fJetResolution-.9, .9-fJetResolution, 0, 2.*fastjet::pi);
     fastjet::JetDefinition jetDef(fastjet::antikt_algorithm, fJetResolution, recombScheme, strategy);
     fastjet::JetDefinition jetDefRho(fastjet::kt_algorithm, fJetResolution, recombScheme, strategy);
@@ -139,8 +141,9 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
 
     for (UInt_t iJet = 0; iJet < backgroundJets.size(); iJet++) {
         // TODO first pass to exclude n number of hard jets
-        if (!range.is_in_range(inclusiveJets[iJet])) continue;
-        rhoVector[iJet] = backgroundJets[iJet].perp() / backgroundJets[iJet].area();
+        if (range.is_in_range(inclusiveJets[iJet]) && backgroundJets[iJet].area() > 0) {
+            rhoVector[iJet] = backgroundJets[iJet].perp() / backgroundJets[iJet].area();
+        }
     }
     Double_t rho = TMath::Median(backgroundJets.size(), rhoVector);
     fHistogramManager->Fill(

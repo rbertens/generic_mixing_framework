@@ -407,8 +407,8 @@ void AliGMFMixingManager::CreateNewEventChunk()
             if(fQAManager) {
                 fQAManager->Fill("fHistMixedMultiplicity", iMixedTracks);
                 fQAManager->Fill("fHistMixedMultiplicityNoSplitting", iMixedTracks - splitTracks);
-                PushToTTree();
             }
+            PushToTTree();
         }
     }
 }

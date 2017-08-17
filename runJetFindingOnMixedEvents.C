@@ -31,8 +31,9 @@ void runJetFindingOnMixedEvents(
 
     TChain* myChain = new TChain("tree");
     for(Int_t i = firstFile; i < lastFile+1; i++) {
-        myChain->Add(Form("/nics/c/home/rbertens/lustre/mixed-events/m_700_900_4_10_.785_1.6_40_50/myMixedEvents.root"));
+//        myChain->Add(Form("/nics/c/home/rbertens/lustre/mixed-events/m_700_900_4_10_.785_1.6_40_50/myMixedEvents.root"));
 //        cout << Form("/nics/c/home/rbertens/lustre/mixed-events/ME_%i.root", i) << endl;
+         myChain->Add("myMixedEvents.root");        
     }
 
 
