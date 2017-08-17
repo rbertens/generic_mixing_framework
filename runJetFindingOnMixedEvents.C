@@ -1,6 +1,7 @@
-void runJetFindingOnMixedEvents(TString fileName = "myMixedEvents.root")
+void runJetFindingOnMixedEvents(
+        Int_t firstFile = 0,
+        Int_t lastFile = 1)
 {
-
     // example macro to read data from a ttree and perform simple analysis
     // author: Redmer Alexander Bertens (rbertens@cern.ch)
 
@@ -29,58 +30,43 @@ void runJetFindingOnMixedEvents(TString fileName = "myMixedEvents.root")
     gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFSimpleJetFinder.cxx+");
 
     TChain* myChain = new TChain("tree");
-    myChain->Add(fileName.Data());
+    for(Int_t i = firstFile; i < lastFile+1; i++) {
+        myChain->Add(Form("/nics/c/home/rbertens/lustre/mixed-events/m_700_900_4_10_.785_1.6_40_50/myMixedEvents.root"));
+//        cout << Form("/nics/c/home/rbertens/lustre/mixed-events/ME_%i.root", i) << endl;
+    }
 
 
     // add more files if desired, e.g. per class
 
     // initialize the reader and jet finder
     AliGMFEventReader* reader = new AliGMFEventReader(myChain);
-    cout << reader->GetNumberOfEvents() << " events available for analysis " << endl;
     
-    // create the jet finder
-    AliGMFSimpleJetFinder* jetFinder = new AliGMFSimpleJetFinder();
-    jetFinder->Initialize();    // tbd pass enum on configuratioin
+    // create the jet finders
+    AliGMFSimpleJetFinder* jetFinder[4];
+    float radii[] = {.2, .3, .4, .5};
+  
+    for(int i = 0; i < 4; i++) {
+        jetFinder[i] = new AliGMFSimpleJetFinder();
+        jetFinder[i]->SetJetResolution(radii[i]);
+        jetFinder[i]->Initialize();
+    }
     
-    /* create the event cuts
-     *
-     * no cuts are used here, the mixed events
-     * are tuned specifically to what we want
-     */
-  //  AliGMFSimpleEventCuts* eventCuts = new AliGMFSimpleEventCuts();
-  //  eventCuts->SetMultiplicityRange(190, 210);
-  //  eventCuts->SetVertexRange(-5, 5);
-  //  eventCuts->SetEventPlaneRange(-10, 10);
-  //  eventCuts->SetCentralityRange(10, 12);
-
-    // pass the event cuts to the jet finder
-  //  jetFinder->SetEventCuts(eventCuts);
-    
-
-    TStopwatch timer;
-    timer.Start();
     
     Int_t iEvents = reader->GetNumberOfEvents();
-    Float_t remainingTime = -1;
+    cout << " ievents " << iEvents << endl;
 
-    // set max number of accepted events
-    Int_t iMaxEvents = 23000;
-
-    for (int i = 0, j = 0 ; i < iEvents; i ++) {
-        if(i==100) {
-            remainingTime = timer.RealTime()/100.;
-            cout << " - remaining time (min) approximately " << remainingTime*(iEvents-i)/60. << endl;
-        } else if (i > 0 && i%1000 == 0) cout << " - remaining time (min) approximately " << remainingTime*(iEvents-i)/60. << endl; 
-        if(!jetFinder->AnalyzeEvent(reader->GetEvent(i))) continue;
-        j++;
-        if(j > iMaxEvents) break;
-        cout << " Processed event " << i << " of which accepted " << j << "\r"; cout.flush();
+    for (int i = 0 ; i < iEvents; i ++) {
+        for(int j = 0; j < 4; j++) {
+            jetFinder[j]->AnalyzeEvent(reader->GetEvent(i));
+        }
     }
 
     // write and clear memory
-    jetFinder->Finalize("myMixedJets_peripheral");
+    for(int i = 0; i < 4; i++) {
+        jetFinder[i]->Finalize(Form("myMixedJets_R0%i_fromFiles%i_%i", i+2, firstFile, lastFile));
+        delete jetFinder[i];
+    }
 
-    delete jetFinder;
     delete reader;
 
 }
