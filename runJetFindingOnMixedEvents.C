@@ -1,6 +1,4 @@
-void runJetFindingOnMixedEvents(
-        Int_t firstFile = 0,
-        Int_t lastFile = 1)
+void runJetFindingOnMixedEvents(Int_t fileSuffix = 0)
 {
     // example macro to read data from a ttree and perform simple analysis
     // author: Redmer Alexander Bertens (rbertens@cern.ch)
@@ -30,18 +28,22 @@ void runJetFindingOnMixedEvents(
     gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFSimpleJetFinder.cxx+");
 
     TChain* myChain = new TChain("tree");
-    for(Int_t i = firstFile; i < lastFile+1; i++) {
-//        myChain->Add(Form("/nics/c/home/rbertens/lustre/mixed-events/m_700_900_4_10_.785_1.6_40_50/myMixedEvents.root"));
-//        cout << Form("/nics/c/home/rbertens/lustre/mixed-events/ME_%i.root", i) << endl;
-         myChain->Add("myMixedEvents.root");        
-    }
+    myChain->Add(Form("/lustre/medusa/rbertens/mixed-events/ME_%i.root", fileSuffix));
 
 
     // add more files if desired, e.g. per class
 
     // initialize the reader and jet finder
     AliGMFEventReader* reader = new AliGMFEventReader(myChain);
-    
+ 
+    Int_t iEvents = reader->GetNumberOfEvents();
+    cout << " Found ievents " << iEvents << endl;
+    if(iEvents < 1) {
+        delete reader;
+        cout << " empty input file, aborting " << endl;
+        return;
+    }
+   
     // create the jet finders
     AliGMFSimpleJetFinder* jetFinder[4];
     float radii[] = {.2, .3, .4, .5};
@@ -53,8 +55,6 @@ void runJetFindingOnMixedEvents(
     }
     
     
-    Int_t iEvents = reader->GetNumberOfEvents();
-    cout << " ievents " << iEvents << endl;
 
     for (int i = 0 ; i < iEvents; i ++) {
         for(int j = 0; j < 4; j++) {
@@ -64,7 +64,7 @@ void runJetFindingOnMixedEvents(
 
     // write and clear memory
     for(int i = 0; i < 4; i++) {
-        jetFinder[i]->Finalize(Form("myMixedJets_R0%i_fromFiles%i_%i", i+2, firstFile, lastFile));
+        jetFinder[i]->Finalize(Form("myMixedJets_R0%i_fromFile_ME_%i", i+2, fileSuffix));
         delete jetFinder[i];
     }
 
