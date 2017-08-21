@@ -7,12 +7,9 @@ void runJetFindingOnTree(
     // example macro to read data from a ttree and perform simple analysis
     // author: Redmer Alexander Bertens (rbertens@cern.ch)
 
-    // include paths, necessary for compilation
     gSystem->AddIncludePath("-Wno-deprecated");
-    gSystem->AddIncludePath("-I$PATH_TO_SOURCE -I$FASTJET/include");
+    gSystem->AddIncludePath("-I$FASTJET/include -I$PATH_TO_SOURCE/");
 
-    // load fastjet libraries
-//    gSystem->Load("libCGAL");
     gSystem->Load("libfastjet");
     gSystem->Load("libsiscone");
     gSystem->Load("libsiscone_spherical");
@@ -20,13 +17,14 @@ void runJetFindingOnTree(
     gSystem->Load("libfastjettools");
     gSystem->Load("libfastjetcontribfragile");
 
-    // compile the encapsulated classes
     gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFHistogramManager.cxx+");
     gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFTTreeHeader.cxx+");
     gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFTTreeTrack.cxx+");
     gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFEventContainer.cxx+");
     gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFEventReader.cxx+");
     gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFSimpleEventCuts.cxx+");
+    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFSimpleJetFinder.cxx+");
+
 
     // compile the jet finding classes
     gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFSimpleJetFinder.cxx+");
@@ -48,7 +46,7 @@ void runJetFindingOnTree(
     AliGMFSimpleEventCuts* eventCuts = new AliGMFSimpleEventCuts();
     eventCuts->SetCentralityRange(cenMin, cenMax);
    
-    for(int i = 0; i < 1; i++) {
+    for(int i = 0; i < 4; i++) {
        jetFinder[i] = new AliGMFSimpleJetFinder();
        jetFinder[i]->SetJetResolution(radii[i]);
        // pass the event cuts to the jet finder
@@ -57,12 +55,12 @@ void runJetFindingOnTree(
     }
 
     for (int i = 0; i < iEvents; i ++) {
-        for(int j = 0; j < 1; j++) {
-            jetFinder[i]->AnalyzeEvent(reader->GetEvent(i));
+        for(int j = 0; j < 4; j++) {
+            jetFinder[j]->AnalyzeEvent(reader->GetEvent(i));
         }
     }
 
-    for (int i = 0; i < 1; i++) {
+    for (int i = 0; i < 4; i++) {
         jetFinder[i]->Finalize(Form("SE_jets_%i_%i_%i_R0%i", file, cenMin, cenMax, i+2));
         delete jetFinder[i];
     }

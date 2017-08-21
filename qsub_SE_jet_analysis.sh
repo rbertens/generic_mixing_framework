@@ -30,5 +30,5 @@ echo "root -q -b '$PATH_TO_SOURCE/runJetFindingOnTree.C($1,$2,$3)'" >> SE_jet_an
 chmod +x SE_jet_analysis_autoscript.sh
 
 # launch the autolauncher
-#qsub SE_jet_analysis_autoscript.sh
+qsub SE_jet_analysis_autoscript.sh
 cd ..    
