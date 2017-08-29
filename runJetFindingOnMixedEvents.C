@@ -8,7 +8,7 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0)
     gSystem->AddIncludePath("-I$FASTJET/include -I$PATH_TO_SOURCE/");
 
     // load fastjet libraries
-//    gSystem->Load("libCGAL");
+    gSystem->Load("libCGAL");
     gSystem->Load("libfastjet");
     gSystem->Load("libsiscone");
     gSystem->Load("libsiscone_spherical");
@@ -28,7 +28,7 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0)
     gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFSimpleJetFinder.cxx+");
 
     TChain* myChain = new TChain("tree");
-    myChain->Add(Form("/lustre/medusa/rbertens/mixed-events/ME_%i.root", fileSuffix));
+    myChain->Add(Form("/eos/user/r/rbertens/sandbox/mixed-events/ME_%i.root", fileSuffix));
 
 
     // add more files if desired, e.g. per class

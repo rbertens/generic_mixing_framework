@@ -10,6 +10,7 @@ void runJetFindingOnTree(
     gSystem->AddIncludePath("-Wno-deprecated");
     gSystem->AddIncludePath("-I$FASTJET/include -I$PATH_TO_SOURCE/");
 
+    gSystem->Load("libCGAL");
     gSystem->Load("libfastjet");
     gSystem->Load("libsiscone");
     gSystem->Load("libsiscone_spherical");
@@ -31,7 +32,7 @@ void runJetFindingOnTree(
 
     // add the desired numbers to a chain (not exception safe for now!)
     TChain* myChain = new TChain("tree");
-    myChain->Add(Form("/lustre/medusa/rbertens/merge/%i.root", file));
+    myChain->Add(Form("/eos/user/r/rbertens/sandbox/merge/%i.root", file));
 
     // initialize the reader and jet finder
     AliGMFEventReader* reader = new AliGMFEventReader(myChain);

@@ -8,6 +8,6 @@ files=(137161 137441 137686 138197 138583 139028 139437 137162 137443 137691 138
 for ((i = 0; i < ${#files[@]}; ++i)); do
     for ((k = 0; k < ${#cen[@]}-1; ++k)); do
         inck=$(( $k + 1 ))
-        ./qsub_SE_jet_analysis.sh ${cen[$k]} ${cen[$inck]} ${files[$i]}
+        ./bsub_SE_jet_analysis.sh ${cen[$k]} ${cen[$inck]} ${files[$i]}
     done
 done
