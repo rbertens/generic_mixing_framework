@@ -62,7 +62,7 @@ void runJetFindingOnTree(
     }
 
     for (int i = 0; i < 4; i++) {
-        jetFinder[i]->Finalize(Form("SE_jets_%i_%i_%i_R0%i", file, cenMin, cenMax, i+2));
+        jetFinder[i]->Finalize(Form("SE_jets_%i_%i_R0%i", cenMin, cenMax, i+2));
         delete jetFinder[i];
     }
     

@@ -128,6 +128,9 @@ void runEventMixer(
     mixer->SetMaxEventsPerFile(10000);
     mixer->SetMaxEvents(10000);
     mixer->DoQA();
+    mixer->SetSplittingForTracksWithPtHigherThan(3.);
+    mixer->SetSplitTrackPt(1.);
+
 
     // run the mixer
     mixer->DoPerChunkMixing();

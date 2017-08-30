@@ -4,7 +4,7 @@
 
 
 # centrality range
-cen=(40 50)
+cen=(0 10)
 
 # vertex arrays
 vertex=(-10 -4 -2 2 4 10)
@@ -14,15 +14,15 @@ ep=(-1.6 -.785 0 .785 1.6)
 
 # multiplicity array
 
-mult=(100 300 500 700 900)
-
+#mult=(100 300 500 700 900)
+mult=(1280 1610 1940 2270 2600)
 for ((i = 0; i < ${#vertex[@]}-1; ++i)); do
     inci=$(( $i + 1 ))
     for ((j = 0; j < ${#ep[@]}-1; ++j)); do
         incj=$(( $j + 1 ))
         for ((k = 0; k < ${#mult[@]}-1; ++k)); do
             inck=$(( $k + 1 ))
-            ./qsub_create_mixed_events.sh ${mult[$k]} ${mult[$inck]} ${vertex[$i]} ${vertex[$inci]} ${ep[$j]} ${ep[$incj]} ${cen[0]} ${cen[1]}
+            ./bsub_create_mixed_events.sh ${mult[$k]} ${mult[$inck]} ${vertex[$i]} ${vertex[$inci]} ${ep[$j]} ${ep[$incj]} ${cen[0]} ${cen[1]}
         done
     done
 done

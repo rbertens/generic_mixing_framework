@@ -64,7 +64,7 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0)
 
     // write and clear memory
     for(int i = 0; i < 4; i++) {
-        jetFinder[i]->Finalize(Form("myMixedJets_R0%i_fromFile_ME_%i", i+2, fileSuffix));
+        jetFinder[i]->Finalize(Form("myMixedJets_R0%i", i+2));
         delete jetFinder[i];
     }
 

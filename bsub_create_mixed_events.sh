@@ -40,30 +40,26 @@ cd m_$1_$2_$3_$4_$5_$6_$7_$8
 
 
 # prepare running through bash, priority, name in the queue
-echo "#PBS -S /bin/bash" >> create_mixed_events_autoscript.sh    
-echo "#PBS -N GMF_$1_$2_$3_$4_$5_$6_$7_$8" >> create_mixed_events_autoscript.sh    
-#echo "# $-cwd" >> create_mixed_events_autoscript.sh    
-echo "#PBS -l walltime=05:00:00" >> create_mixed_events_autoscript.sh
-export PBS_O_WORKDIR=`pwd`
-echo "cd $PBS_O_WORKDIR" >> create_mixed_events_autoscript.sh
+echo "#!/bin/bash" >> create_mixed_events_autoscript.sh    
+export WORKDIR=`pwd`
+echo "cd $WORKDIR" >> create_mixed_events_autoscript.sh
 
 # set some specific paths. ugly, but no other way
-echo "export rd=/nics/c/home/rbertens" >> create_mixed_events_autoscript.sh
-echo "export ROOTSYS=/nics/c/home/rbertens/root/mybuild" >> create_mixed_events_autoscript.sh
-echo "export PATH=$PATH:$ROOTSYS/bin " >> create_mixed_events_autoscript.sh
-echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ROOTSYS/lib " >> create_mixed_events_autoscript.sh
-echo "export FASTJET=/nics/c/home/rbertens/fastjet/fastjet-3.2.0/build" >> create_mixed_events_autoscript.sh
-echo "export LD_LIBRARY_PATH=$FASTJET/lib\:$LD_LIBRARY_PATH" >> create_mixed_events_autoscript.sh
-
-export PATH_TO_SOURCE=/nics/c/home/rbertens/projects/generic_mixing_framework
+echo "source /eos/user/r/rbertens/env_aliroot.sh" >> create_mixed_events_autoscript.sh
+export PATH_TO_SOURCE=/eos/user/r/rbertens/projects/generic_mixing_framework
 echo "export PATH_TO_SOURCE=$PATH_TO_SOURCE" >> create_mixed_events_autoscript.sh
-echo "export PATH_TO_DATA=/nics/c/home/rbertens/projects/generic_mixing_framework/merge" >> create_mixed_events_autoscript.sh
+echo "export PATH_TO_DATA=/eos/user/r/rbertens/sandbox/merge" >> create_mixed_events_autoscript.sh
+
+export TDIR=`mktemp -u`
+echo "mkdir -p $TDIR" >> create_mixed_events_autoscript.sh
+echo "cd $TDIR" >> create_mixed_events_autoscript.sh
 
 echo "root -q -b '$PATH_TO_SOURCE/runEventMixer.C($1,$2,$3,$4,$5,$6,$7,$8)'" >> create_mixed_events_autoscript.sh
-
+echo "mv *.root $WORKDIR" >> create_mixed_events_autoscript.sh
+echo "rm -rf $TDIR" >> create_mixed_events_autoscript.sh
 # change permissions
 chmod +x create_mixed_events_autoscript.sh
 
 # launch the autolauncher
-qsub create_mixed_events_autoscript.sh
+bsub -q8nh create_mixed_events_autoscript.sh
 cd ..    
