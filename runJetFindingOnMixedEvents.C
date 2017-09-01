@@ -28,7 +28,7 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0)
     gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFSimpleJetFinder.cxx+");
 
     TChain* myChain = new TChain("tree");
-    myChain->Add(Form("/eos/user/r/rbertens/sandbox/mixed-events/ME_%i.root", fileSuffix));
+    myChain->Add(Form("/eos/user/r/rbertens/sandbox/mixed-events-ptcut_1_3/ME_%i.root", fileSuffix));
 
 
     // add more files if desired, e.g. per class

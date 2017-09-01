@@ -21,14 +21,14 @@ void runEventMixer(
     // if left empty, it's a harmless qualifier
 
     // include paths, necessary for compilation
-    gSystem->AddIncludePath("-Wno-deprecated -I$PATH_TO_SOURCE");
+    gSystem->AddIncludePath("-Wno-deprecated");
     // compile the classes
-    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFTTreeHeader.cxx+");
-    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFTTreeTrack.cxx+");
-    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFEventContainer.cxx+");
-    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFEventReader.cxx+");
-    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFHistogramManager.cxx+");
-    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFMixingManager.cxx+");
+    gROOT->LoadMacro("AliGMFTTreeHeader.cxx+");
+    gROOT->LoadMacro("AliGMFTTreeTrack.cxx+");
+    gROOT->LoadMacro("AliGMFEventContainer.cxx+");
+    gROOT->LoadMacro("AliGMFEventReader.cxx+");
+    gROOT->LoadMacro("AliGMFHistogramManager.cxx+");
+    gROOT->LoadMacro("AliGMFMixingManager.cxx+");
 
     // define the input chain and create an event reader
     TChain* myChain = new TChain("tree");
@@ -128,8 +128,8 @@ void runEventMixer(
     mixer->SetMaxEventsPerFile(10000);
     mixer->SetMaxEvents(10000);
     mixer->DoQA();
-    mixer->SetSplittingForTracksWithPtHigherThan(3.);
-    mixer->SetSplitTrackPt(1.);
+//    mixer->SetSplittingForTracksWithPtHigherThan(3.);
+//    mixer->SetSplitTrackPt(1.);
 
 
     // run the mixer

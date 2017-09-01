@@ -53,13 +53,16 @@ echo "export PATH_TO_DATA=/eos/user/r/rbertens/sandbox/merge" >> create_mixed_ev
 export TDIR=`mktemp -u`
 echo "mkdir -p $TDIR" >> create_mixed_events_autoscript.sh
 echo "cd $TDIR" >> create_mixed_events_autoscript.sh
+echo "cp $PATH_TO_SOURCE/*.C ." >> create_mixed_events_autoscript.sh
+echo "cp $PATH_TO_SOURCE/*.cxx ." >> create_mixed_events_autoscript.sh
+echo "cp $PATH_TO_SOURCE/*.h ." >> create_mixed_events_autoscript.sh
 
-echo "root -q -b '$PATH_TO_SOURCE/runEventMixer.C($1,$2,$3,$4,$5,$6,$7,$8)'" >> create_mixed_events_autoscript.sh
+echo "root -q -b 'runEventMixer.C($1,$2,$3,$4,$5,$6,$7,$8)'" >> create_mixed_events_autoscript.sh
 echo "mv *.root $WORKDIR" >> create_mixed_events_autoscript.sh
 echo "rm -rf $TDIR" >> create_mixed_events_autoscript.sh
 # change permissions
 chmod +x create_mixed_events_autoscript.sh
 
 # launch the autolauncher
-bsub -q8nh create_mixed_events_autoscript.sh
+#bsub -q8nh create_mixed_events_autoscript.sh
 cd ..    
