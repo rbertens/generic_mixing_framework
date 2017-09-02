@@ -8,8 +8,8 @@ AliGMFTTreeHeader::AliGMFTTreeHeader(): TObject(),
   fEventPlane(0),
   fEventID(-1),
   fUsed(kFALSE),
-  fMultiplicity(0),
   fCentrality(-1),
+  fMultiplicity(0),
   fRunNumber(-1)
 {
   // default constructor
