@@ -248,9 +248,7 @@ AliGMFTTreeTrack* AliGMFMixingManager::GetNextTrackFromEventI(Int_t i) {
     // first stage the i-th event
     StageCachedEvent(i);
 
-    //    AliGMFTTreeTrack* track(fBufferedEvent->GetTrack(fTrackBufferPosition));
-    AliGMFTTreeTrack* track(fBufferedEvent->GetNextTrack());    
-    return track;
+    return fBufferedEvent->GetNextTrack();    
 
 }
 //_____________________________________________________________________________
