@@ -23,6 +23,7 @@ void runJetFindingOnTree(
     gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFTTreeTrack.cxx+");
     gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFEventContainer.cxx+");
     gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFEventReader.cxx+");
+    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFSimpleTrackCuts.cxx+");
     gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFSimpleEventCuts.cxx+");
     gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFSimpleJetFinder.cxx+");
 
@@ -46,12 +47,15 @@ void runJetFindingOnTree(
      // create the event cuts
     AliGMFSimpleEventCuts* eventCuts = new AliGMFSimpleEventCuts();
     eventCuts->SetCentralityRange(cenMin, cenMax);
+    AliGMFSimpleTrackCuts* trackCuts = new AliGMFSimpleTrackCuts();
+    trackCuts->SetTrackMinPt(0.2);
    
     for(int i = 0; i < 4; i++) {
        jetFinder[i] = new AliGMFSimpleJetFinder();
        jetFinder[i]->SetJetResolution(radii[i]);
        // pass the event cuts to the jet finder
        jetFinder[i]->SetEventCuts(eventCuts);
+       jetFinder[i]->SetTrackCuts(trackCuts);
        jetFinder[i]->Initialize();
     }
 

@@ -16,6 +16,7 @@
 #include "TH1D.h"
 #include "TFile.h"
 #include "TMath.h"
+#include "TRandom.h"
 
 #include "AliGMFEventContainer.h"
 #include "AliGMFTTreeTrack.h"
@@ -33,7 +34,11 @@ AliGMFSimpleJetFinder::AliGMFSimpleJetFinder() : TObject(),
     fJetResolution(.3),
     fLeadingHadronPt(.1),
     fEventCuts(0x0),
-    fHistogramManager(0x0)
+    fTrackCuts(0x0),
+    fHistogramManager(0x0),
+    fRandomizeEtaPhi(kFALSE),
+    fImprintV2(0x0),
+    fImprintV3(0x0)
 {
     // default constructor
 }
@@ -59,6 +64,10 @@ Bool_t AliGMFSimpleJetFinder::Initialize() {
    settings->GetXaxis()->SetBinLabel(1, "fJetResolution");
    settings->SetBinContent(1, fJetResolution);
 
+   // always make a minimal track cuts object
+   if(!fTrackCuts) {
+       fTrackCuts = new AliGMFSimpleTrackCuts();
+   }
 
    return kTRUE;
 
@@ -83,16 +92,31 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
 
 
     // store some event info
-
     Double_t px(0), py(0), pz(0);
     Int_t j(0);
 
+    // only used when randomizing in eta, phi
+    Double_t phi(0), eta(0), pt(0);
+
+
     for(Int_t i(0); i < event->GetNumberOfTracks(); i++) {
         track = event->GetTrack(i);
-        if(track) {
-            px = track->GetPt()*TMath::Cos(track->GetPhi()); 
-            py = track->GetPt()*TMath::Sin(track->GetPhi());  
-            pz = track->GetPt()*TMath::SinH(track->GetEta()); 
+        if(fTrackCuts->IsSelected(track)) {
+            if(fRandomizeEtaPhi) {
+                eta = gRandom->Uniform(-.9, 9);
+                pt = track->GetPt();
+                if(fImprintV2) GenerateV2(phi, eta, pt);
+                else if(fImprintV3) GenerateV3(phi, eta, pt);
+                else phi = gRandom->Uniform(0, TMath::TwoPi());
+                px = pt*TMath::Cos(phi);
+                py = pt*TMath::Sin(phi); 
+                pz = pt*TMath::SinH(eta); 
+
+            } else {
+                px = track->GetPt()*TMath::Cos(track->GetPhi()); 
+                py = track->GetPt()*TMath::Sin(track->GetPhi());  
+                pz = track->GetPt()*TMath::SinH(track->GetEta()); 
+            }
             totalE = px*px+py*py+pz*pz;
             
 //            printf(" px %d \n", px);
@@ -194,4 +218,36 @@ Bool_t AliGMFSimpleJetFinder::Finalize(TString name) {
     fHistogramManager->StoreManager(Form("%s.root", name.Data()));
     return kTRUE;
 
+}
+//_____________________________________________________________________________
+void AliGMFSimpleJetFinder::GenerateV2(Double_t &phi, Double_t &eta, Double_t &pt) const
+{
+    phi = gRandom->Uniform(0, TMath::TwoPi());
+    Double_t phi0(phi), v2(fImprintV2->Eval(pt)), f(0.), fp(0.), phiprev(0.);
+    if(TMath::AreEqualAbs(v2, 0, 1e-5)) return;
+    // introduce flow fluctuations (gaussian)
+//    if(fFlowFluctuations > -10) GetFlowFluctuation(v2);
+    for (Int_t i = 0; i < 100; i++) {
+        phiprev = phi; //store last value for comparison
+        f =  phi-phi0+v2*TMath::Sin(2.*(phi /*- fPsi2*/));
+        fp = 1.0+2.0*v2*TMath::Cos(2.*(phi /*- fPsi2*/)); //first derivative
+        phi -= f/fp;
+        if (TMath::AreEqualAbs(phiprev, phi, 1e-10)) break; 
+    }
+}
+//_____________________________________________________________________________
+void AliGMFSimpleJetFinder::GenerateV3(Double_t &phi, Double_t &eta, Double_t &pt) const
+{
+    phi = gRandom->Uniform(0, TMath::TwoPi());
+    Double_t phi0(phi), v3(fImprintV3->Eval(pt)), f(0.), fp(0.), phiprev(0.);
+    if(TMath::AreEqualAbs(v3, 0, 1e-5) ) return;
+    // introduce flow fluctuations (gaussian)
+//    if(fFlowFluctuations > -10) GetFlowFluctuation(v3);
+    for (Int_t i = 0; i < 100; i++)  {
+        phiprev = phi; //store last value for comparison
+        f =  phi-phi0+2./3.*v3*TMath::Sin(3.*(phi/*-fPsi3*/));
+        fp = 1.0+2.0*v3*TMath::Cos(3.*(phi/*-fPsi3*/)); //first derivative
+        phi -= f/fp;
+        if (TMath::AreEqualAbs(phiprev, phi, 1e-10)) break;
+    }
 }

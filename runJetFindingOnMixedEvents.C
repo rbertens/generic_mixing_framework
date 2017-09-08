@@ -23,6 +23,7 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0)
     gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFEventContainer.cxx+");
     gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFEventReader.cxx+");
     gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFSimpleEventCuts.cxx+");
+    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFSimpleTrackCuts.cxx+");
 
     // compile the jet finding classes
     gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFSimpleJetFinder.cxx+");
@@ -48,9 +49,13 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0)
     AliGMFSimpleJetFinder* jetFinder[4];
     float radii[] = {.2, .3, .4, .5};
   
+    // create track cuts
+    AliGMFSimpleTrackCuts* trackCuts = new AliGMFSimpleTrackCuts();
+
     for(int i = 0; i < 4; i++) {
         jetFinder[i] = new AliGMFSimpleJetFinder();
         jetFinder[i]->SetJetResolution(radii[i]);
+        jetFinder[i]->SetTrackCuts(trackCuts);
         jetFinder[i]->Initialize();
     }
     
