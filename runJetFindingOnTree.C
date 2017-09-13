@@ -8,7 +8,7 @@ void runJetFindingOnTree(
     // author: Redmer Alexander Bertens (rbertens@cern.ch)
 
     gSystem->AddIncludePath("-Wno-deprecated");
-    gSystem->AddIncludePath("-I$FASTJET/include -I$PATH_TO_SOURCE/");
+    gSystem->AddIncludePath("-I$FASTJET/include");
 
     gSystem->Load("libCGAL");
     gSystem->Load("libfastjet");
@@ -18,18 +18,18 @@ void runJetFindingOnTree(
     gSystem->Load("libfastjettools");
     gSystem->Load("libfastjetcontribfragile");
 
-    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFHistogramManager.cxx+");
-    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFTTreeHeader.cxx+");
-    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFTTreeTrack.cxx+");
-    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFEventContainer.cxx+");
-    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFEventReader.cxx+");
-    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFSimpleTrackCuts.cxx+");
-    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFSimpleEventCuts.cxx+");
-    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFSimpleJetFinder.cxx+");
+    gROOT->LoadMacro("AliGMFHistogramManager.cxx+");
+    gROOT->LoadMacro("AliGMFTTreeHeader.cxx+");
+    gROOT->LoadMacro("AliGMFTTreeTrack.cxx+");
+    gROOT->LoadMacro("AliGMFEventContainer.cxx+");
+    gROOT->LoadMacro("AliGMFEventReader.cxx+");
+    gROOT->LoadMacro("AliGMFSimpleTrackCuts.cxx+");
+    gROOT->LoadMacro("AliGMFSimpleEventCuts.cxx+");
+    gROOT->LoadMacro("AliGMFSimpleJetFinder.cxx+");
 
 
     // compile the jet finding classes
-    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFSimpleJetFinder.cxx+");
+    gROOT->LoadMacro("AliGMFSimpleJetFinder.cxx+");
 
     // add the desired numbers to a chain (not exception safe for now!)
     TChain* myChain = new TChain("tree");
@@ -48,7 +48,7 @@ void runJetFindingOnTree(
     AliGMFSimpleEventCuts* eventCuts = new AliGMFSimpleEventCuts();
     eventCuts->SetCentralityRange(cenMin, cenMax);
     AliGMFSimpleTrackCuts* trackCuts = new AliGMFSimpleTrackCuts();
-    trackCuts->SetTrackMinPt(0.2);
+    trackCuts->SetTrackMinPt(1.);
    
     for(int i = 0; i < 4; i++) {
        jetFinder[i] = new AliGMFSimpleJetFinder();

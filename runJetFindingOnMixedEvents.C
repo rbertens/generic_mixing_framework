@@ -5,7 +5,7 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0)
 
     // include paths, necessary for compilation
     gSystem->AddIncludePath("-Wno-deprecated");
-    gSystem->AddIncludePath("-I$FASTJET/include -I$PATH_TO_SOURCE/");
+    gSystem->AddIncludePath("-I$FASTJET/include");
 
     // load fastjet libraries
     gSystem->Load("libCGAL");
@@ -17,19 +17,19 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0)
     gSystem->Load("libfastjetcontribfragile");
 
     // compile the encapsulated classes
-    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFHistogramManager.cxx+");
-    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFTTreeHeader.cxx+");
-    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFTTreeTrack.cxx+");
-    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFEventContainer.cxx+");
-    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFEventReader.cxx+");
-    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFSimpleEventCuts.cxx+");
-    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFSimpleTrackCuts.cxx+");
+    gROOT->LoadMacro("AliGMFHistogramManager.cxx+");
+    gROOT->LoadMacro("AliGMFTTreeHeader.cxx+");
+    gROOT->LoadMacro("AliGMFTTreeTrack.cxx+");
+    gROOT->LoadMacro("AliGMFEventContainer.cxx+");
+    gROOT->LoadMacro("AliGMFEventReader.cxx+");
+    gROOT->LoadMacro("AliGMFSimpleEventCuts.cxx+");
+    gROOT->LoadMacro("AliGMFSimpleTrackCuts.cxx+");
 
     // compile the jet finding classes
-    gROOT->LoadMacro("$PATH_TO_SOURCE/AliGMFSimpleJetFinder.cxx+");
+    gROOT->LoadMacro("AliGMFSimpleJetFinder.cxx+");
 
     TChain* myChain = new TChain("tree");
-    myChain->Add(Form("/eos/user/r/rbertens/sandbox/mixed-events-ptcut_1_3/ME_%i.root", fileSuffix));
+    myChain->Add(Form("/eos/user/r/rbertens/sandbox/fine_mixed-events/ME_%i.root", fileSuffix));
 
 
     // add more files if desired, e.g. per class
@@ -51,7 +51,8 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0)
   
     // create track cuts
     AliGMFSimpleTrackCuts* trackCuts = new AliGMFSimpleTrackCuts();
-
+    trackCuts->SetTrackMinPt(1);
+    
     for(int i = 0; i < 4; i++) {
         jetFinder[i] = new AliGMFSimpleJetFinder();
         jetFinder[i]->SetJetResolution(radii[i]);

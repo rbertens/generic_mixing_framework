@@ -49,8 +49,8 @@ Bool_t AliGMFSimpleJetFinder::Initialize() {
    fHistogramManager = new AliGMFHistogramManager(TString(Form("_R%i", (int)(10*fJetResolution))));
    
    // create the histograms (for now here)
-   fHistogramManager->BookTH1D("fHistJetPt", "p_{T}^{jet}", 100, 0, 100);
-   fHistogramManager->BookTH1D("fHistJetPtSubtracted", "p_{T}^{jet sub} = p_{T}^{jet} - #rho A ", 100, -30, 70); 
+   fHistogramManager->BookTH1D("fHistJetPt", "p_{T}^{jet}", 500, 0, 500);
+   fHistogramManager->BookTH1D("fHistJetPtSubtracted", "p_{T}^{jet sub} = p_{T}^{jet} - #rho A ", 500, -130, 370); 
    fHistogramManager->BookTH1D("fHistMultiplicity", "track multiplicity", 1000, 0, 4000);
    fHistogramManager->BookTH1D("fHistRho", "#rho", 100, 0, 150);
    fHistogramManager->BookTH2D("fHistJetPtArea", "p_{T}^{jet}", "area", 100, 0, 100, 100, 0, 1);
