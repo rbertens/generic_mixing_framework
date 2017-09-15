@@ -31,6 +31,16 @@ class AliGMFSimpleJetFinder : public TObject {
         void    SetEventCuts(AliGMFSimpleEventCuts* c)  { fEventCuts = c;}
         void    SetTrackCuts(AliGMFSimpleTrackCuts* c)  { delete fTrackCuts; fTrackCuts = c;}
 
+        void    SetSplittingForTracksWithPtHigherThan(Double_t pt) {
+            fSplittingThreshold = pt;
+        }
+        void    SetSplitTrackPt(Double_t pt) {
+            fSplitTrackPt = pt;
+        }
+        void    SetRandomizeSplitTrackEtaPhi(Bool_t r) {
+            fRandomizeSplitTrack = r;
+        }
+
     private:
         Bool_t  fDoBackgroundSubtraction;       // do background subtraction
         Float_t fJetResolution;                 // jet resolution parameter
@@ -38,6 +48,9 @@ class AliGMFSimpleJetFinder : public TObject {
         Bool_t  fRandomizeEtaPhi;               // shuffle tracks randomly in eta, phi
         TF1*    fImprintV2;                     // imprint pt differential v2 on event
         TF1*    fImprintV3;                     // imprint pt differnetial v3 on event
+        Double_t        fSplittingThreshold;    // split tracks with pt higher than this
+        Double_t        fSplitTrackPt;          // split tracks have maximally this pt
+        Bool_t          fRandomizeSplitTrack;   // split tracks collinearly or give them random positions
          
 //        void GetFlowFluctuation(Double_t& vn) const {
 //            vn += TMath::Sqrt(2*(vn*.25)*(vn*.25))*TMath::ErfInverse(2*(gRandom->Uniform(0, fFlowFluctuations))-1); 
