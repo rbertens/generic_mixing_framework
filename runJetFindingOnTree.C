@@ -1,6 +1,6 @@
 void runJetFindingOnTree(
-        Int_t cenMin = 10,
-        Int_t cenMax = 90,
+        Int_t cenMin = 0,
+        Int_t cenMax = 10,
         Int_t file = 0)
 {
 
@@ -33,7 +33,7 @@ void runJetFindingOnTree(
 
     // add the desired numbers to a chain (not exception safe for now!)
     TChain* myChain = new TChain("tree");
-    myChain->Add(Form("myFilteredTree.root", file));
+    myChain->Add(Form("/eos/user/r/rbertens/sandbox/merge/%i.root", file));
 
     // initialize the reader and jet finder
     AliGMFEventReader* reader = new AliGMFEventReader(myChain);
