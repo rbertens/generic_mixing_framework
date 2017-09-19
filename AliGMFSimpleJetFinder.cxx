@@ -59,7 +59,7 @@ Bool_t AliGMFSimpleJetFinder::Initialize() {
    fHistogramManager->BookTH1D("fHistJetPtSubtracted", "p_{T}^{jet sub} = p_{T}^{jet} - #rho A ", 500, -130, 370); 
    fHistogramManager->BookTH1D("fHistMultiplicity", "track multiplicity", 1000, 0, 4000);
    fHistogramManager->BookTH1D("fHistRho", "#rho", 100, 0, 250);
-   fHistogramManager->BookTH2D("fHistMultiplicityRho", "track multiplicity", "#rho#", 1000, 0, 4000, 100, 0, 250);
+   fHistogramManager->BookTH2D("fHistMultiplicityRho", "track multiplicity", "#rho", 1000, 0, 4000, 100, 0, 250);
    fHistogramManager->BookTH2D("fHistCentralityRho", "centrality", "#rho", 100, 0, 100, 100, 0, 150);
 
    fHistogramManager->BookTH2D("fHistJetPtArea", "p_{T}^{jet}", "area", 100, 0, 100, 100, 0, 1);
