@@ -1,4 +1,9 @@
-void runJetFindingOnMixedEvents(Int_t fileSuffix = 0)
+void runJetFindingOnMixedEvents(Int_t fileSuffix = 0,
+        Float_t minConstPt = 0.,
+        Float_t leadingHadronPt = 0,
+        Float_t splitTracksFrom = 1e9,
+        Float_t splitThemIn = 0,
+        Bool_t randomize = kFALSE)
 {
     // example macro to read data from a ttree and perform simple analysis
     // author: Redmer Alexander Bertens (rbertens@cern.ch)
@@ -51,11 +56,14 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0)
   
     // create track cuts
     AliGMFSimpleTrackCuts* trackCuts = new AliGMFSimpleTrackCuts();
-    trackCuts->SetTrackMinPt(1);
+    trackCuts->SetTrackMinPt(minConstPt);
     
     for(int i = 0; i < 4; i++) {
         jetFinder[i] = new AliGMFSimpleJetFinder();
         jetFinder[i]->SetJetResolution(radii[i]);
+        jetFinder[i]->SetSplittingForTracksWithPtHigherThan(splitTracksFrom);
+        jetFinder[i]->SetSplitTrackPt(splitThemIn);
+        jetFinder[i]->SetRandomizeSplitTrackEtaPhi(randomize);   
         jetFinder[i]->SetTrackCuts(trackCuts);
         jetFinder[i]->Initialize();
     }

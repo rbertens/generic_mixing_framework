@@ -67,11 +67,21 @@ Bool_t AliGMFSimpleJetFinder::Initialize() {
    fHistogramManager->BookTH1D("fHistVertex", "cm", 100, -12, 12);
    fHistogramManager->BookTH1D("fHistCentrality", "percentile", 100, 0, 100);
    fHistogramManager->BookTH1D("fHistEventPlane", "#Psi", 100, -4, 4);
-   fHistogramManager->BookTH1D("fHistJetFinderSettings", "flag", 3, -.5, 2.5);
+   fHistogramManager->BookTH1D("fHistJetFinderSettings", "flag", 7, -.5, 6.5);
 
    TH1D* settings = static_cast<TH1D*>(fHistogramManager->GetHistogram("fHistJetFinderSettings"));
    settings->GetXaxis()->SetBinLabel(1, "fJetResolution");
    settings->SetBinContent(1, fJetResolution);
+   settings->GetXaxis()->SetBinLabel(2, "fLeadingHadronPt");
+   settings->SetBinContent(2, fLeadingHadronPt);
+   settings->GetXaxis()->SetBinLabel(3, "fSplittingThreshold");
+   settings->SetBinContent(3, fSplittingThreshold);
+   settings->GetXaxis()->SetBinLabel(4, "fSplitTrackPt");
+   settings->SetBinContent(4, fSplitTrackPt);
+   settings->GetXaxis()->SetBinLabel(5, "fRandomizeEtaPhi");
+   settings->SetBinContent(5, (int)fRandomizeEtaPhi);
+   settings->GetXaxis()->SetBinLabel(6, "fRandomizeSplitTrack");
+   settings->SetBinContent(6, (int)fRandomizeSplitTrack);
 
    // always make a minimal track cuts object
    if(!fTrackCuts) {

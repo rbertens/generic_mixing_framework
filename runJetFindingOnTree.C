@@ -1,7 +1,12 @@
 void runJetFindingOnTree(
         Int_t cenMin = 0,
         Int_t cenMax = 10,
-        Int_t file = 0)
+        Int_t file = 0,
+        Float_t minConstPt = 0.,
+        Float_t leadingHadronPt = 0,
+        Float_t splitTracksFrom = 1e9,
+        Float_t splitThemIn = 0,
+        Bool_t randomize = kFALSE)
 {
 
     // example macro to read data from a ttree and perform simple analysis
@@ -48,18 +53,21 @@ void runJetFindingOnTree(
     AliGMFSimpleEventCuts* eventCuts = new AliGMFSimpleEventCuts();
     eventCuts->SetCentralityRange(cenMin, cenMax);
     AliGMFSimpleTrackCuts* trackCuts = new AliGMFSimpleTrackCuts();
-    trackCuts->SetTrackMinPt(1.);
+    trackCuts->SetTrackMinPt(minConstPt);
    
     for(int i = 0; i < 4; i++) {
        jetFinder[i] = new AliGMFSimpleJetFinder();
        jetFinder[i]->SetJetResolution(radii[i]);
+       jetFinder[i]->SetSplittingForTracksWithPtHigherThan(splitTracksFrom);
+       jetFinder[i]->SetSplitTrackPt(splitThemIn);
+       jetFinder[i]->SetRandomizeSplitTrackEtaPhi(randomize);
        // pass the event cuts to the jet finder
        jetFinder[i]->SetEventCuts(eventCuts);
        jetFinder[i]->SetTrackCuts(trackCuts);
        jetFinder[i]->Initialize();
     }
 
-    for (int i = 0; i < 1000; i ++) {
+    for (int i = 0; i < iEvents; i ++) {
         for(int j = 0; j < 4; j++) {
             jetFinder[j]->AnalyzeEvent(reader->GetEvent(i));
             cout <<"Event: " << i << "\r"; cout.flush();
