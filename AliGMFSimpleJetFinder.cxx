@@ -222,6 +222,7 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
     // FIXME change range definition to selector 
 //    fastjet::Selector range(fastjet::SelectorAbsRapMax(1.-.95*fJetResolution));
     fastjet::RangeDefinition range(fJetResolution-.9, .9-fJetResolution, 0, 2.*fastjet::pi);
+    fastjet::RangeDefinition rangeRho(-.7, .7, 0, 2.*fastjet::pi);
     fastjet::JetDefinition jetDef(fastjet::antikt_algorithm, fJetResolution, recombScheme, strategy);
     fastjet::JetDefinition jetDefRho(fastjet::kt_algorithm, .2, recombScheme, strategy);
 
@@ -243,7 +244,7 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
 
     // first, store background energy density per jet and jet pt of all jets in acceptance
     for (UInt_t iJet = 0; iJet < backgroundJets.size(); iJet++) {
-        if (range.is_in_range(inclusiveJets[iJet]) && backgroundJets[iJet].area() > 0) {
+        if (rangeRho.is_in_range(backgroundJets[iJet]) && backgroundJets[iJet].area() > 0) {
             rhoVector[iJet] = backgroundJets[iJet].perp() / backgroundJets[iJet].area();
             ptVector[iJet] = backgroundJets[iJet].perp();
             iBGJets++;
@@ -287,6 +288,7 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
             trimmedRhoVector[trimmedI] = rhoVector[iJet];
             trimmedI++;
         }
+        // note: math will try to sort the vector, but since it's already sorted, this is a trivial op
         rho = TMath::Median(trimmedI, trimmedRhoVector);
     }
 

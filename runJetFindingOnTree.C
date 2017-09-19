@@ -59,9 +59,10 @@ void runJetFindingOnTree(
        jetFinder[i]->Initialize();
     }
 
-    for (int i = 0; i < iEvents; i ++) {
+    for (int i = 0; i < 1000; i ++) {
         for(int j = 0; j < 4; j++) {
             jetFinder[j]->AnalyzeEvent(reader->GetEvent(i));
+            cout <<"Event: " << i << "\r"; cout.flush();
         }
     }
 
