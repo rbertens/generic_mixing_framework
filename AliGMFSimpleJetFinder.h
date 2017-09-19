@@ -31,6 +31,7 @@ class AliGMFSimpleJetFinder : public TObject {
         void    SetEventCuts(AliGMFSimpleEventCuts* c)  { fEventCuts = c;}
         void    SetTrackCuts(AliGMFSimpleTrackCuts* c)  { delete fTrackCuts; fTrackCuts = c;}
 
+        void    SetRejectNHardestJets(Int_t n)          { fRejectNHardestJets = n;}
         void    SetSplittingForTracksWithPtHigherThan(Double_t pt) {
             fSplittingThreshold = pt;
         }
@@ -51,6 +52,7 @@ class AliGMFSimpleJetFinder : public TObject {
         Double_t        fSplittingThreshold;    // split tracks with pt higher than this
         Double_t        fSplitTrackPt;          // split tracks have maximally this pt
         Bool_t          fRandomizeSplitTrack;   // split tracks collinearly or give them random positions
+        Int_t           fRejectNHardestJets;    // reject N hardest jets from rho estimate
          
 //        void GetFlowFluctuation(Double_t& vn) const {
 //            vn += TMath::Sqrt(2*(vn*.25)*(vn*.25))*TMath::ErfInverse(2*(gRandom->Uniform(0, fFlowFluctuations))-1); 

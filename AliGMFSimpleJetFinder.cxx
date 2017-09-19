@@ -41,7 +41,9 @@ AliGMFSimpleJetFinder::AliGMFSimpleJetFinder() : TObject(),
     fImprintV3(0x0),
     fSplittingThreshold(1e9),
     fSplitTrackPt(3),
-    fRandomizeSplitTrack(kFALSE)
+    fRandomizeSplitTrack(kFALSE),
+    fRejectNHardestJets(1)
+                                
 {
     // default constructor
 }
@@ -56,8 +58,8 @@ Bool_t AliGMFSimpleJetFinder::Initialize() {
    fHistogramManager->BookTH1D("fHistConstituentPt", "p_{T}^{constituent}", 500, 0, 100);
    fHistogramManager->BookTH1D("fHistJetPtSubtracted", "p_{T}^{jet sub} = p_{T}^{jet} - #rho A ", 500, -130, 370); 
    fHistogramManager->BookTH1D("fHistMultiplicity", "track multiplicity", 1000, 0, 4000);
-   fHistogramManager->BookTH1D("fHistRho", "#rho", 100, 0, 150);
-   fHistogramManager->BookTH2D("fHistMultiplicityRho", "track multiplicity", "#rho#", 1000, 0, 4000, 100, 0, 150);
+   fHistogramManager->BookTH1D("fHistRho", "#rho", 100, 0, 250);
+   fHistogramManager->BookTH2D("fHistMultiplicityRho", "track multiplicity", "#rho#", 1000, 0, 4000, 100, 0, 250);
    fHistogramManager->BookTH2D("fHistCentralityRho", "centrality", "#rho", 100, 0, 100, 100, 0, 150);
 
    fHistogramManager->BookTH2D("fHistJetPtArea", "p_{T}^{jet}", "area", 100, 0, 100, 100, 0, 1);
@@ -210,7 +212,7 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
     fHistogramManager->Fill("fHistMultiplicity", j);
     
     // setup the jet finder for signal and background jets
-    fastjet::GhostedAreaSpec     ghostSpec(.9, 1, 0.005, 1, .1, 1e-100);
+    fastjet::GhostedAreaSpec     ghostSpec(.95, 1, 0.001, 1, .1, 1e-100);
     fastjet::Strategy            strategy = fastjet::Best;
     fastjet::RecombinationScheme recombScheme = fastjet::BIpt_scheme;
     fastjet::AreaType            areaType = fastjet::active_area;
@@ -221,7 +223,7 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
 //    fastjet::Selector range(fastjet::SelectorAbsRapMax(1.-.95*fJetResolution));
     fastjet::RangeDefinition range(fJetResolution-.9, .9-fJetResolution, 0, 2.*fastjet::pi);
     fastjet::JetDefinition jetDef(fastjet::antikt_algorithm, fJetResolution, recombScheme, strategy);
-    fastjet::JetDefinition jetDefRho(fastjet::kt_algorithm, fJetResolution, recombScheme, strategy);
+    fastjet::JetDefinition jetDefRho(fastjet::kt_algorithm, .2, recombScheme, strategy);
 
     // feed the protojets to fastjet
     fastjet::ClusterSequenceArea clusterSeq(fjInputVector, jetDef, areaDef);
@@ -232,16 +234,62 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
     std::vector <fastjet::PseudoJet> backgroundJets = clusterSeqRho.inclusive_jets();
  
  
-    // do the background stuff
+    // vector for the background energy density
     Double_t rhoVector[backgroundJets.size()];
+    Int_t iBGJets(0);
+    // helper vectors for the bubble sorter
+    Double_t ptVector[backgroundJets.size()];
+    Double_t trimmedRhoVector[backgroundJets.size()-fRejectNHardestJets];
 
+    // first, store background energy density per jet and jet pt of all jets in acceptance
     for (UInt_t iJet = 0; iJet < backgroundJets.size(); iJet++) {
-        // TODO first pass to exclude n number of hard jets
         if (range.is_in_range(inclusiveJets[iJet]) && backgroundJets[iJet].area() > 0) {
             rhoVector[iJet] = backgroundJets[iJet].perp() / backgroundJets[iJet].area();
+            ptVector[iJet] = backgroundJets[iJet].perp();
+            iBGJets++;
         }
     }
-    Double_t rho = TMath::Median(backgroundJets.size(), rhoVector);
+   
+    // sort the jets in pt to identify the hardest jets in the background
+    if(fRejectNHardestJets > 0) {
+        // this array will contain the jet indices, sorted descending in energy
+        Bool_t flippedIndex(kTRUE);
+        Double_t temp(0);
+        while (flippedIndex) {
+            // no flip has been performed yet
+            flippedIndex = kFALSE;
+            for (UInt_t iJet = 0; iJet < backgroundJets.size() - 1; iJet++) {
+                // get the i-th and i-th+1 jet and compare their pt
+                // check if pt of jet i+1 is larger than pt of jet i
+                if(ptVector[iJet + 1] > ptVector[iJet]) {
+                    // and flip pt
+                    temp = ptVector[iJet];
+                    ptVector[iJet] = ptVector[iJet + 1];
+                    ptVector[iJet + 1] = temp;
+                    // flip rho 
+                    temp = rhoVector[iJet];
+                    rhoVector[iJet] = rhoVector[iJet + 1];
+                    rhoVector[iJet + 1] = temp;
+                    // tell sorter that we changed the order in this pass
+                    flippedIndex = kTRUE;
+                }
+            }
+        }
+    }
+
+
+    Double_t rho(0);
+    if(fRejectNHardestJets == 0) {
+        rho = TMath::Median(iBGJets, rhoVector);
+    } else {
+        Int_t trimmedI(0);
+        for (UInt_t iJet = fRejectNHardestJets; iJet < (UInt_t)iBGJets; iJet++) {
+            trimmedRhoVector[trimmedI] = rhoVector[iJet];
+            trimmedI++;
+        }
+        rho = TMath::Median(trimmedI, trimmedRhoVector);
+    }
+
     fHistogramManager->Fill(
             "fHistRho", 
             rho
