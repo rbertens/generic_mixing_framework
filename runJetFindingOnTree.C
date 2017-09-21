@@ -6,7 +6,8 @@ void runJetFindingOnTree(
         Float_t leadingHadronPt = 0,
         Float_t splitTracksFrom = 1e9,
         Float_t splitThemIn = 0,
-        Bool_t randomize = kFALSE)
+        Bool_t randomize = kFALSE,
+        Bool_t randomizeEtaPhi = kFALSE)
 {
 
     // example macro to read data from a ttree and perform simple analysis
@@ -61,6 +62,7 @@ void runJetFindingOnTree(
        jetFinder[i]->SetSplittingForTracksWithPtHigherThan(splitTracksFrom);
        jetFinder[i]->SetSplitTrackPt(splitThemIn);
        jetFinder[i]->SetRandomizeSplitTrackEtaPhi(randomize);
+       jetFinder[i]->SetRandomizeEtaPhi(randomizeEtaPhi);
        // pass the event cuts to the jet finder
        jetFinder[i]->SetEventCuts(eventCuts);
        jetFinder[i]->SetTrackCuts(trackCuts);
