@@ -4,6 +4,7 @@ void runJetFindingOnTree(
         Int_t file = 0,
         Float_t minConstPt = 0.,
         Float_t leadingHadronPt = 0,
+        Float_t leadingHadronMaxPt = 1e9,
         Float_t splitTracksFrom = 1e9,
         Float_t splitThemIn = 0,
         Bool_t randomize = kFALSE,
@@ -40,7 +41,6 @@ void runJetFindingOnTree(
     // add the desired numbers to a chain (not exception safe for now!)
     TChain* myChain = new TChain("tree");
     myChain->Add(Form("/eos/user/r/rbertens/sandbox/merge/%i.root", file));
-
     // initialize the reader and jet finder
     AliGMFEventReader* reader = new AliGMFEventReader(myChain);
     cout << reader->GetNumberOfEvents() << " events available for analysis " << endl;
@@ -63,6 +63,8 @@ void runJetFindingOnTree(
        jetFinder[i]->SetSplitTrackPt(splitThemIn);
        jetFinder[i]->SetRandomizeSplitTrackEtaPhi(randomize);
        jetFinder[i]->SetRandomizeEtaPhi(randomizeEtaPhi);
+       jetFinder[i]->SetLeadingHadronPt(leadingHadronPt);
+       jetFinder[i]->SetLeadingHadronMaxPt(leadingHadronMaxPt);
        // pass the event cuts to the jet finder
        jetFinder[i]->SetEventCuts(eventCuts);
        jetFinder[i]->SetTrackCuts(trackCuts);

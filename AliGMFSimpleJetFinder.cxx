@@ -33,6 +33,7 @@ AliGMFSimpleJetFinder::AliGMFSimpleJetFinder() : TObject(),
     fDoBackgroundSubtraction(kFALSE),
     fJetResolution(.3),
     fLeadingHadronPt(.1),
+    fLeadingHadronMaxPt(1e9),
     fEventCuts(0x0),
     fTrackCuts(0x0),
     fHistogramManager(0x0),
@@ -146,10 +147,6 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
                     TMath::Sqrt(totalE));
             fjInputProtoJet.set_user_index(j);
             fjInputVector.push_back(fjInputProtoJet);
-            fHistogramManager->Fill(
-                    "fHistConstituentPt", 
-                    track->GetPt()
-                    );
             j++;
         } else {
             // in this case we'll split the tracks 
@@ -181,10 +178,6 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
                         TMath::Sqrt(totalE));
                 fjInputProtoJet.set_user_index(j);
                 fjInputVector.push_back(fjInputProtoJet);
-                fHistogramManager->Fill(
-                    "fHistConstituentPt", 
-                    fSplitTrackPt
-                    );
                 j++;
             } 
             // then we just add the remaining pt
@@ -212,10 +205,6 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
                     TMath::Sqrt(totalE));
             fjInputProtoJet.set_user_index(j);
             fjInputVector.push_back(fjInputProtoJet);
-            fHistogramManager->Fill(
-                "fHistConstituentPt", 
-                track->GetPt()
-                );
             j++;
         }
     }
@@ -326,10 +315,17 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
         for(UInt_t i(0); i < constituents.size(); i++) {
             if(constituents[i].perp() > maxpt) maxpt = constituents[i].perp();
         }
-        // check jet area and constituent requirement
-        if(maxpt < fLeadingHadronPt) continue;
+           // check jet area and constituent requirement
+        if(maxpt < fLeadingHadronPt || maxpt > fLeadingHadronMaxPt) continue;
         if(inclusiveJets[iJet].area() < .56*TMath::Pi()*fJetResolution*fJetResolution) continue;
-        
+  
+        // unfortunately tracks need to be filled in a second loop over the constituents 
+        for(UInt_t i(0); i < constituents.size(); i++) {
+            fHistogramManager->Fill(
+                        "fHistConstituentPt", 
+                        constituents[i].perp()
+                        );
+        }
         fHistogramManager->Fill(
                 "fHistJetPt", 
                 inclusiveJets[iJet].perp()

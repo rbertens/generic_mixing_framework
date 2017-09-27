@@ -24,6 +24,7 @@ class AliGMFSimpleJetFinder : public TObject {
         void    DoBackgroundSubtraction(Bool_t b)       { fDoBackgroundSubtraction = b; }
         void    SetJetResolution(Float_t r)             { fJetResolution = r; }
         void    SetLeadingHadronPt(Float_t l)           { fLeadingHadronPt = l; }
+        void    SetLeadingHadronMaxPt(Float_t l)        { fLeadingHadronMaxPt = l; }
 
         void    SetRandomizeEtaPhi(Bool_t r)            { fRandomizeEtaPhi = r; }
         void    SetImprintV2(TF1* v2)                   { fImprintV2 = v2; delete fImprintV3; fImprintV3 = 0x0; }
@@ -45,7 +46,8 @@ class AliGMFSimpleJetFinder : public TObject {
     private:
         Bool_t  fDoBackgroundSubtraction;       // do background subtraction
         Float_t fJetResolution;                 // jet resolution parameter
-        Float_t fLeadingHadronPt;               // leading hadron pt
+        Float_t fLeadingHadronPt;               // min leading hadron pt
+        Float_t fLeadingHadronMaxPt;            // max pt for leading hadron
         Bool_t  fRandomizeEtaPhi;               // shuffle tracks randomly in eta, phi
         TF1*    fImprintV2;                     // imprint pt differential v2 on event
         TF1*    fImprintV3;                     // imprint pt differnetial v3 on event
