@@ -1,6 +1,7 @@
 void runJetFindingOnMixedEvents(Int_t fileSuffix = 0,
         Float_t minConstPt = 0.,
         Float_t leadingHadronPt = 0,
+        Float_t leadingHadronMaxPt = 1e9,
         Float_t splitTracksFrom = 1e9,
         Float_t splitThemIn = 0,
         Bool_t randomize = kFALSE)
@@ -64,6 +65,8 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0,
         jetFinder[i]->SetSplittingForTracksWithPtHigherThan(splitTracksFrom);
         jetFinder[i]->SetSplitTrackPt(splitThemIn);
         jetFinder[i]->SetRandomizeSplitTrackEtaPhi(randomize);   
+        jetFinder[i]->SetLeadingHadronPt(leadingHadronPt);
+        jetFinder[i]->SetLeadingHadronMaxPt(leadingHadronMaxPt);
         jetFinder[i]->SetTrackCuts(trackCuts);
         jetFinder[i]->Initialize();
     }
