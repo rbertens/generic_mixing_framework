@@ -57,6 +57,7 @@ Bool_t AliGMFSimpleJetFinder::Initialize() {
    // create the histograms (for now here)
    fHistogramManager->BookTH1D("fHistJetPt", "p_{T}^{jet}", 500, 0, 500);
    fHistogramManager->BookTH1D("fHistConstituentPt", "p_{T}^{constituent}", 500, 0, 100);
+   fHistogramManager->BookTH1D("fHistConsideredConstituentPt", "p_{T}^{considered constituent}", 500, 0, 100);
    fHistogramManager->BookTH1D("fHistJetPtSubtracted", "p_{T}^{jet sub} = p_{T}^{jet} - #rho A ", 500, -130, 370); 
    fHistogramManager->BookTH1D("fHistMultiplicity", "track multiplicity", 1000, 0, 4000);
    fHistogramManager->BookTH1D("fHistRho", "#rho", 100, 0, 250);
@@ -93,7 +94,6 @@ Bool_t AliGMFSimpleJetFinder::Initialize() {
 
 }
 //_____________________________________________________________________________
-
 Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
     // called for each event
     
@@ -118,10 +118,9 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
     // only used when randomizing in eta, phi
     Double_t phi(0), eta(0), pt(0);
 
-
     for(Int_t i(0); i < event->GetNumberOfTracks(); i++) {
         track = event->GetTrack(i);
-        if(fTrackCuts->IsSelected(track) && track->GetPt() < fSplittingThreshold) {
+        if(fTrackCuts->IsSelected(track) && (track->GetPt() < fSplittingThreshold)) {
             // use the tracks directly
             if(fRandomizeEtaPhi) {
                 eta = gRandom->Uniform(-.9, 9);
@@ -147,8 +146,42 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
                     TMath::Sqrt(totalE));
             fjInputProtoJet.set_user_index(j);
             fjInputVector.push_back(fjInputProtoJet);
+            fHistogramManager->Fill(
+                        "fHistConsideredConstituentPt", 
+                        track->GetPt()
+                        );
             j++;
-        } else {
+        } else if (fTrackCuts->IsSelected(track) && (track->GetPt() > fSplittingThreshold) && (fSplitTrackPt <= 0)) {
+            // in this case, if a track has a pt larger than the max pt,
+            // truncate it to this max value, and ignore the rest of the pt
+            if(fRandomizeEtaPhi) {
+                eta = gRandom->Uniform(-.9, 9);
+                if(fImprintV2) GenerateV2(phi, eta, pt);
+                else if(fImprintV3) GenerateV3(phi, eta, pt);
+                else phi = gRandom->Uniform(0, TMath::TwoPi());
+                px = fSplittingThreshold*TMath::Cos(phi);
+                py = fSplittingThreshold*TMath::Sin(phi); 
+                pz = fSplittingThreshold*TMath::SinH(eta); 
+            } else {
+                px = fSplittingThreshold*TMath::Cos(track->GetPhi()); 
+                py = fSplittingThreshold*TMath::Sin(track->GetPhi());  
+                pz = fSplittingThreshold*TMath::SinH(track->GetEta()); 
+            }
+            totalE = px*px+py*py+pz*pz;
+            if (!(totalE >  0)) continue;
+            fastjet::PseudoJet fjInputProtoJet(
+                    px, 
+                    py, 
+                    pz, 
+                    TMath::Sqrt(totalE));
+            fjInputProtoJet.set_user_index(j);
+            fjInputVector.push_back(fjInputProtoJet);
+            fHistogramManager->Fill(
+                        "fHistConsideredConstituentPt", 
+                        fSplittingThreshold
+                        );
+            j++;
+        } else if (fTrackCuts->IsSelected(track) && (track->GetPt() > fSplittingThreshold)) {
             // in this case we'll split the tracks 
             // either collinearly or randomly
             while(track->GetPt() > fSplittingThreshold) {
@@ -168,7 +201,6 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
                     pz = fSplitTrackPt*TMath::SinH(track->GetEta()); 
                 }
                 track->SetPt(track->GetPt() - fSplitTrackPt);
-
                 totalE = px*px+py*py+pz*pz;
                 if (!(totalE >  0)) continue;
                 fastjet::PseudoJet fjInputProtoJet(
@@ -178,6 +210,10 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
                         TMath::Sqrt(totalE));
                 fjInputProtoJet.set_user_index(j);
                 fjInputVector.push_back(fjInputProtoJet);
+                fHistogramManager->Fill(
+                            "fHistConsideredConstituentPt", 
+                            fSplitTrackPt
+                            );
                 j++;
             } 
             // then we just add the remaining pt
@@ -205,6 +241,10 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
                     TMath::Sqrt(totalE));
             fjInputProtoJet.set_user_index(j);
             fjInputVector.push_back(fjInputProtoJet);
+                    fHistogramManager->Fill(
+                        "fHistConsideredConstituentPt", 
+                        track->GetPt()
+                        );
             j++;
         }
     }
