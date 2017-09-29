@@ -56,16 +56,17 @@ class AliGMFSimpleJetFinder : public TObject {
         Bool_t          fRandomizeSplitTrack;   // split tracks collinearly or give them random positions
         Int_t           fRejectNHardestJets;    // reject N hardest jets from rho estimate
          
-//        void GetFlowFluctuation(Double_t& vn) const {
-//            vn += TMath::Sqrt(2*(vn*.25)*(vn*.25))*TMath::ErfInverse(2*(gRandom->Uniform(0, fFlowFluctuations))-1); 
-//        }
-        void     GenerateV2(Double_t &phi, Double_t &eta, Double_t &pt) const;
-        void     GenerateV3(Double_t &phi, Double_t &eta, Double_t &pt) const;
          
         AliGMFSimpleEventCuts*        fEventCuts;       // event cuts
         AliGMFSimpleTrackCuts*        fTrackCuts;       // track cuts
         // histograms
         AliGMFHistogramManager* fHistogramManager;      // histogram manager
+
+//        void GetFlowFluctuation(Double_t& vn) const {
+//            vn += TMath::Sqrt(2*(vn*.25)*(vn*.25))*TMath::ErfInverse(2*(gRandom->Uniform(0, fFlowFluctuations))-1); 
+//        }
+        void     GenerateV2(Double_t &phi, Double_t &pt) const;
+        void     GenerateV3(Double_t &phi, Double_t &pt) const;
 
         ClassDef(AliGMFSimpleJetFinder, 1);
 

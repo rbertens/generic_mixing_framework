@@ -34,17 +34,17 @@ AliGMFSimpleJetFinder::AliGMFSimpleJetFinder() : TObject(),
     fJetResolution(.3),
     fLeadingHadronPt(.1),
     fLeadingHadronMaxPt(1e9),
-    fEventCuts(0x0),
-    fTrackCuts(0x0),
-    fHistogramManager(0x0),
     fRandomizeEtaPhi(kFALSE),
     fImprintV2(0x0),
     fImprintV3(0x0),
     fSplittingThreshold(1e9),
     fSplitTrackPt(3),
     fRandomizeSplitTrack(kFALSE),
-    fRejectNHardestJets(1)
-                                
+    fRejectNHardestJets(1),
+    fEventCuts(0x0),
+    fTrackCuts(0x0),
+    fHistogramManager(0x0)
+                               
 {
     // default constructor
 }
@@ -125,8 +125,8 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
             if(fRandomizeEtaPhi) {
                 eta = gRandom->Uniform(-.9, 9);
                 pt = track->GetPt();
-                if(fImprintV2) GenerateV2(phi, eta, pt);
-                else if(fImprintV3) GenerateV3(phi, eta, pt);
+                if(fImprintV2) GenerateV2(phi, pt);
+                else if(fImprintV3) GenerateV3(phi, pt);
                 else phi = gRandom->Uniform(0, TMath::TwoPi());
                 px = pt*TMath::Cos(phi);
                 py = pt*TMath::Sin(phi); 
@@ -156,8 +156,8 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
             // truncate it to this max value, and ignore the rest of the pt
             if(fRandomizeEtaPhi) {
                 eta = gRandom->Uniform(-.9, 9);
-                if(fImprintV2) GenerateV2(phi, eta, pt);
-                else if(fImprintV3) GenerateV3(phi, eta, pt);
+                if(fImprintV2) GenerateV2(phi, pt);
+                else if(fImprintV3) GenerateV3(phi, pt);
                 else phi = gRandom->Uniform(0, TMath::TwoPi());
                 px = fSplittingThreshold*TMath::Cos(phi);
                 py = fSplittingThreshold*TMath::Sin(phi); 
@@ -189,8 +189,8 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
                 // new tracks which have fixed pt and add them as pseudojet
                 if(fRandomizeSplitTrack) {
                     eta = gRandom->Uniform(-.9, 9);
-                    if(fImprintV2) GenerateV2(phi, eta, pt);
-                    else if(fImprintV3) GenerateV3(phi, eta, pt);
+                    if(fImprintV2) GenerateV2(phi, pt);
+                    else if(fImprintV3) GenerateV3(phi, pt);
                     else phi = gRandom->Uniform(0, TMath::TwoPi());
                     px = fSplitTrackPt*TMath::Cos(phi);
                     py = fSplitTrackPt*TMath::Sin(phi); 
@@ -220,8 +220,8 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
             if(fRandomizeSplitTrack) {
                 eta = gRandom->Uniform(-.9, 9);
                 pt = track->GetPt();
-                if(fImprintV2) GenerateV2(phi, eta, pt);
-                else if(fImprintV3) GenerateV3(phi, eta, pt);
+                if(fImprintV2) GenerateV2(phi, pt);
+                else if(fImprintV3) GenerateV3(phi, pt);
                 else phi = gRandom->Uniform(0, TMath::TwoPi());
                 px = pt*TMath::Cos(phi);
                 py = pt*TMath::Sin(phi); 
@@ -398,7 +398,7 @@ Bool_t AliGMFSimpleJetFinder::Finalize(TString name) {
 
 }
 //_____________________________________________________________________________
-void AliGMFSimpleJetFinder::GenerateV2(Double_t &phi, Double_t &eta, Double_t &pt) const
+void AliGMFSimpleJetFinder::GenerateV2(Double_t &phi, Double_t &pt) const
 {
     phi = gRandom->Uniform(0, TMath::TwoPi());
     Double_t phi0(phi), v2(fImprintV2->Eval(pt)), f(0.), fp(0.), phiprev(0.);
@@ -414,7 +414,7 @@ void AliGMFSimpleJetFinder::GenerateV2(Double_t &phi, Double_t &eta, Double_t &p
     }
 }
 //_____________________________________________________________________________
-void AliGMFSimpleJetFinder::GenerateV3(Double_t &phi, Double_t &eta, Double_t &pt) const
+void AliGMFSimpleJetFinder::GenerateV3(Double_t &phi, Double_t &pt) const
 {
     phi = gRandom->Uniform(0, TMath::TwoPi());
     Double_t phi0(phi), v3(fImprintV3->Eval(pt)), f(0.), fp(0.), phiprev(0.);
