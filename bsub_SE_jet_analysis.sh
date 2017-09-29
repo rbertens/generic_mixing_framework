@@ -9,6 +9,7 @@ cd SE_jets_$1_$2_$3
 
 # prepare running through bash, priority, name in the queue
 echo "#!/bin/bash" >> SE_jet_analysis_autoscript.sh    
+echo "kinit -R" >> SE_jet_analysis_autoscript.sh
 export WORKDIR=`pwd`
 echo "cd $WORKDIR" >> SE_jet_analysis_autoscript.sh
 # set some specific paths. ugly, but no other way
@@ -20,12 +21,15 @@ echo "export PATH_TO_DATA=/eos/user/r/rbertens/sandbox/mixed-events" >> SE_jet_a
 export TDIR=`mktemp -u`
 echo "mkdir -p $TDIR" >> SE_jet_analysis_autoscript.sh
 echo "cd $TDIR" >> SE_jet_analysis_autoscript.sh
-echo "root -q -b '$PATH_TO_SOURCE/runJetFindingOnTree.C($1,$2,$3)'" >> SE_jet_analysis_autoscript.sh
+echo "cp $PATH_TO_SOURCE/*.C ." >> SE_jet_analysis_autoscript.sh
+echo "cp $PATH_TO_SOURCE/*.cxx ." >> SE_jet_analysis_autoscript.sh
+echo "cp $PATH_TO_SOURCE/*.h ." >> SE_jet_analysis_autoscript.sh
+echo "root -q -b 'runJetFindingOnTree.C($1,$2,$3)'" >> SE_jet_analysis_autoscript.sh
 echo "mv *.root $WORKDIR" >> SE_jet_analysis_autoscript.sh
 echo "rm -rf $TDIR" >> SE_jet_analysis_autoscript.sh
 # change permissions
 chmod +x SE_jet_analysis_autoscript.sh
 
 # launch the autolauncher
-bsub -q8nh SE_jet_analysis_autoscript.sh
+bsub -q 1nd SE_jet_analysis_autoscript.sh
 cd ..    
