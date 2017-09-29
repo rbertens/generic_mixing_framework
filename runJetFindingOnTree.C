@@ -40,8 +40,8 @@ void runJetFindingOnTree(
 
     // add the desired numbers to a chain (not exception safe for now!)
     TChain* myChain = new TChain("tree");
-//    myChain->Add(Form("/eos/user/r/rbertens/sandbox/merge/%i.root", file));
-    myChain->Add("merge/137844.root"); 
+    myChain->Add(Form("/eos/user/r/rbertens/sandbox/merge/%i.root", file));
+//    myChain->Add("merge/137844.root"); 
     // initialize the reader and jet finder
     AliGMFEventReader* reader = new AliGMFEventReader(myChain);
     cout << reader->GetNumberOfEvents() << " events available for analysis " << endl;
@@ -72,7 +72,7 @@ void runJetFindingOnTree(
        jetFinder[i]->Initialize();
     }
 
-    for (int i = 0; i < 1000/*iEvents*/; i ++) {
+    for (int i = 0; i < iEvents; i ++) {
         for(int j = 0; j < 4; j++) {
             jetFinder[j]->AnalyzeEvent(reader->GetEvent(i));
             cout <<"Event: " << i << "\r"; cout.flush();
