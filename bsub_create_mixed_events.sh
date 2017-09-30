@@ -42,6 +42,7 @@ cd m_$1_$2_$3_$4_$5_$6_$7_$8
 # prepare running through bash, priority, name in the queue
 echo "#!/bin/bash" >> create_mixed_events_autoscript.sh    
 echo "kinit -R" >> create_mixed_events_autoscript.sh
+echo "klist" >> create_mixed_events_autoscript.sh
 export WORKDIR=`pwd`
 echo "cd $WORKDIR" >> create_mixed_events_autoscript.sh
 

@@ -34,6 +34,7 @@ void runEventMixer(
     TChain* myChain = new TChain("tree");
     myChain->Add("$PATH_TO_DATA/137161.root");
     myChain->Add("$PATH_TO_DATA/137162.root");
+    myChain->Add("$PATH_TO_DATA/137230.root");
     myChain->Add("$PATH_TO_DATA/137231.root");
     myChain->Add("$PATH_TO_DATA/137232.root");
     myChain->Add("$PATH_TO_DATA/137235.root");
@@ -52,6 +53,7 @@ void runEventMixer(
     myChain->Add("$PATH_TO_DATA/137539.root");
     myChain->Add("$PATH_TO_DATA/137541.root");
     myChain->Add("$PATH_TO_DATA/137544.root");
+    myChain->Add("$PATH_TO_DATA/137546.root");
     myChain->Add("$PATH_TO_DATA/137549.root");
     myChain->Add("$PATH_TO_DATA/137595.root");
     myChain->Add("$PATH_TO_DATA/137608.root");
@@ -77,6 +79,8 @@ void runEventMixer(
     myChain->Add("$PATH_TO_DATA/138225.root");
     myChain->Add("$PATH_TO_DATA/138275.root");
     myChain->Add("$PATH_TO_DATA/138364.root");
+    myChain->Add("$PATH_TO_DATA/138396.root");
+    myChain->Add("$PATH_TO_DATA/138438.root");
     myChain->Add("$PATH_TO_DATA/138439.root");
     myChain->Add("$PATH_TO_DATA/138442.root");
     myChain->Add("$PATH_TO_DATA/138469.root");
@@ -91,6 +95,9 @@ void runEventMixer(
     myChain->Add("$PATH_TO_DATA/138652.root");
     myChain->Add("$PATH_TO_DATA/138653.root");
     myChain->Add("$PATH_TO_DATA/138662.root");
+    myChain->Add("$PATH_TO_DATA/138666.root");
+    myChain->Add("$PATH_TO_DATA/138730.root");
+    myChain->Add("$PATH_TO_DATA/138732.root");
     myChain->Add("$PATH_TO_DATA/138837.root");
     myChain->Add("$PATH_TO_DATA/138870.root");
     myChain->Add("$PATH_TO_DATA/138871.root");
@@ -102,14 +109,15 @@ void runEventMixer(
     myChain->Add("$PATH_TO_DATA/139038.root");
     myChain->Add("$PATH_TO_DATA/139105.root");
     myChain->Add("$PATH_TO_DATA/139107.root");
-    myChain->Add("$PATH_TO_DATA/139173.root");
     myChain->Add("$PATH_TO_DATA/139309.root");
     myChain->Add("$PATH_TO_DATA/139310.root");
     myChain->Add("$PATH_TO_DATA/139314.root");
     myChain->Add("$PATH_TO_DATA/139328.root");
     myChain->Add("$PATH_TO_DATA/139329.root");
+    myChain->Add("$PATH_TO_DATA/139360.root");
     myChain->Add("$PATH_TO_DATA/139437.root");
     myChain->Add("$PATH_TO_DATA/139438.root");
+    myChain->Add("$PATH_TO_DATA/139465.root");
     myChain->Add("$PATH_TO_DATA/139503.root");
     myChain->Add("$PATH_TO_DATA/139505.root");
     myChain->Add("$PATH_TO_DATA/139507.root");
