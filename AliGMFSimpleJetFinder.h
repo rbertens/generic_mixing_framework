@@ -46,6 +46,7 @@ class AliGMFSimpleJetFinder : public TObject {
     private:
         Bool_t  fDoBackgroundSubtraction;       // do background subtraction
         Float_t fJetResolution;                 // jet resolution parameter
+        Int_t   fNCones;                        // number of random cones
         Float_t fLeadingHadronPt;               // min leading hadron pt
         Float_t fLeadingHadronMaxPt;            // max pt for leading hadron
         Bool_t  fRandomizeEtaPhi;               // shuffle tracks randomly in eta, phi
@@ -65,8 +66,15 @@ class AliGMFSimpleJetFinder : public TObject {
 //        void GetFlowFluctuation(Double_t& vn) const {
 //            vn += TMath::Sqrt(2*(vn*.25)*(vn*.25))*TMath::ErfInverse(2*(gRandom->Uniform(0, fFlowFluctuations))-1); 
 //        }
+        static Double_t PhaseShift(Double_t x) {  
+            while (x >= TMath::TwoPi()) x-= TMath::TwoPi();
+            while (x < 0.) x += TMath::TwoPi();
+            return x; 
+        }
+
         void     GenerateV2(Double_t &phi, Double_t &pt) const;
         void     GenerateV3(Double_t &phi, Double_t &pt) const;
+        Bool_t   GetRandomCone(AliGMFEventContainer* event, Float_t &pt, Float_t &eta, Float_t &phi, Float_t etaJet = -2, Float_t phiJet = -10);
 
         ClassDef(AliGMFSimpleJetFinder, 1);
 

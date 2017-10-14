@@ -32,6 +32,7 @@ using namespace std;
 AliGMFSimpleJetFinder::AliGMFSimpleJetFinder() : TObject(),
     fDoBackgroundSubtraction(kFALSE),
     fJetResolution(.3),
+    fNCones(0),
     fLeadingHadronPt(.1),
     fLeadingHadronMaxPt(1e9),
     fRandomizeEtaPhi(kFALSE),
@@ -41,6 +42,10 @@ AliGMFSimpleJetFinder::AliGMFSimpleJetFinder() : TObject(),
     fSplitTrackPt(3),
     fRandomizeSplitTrack(kFALSE),
     fRejectNHardestJets(1),
+    fPtAssLow(8),
+    fPtAssHigh(9),
+    fPtTrigLow(30),
+    fPtTrigHigh(50),
     fEventCuts(0x0),
     fTrackCuts(0x0),
     fHistogramManager(0x0)
@@ -59,6 +64,10 @@ Bool_t AliGMFSimpleJetFinder::Initialize() {
    fHistogramManager->BookTH1D("fHistConstituentPt", "p_{T}^{constituent}", 500, 0, 100);
    fHistogramManager->BookTH1D("fHistConsideredConstituentPt", "p_{T}^{considered constituent}", 500, 0, 100);
    fHistogramManager->BookTH1D("fHistJetPtSubtracted", "p_{T}^{jet sub} = p_{T}^{jet} - #rho A ", 500, -130, 370); 
+   fHistogramManager->BookTH2D("fHistRecoilJetBkgSpectrum", "p_{T}^{jet raw}", "#Delta #phi", 500, -130, 370, 40, 0, TMath::TwoPi()); 
+   fHistogramManager->BookTH2D("fHistRecoilJetTriSpectrum", "p_{T}^{jet raw}", "#Delta #phi", 500, -130, 370, 40, 0, TMath::TwoPi()); 
+   fHistogramManager->BookTH2D("fHistRecoilJetBkgSpectrumSub", "p_{T}^{jet sub} = p_{T}^{jet} - #rho A (bkg)", "#Delta #phi", 500, -130, 370, 40, 0, TMath::TwoPi()); 
+   fHistogramManager->BookTH2D("fHistRecoilJetTriSpectrumSub", "p_{T}^{jet sub} = p_{T}^{jet} - #rho A (tri)", "#Delta #phi", 500, -130, 370, 40, 0, TMath::TwoPi()); 
    fHistogramManager->BookTH1D("fHistMultiplicity", "track multiplicity", 1000, 0, 4000);
    fHistogramManager->BookTH1D("fHistRho", "#rho", 100, 0, 250);
    fHistogramManager->BookTH2D("fHistMultiplicityRho", "track multiplicity", "#rho", 1000, 0, 4000, 100, 0, 250);
@@ -66,10 +75,14 @@ Bool_t AliGMFSimpleJetFinder::Initialize() {
 
    fHistogramManager->BookTH2D("fHistJetPtArea", "p_{T}^{jet}", "area", 100, 0, 100, 100, 0, 1);
    fHistogramManager->BookTH2D("fHistJetEtaPhi", "#eta^{jet}", "#phi^{jet}", 100, -1, 1, 100, 0, TMath::TwoPi());
+   fHistogramManager->BookTH1D("fHistDeltaPt", "#Delta p_{T}", 500, -130, 370); 
+   fHistogramManager->BookTH1D("fHistDeltaPtExLJ", "#Delta p_{T}", 500, -130, 370); 
    fHistogramManager->BookTH1D("fHistVertex", "cm", 100, -12, 12);
    fHistogramManager->BookTH1D("fHistCentrality", "percentile", 100, 0, 100);
    fHistogramManager->BookTH1D("fHistEventPlane", "#Psi", 100, -4, 4);
-   fHistogramManager->BookTH1D("fHistJetFinderSettings", "flag", 7, -.5, 6.5);
+   fHistogramManager->BookTH1D("fHistJetFinderSettings", "flag", 12, -.5, 11.5);
+
+   fNCones = TMath::CeilNint(((1.8-2.*fJetResolution)*TMath::TwoPi())/(TMath::Pi()*fJetResolution*fJetResolution));
 
    TH1D* settings = static_cast<TH1D*>(fHistogramManager->GetHistogram("fHistJetFinderSettings"));
    settings->GetXaxis()->SetBinLabel(1, "fJetResolution");
@@ -84,12 +97,21 @@ Bool_t AliGMFSimpleJetFinder::Initialize() {
    settings->SetBinContent(5, (int)fRandomizeEtaPhi);
    settings->GetXaxis()->SetBinLabel(6, "fRandomizeSplitTrack");
    settings->SetBinContent(6, (int)fRandomizeSplitTrack);
+   settings->GetXaxis()->SetBinLabel(7, "fNCones");
+   settings->SetBinContent(7, (int)fNCones);
+   settings->GetXaxis()->SetBinLabel(8, "fPtAssLow");
+   settings->SetBinContent(7, fPtAssLow);
+   settings->GetXaxis()->SetBinLabel(9, "fPtAssHigh");
+   settings->SetBinContent(7, fPtAssHigh);
+   settings->GetXaxis()->SetBinLabel(10, "fPtTrigLow");
+   settings->SetBinContent(7, fPtTrigLow);
+   settings->GetXaxis()->SetBinLabel(11, "fPtTrigHigh");
+   settings->SetBinContent(7, fPtTrigHigh);
 
    // always make a minimal track cuts object
    if(!fTrackCuts) {
        fTrackCuts = new AliGMFSimpleTrackCuts();
    }
-
    return kTRUE;
 
 }
@@ -346,6 +368,22 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
             rho
             );
 
+    Float_t rcPt(0), rcEta(0), rcPhi(0);
+
+    for(Int_t i = 0; i < fNCones; i++) {
+        Bool_t unbiased = GetRandomCone(event, rcPt, rcEta, rcPhi, 
+                backgroundJets[0].eta(), backgroundJets[0].phi());
+        if(unbiased) fHistogramManager->Fill(
+                "fHistDeltaPtExLJ",
+                rcPt - rho*TMath::Pi()*fJetResolution*fJetResolution
+                );
+        fHistogramManager->Fill(
+                "fHistDeltaPt",
+                rcPt - rho*TMath::Pi()*fJetResolution*fJetResolution
+                );
+    }
+        
+
     // fill the jet histograms
     for (UInt_t iJet = 0; iJet < inclusiveJets.size(); iJet++) {
         if (!range.is_in_range(inclusiveJets[iJet])) continue;
@@ -365,6 +403,32 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
                         "fHistConstituentPt", 
                         constituents[i].perp()
                         );
+            // do recoil jet yield analysis in one go 
+            if(constituents[i].perp() > fPtAssLow && constituents[i].perp() < fPtAssHigh) {
+                for (UInt_t jJet = 0; jJet < inclusiveJets.size(); jJet++) {
+                    if (!range.is_in_range(inclusiveJets[jJet])) continue;
+                    fHistogramManager->Fill(
+                            "fHistRecoilJetBkgSpectrum",
+                            inclusiveJets[jJet].perp(),
+                            PhaseShift(TMath::Pi() - (inclusiveJets[jJet].phi() - constituents[i].phi())));
+                    fHistogramManager->Fill(
+                            "fHistRecoilJetBkgSpectrumSub",
+                            inclusiveJets[jJet].perp() - rho * inclusiveJets[jJet].area(),
+                            PhaseShift(TMath::Pi() - (inclusiveJets[jJet].phi() - constituents[i].phi())));
+                }
+            } else if (constituents[i].perp() > fPtTrigLow && constituents[i].perp() < fPtTrigHigh) {
+                for (UInt_t jJet = 0; jJet < inclusiveJets.size(); jJet++) {
+                    if (!range.is_in_range(inclusiveJets[jJet])) continue;
+                    fHistogramManager->Fill(
+                            "fHistRecoilJetTriSpectrum",
+                            inclusiveJets[jJet].perp(),
+                            PhaseShift(TMath::Pi() - (inclusiveJets[jJet].phi() - constituents[i].phi())));
+                    fHistogramManager->Fill(
+                            "fHistRecoilJetTriSpectrumSub",
+                            inclusiveJets[jJet].perp() - rho * inclusiveJets[jJet].area(),
+                            PhaseShift(TMath::Pi() - (inclusiveJets[jJet].phi() - constituents[i].phi())));
+                }
+            }
         }
         fHistogramManager->Fill(
                 "fHistJetPt", 
@@ -428,4 +492,25 @@ void AliGMFSimpleJetFinder::GenerateV3(Double_t &phi, Double_t &pt) const
         phi -= f/fp;
         if (TMath::AreEqualAbs(phiprev, phi, 1e-10)) break;
     }
+}
+//_____________________________________________________________________________
+Bool_t AliGMFSimpleJetFinder::GetRandomCone(AliGMFEventContainer* event, Float_t &pt, Float_t &eta, Float_t &phi, Float_t etaJet, Float_t phiJet)
+{
+    // get a random cone, returns false if cone overlaps with provided jet
+    pt = 0; eta = 0; phi = 0;
+    eta = gRandom->Uniform(-.9+fJetResolution, .9-fJetResolution);
+    phi = gRandom->Uniform(0, TMath::TwoPi());
+    
+    for(Int_t i(0); i < event->GetNumberOfTracks(); i++) {
+        AliGMFTTreeTrack* track = event->GetTrack(i);
+        if(fTrackCuts->IsSelected(track)) {
+            Float_t etaTrack(track->GetEta()), phiTrack(track->GetPhi());
+            // get distance from cone
+            if(TMath::Abs(phiTrack-phi) > TMath::Abs(phiTrack - phi + TMath::TwoPi())) phiTrack+=TMath::TwoPi();
+            if(TMath::Abs(phiTrack-phi) > TMath::Abs(phiTrack - phi - TMath::TwoPi())) phiTrack-=TMath::TwoPi();
+            if(TMath::Sqrt(TMath::Abs((etaTrack-eta)*(etaTrack-eta)+(phiTrack-phi)*(phiTrack-phi))) < fJetResolution) pt += track->GetPt();
+        }
+    }
+    // check if cone overlaps with provided 
+    return (TMath::Sqrt((etaJet-eta)*(etaJet-eta)+(phiJet-phi)*(phiJet-phi)) > fJetResolution);
 }
