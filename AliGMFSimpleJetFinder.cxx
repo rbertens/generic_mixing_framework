@@ -454,10 +454,9 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
     return kTRUE;
 }
 //_____________________________________________________________________________
-
-Bool_t AliGMFSimpleJetFinder::Finalize(TString name) {
-
-    fHistogramManager->StoreManager(Form("%s.root", name.Data()));
+Bool_t AliGMFSimpleJetFinder::Finalize(TFile* of) {
+    of->cd();
+    fHistogramManager->StoreManager(of);
     return kTRUE;
 
 }

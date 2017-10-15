@@ -6,6 +6,7 @@ class TH2D;
 class TH3F;
 class TList;
 class TObject;
+class TFile;
 
 class AliGMFHistogramManager : public TObject {
 
@@ -19,7 +20,7 @@ class AliGMFHistogramManager : public TObject {
 
 
         // manipulation of object
-        void            StoreManager(TString title);
+        void            StoreManager(TFile* of);
         TObject*        GetHistogram(TString name);
         Bool_t          Fill(TString name, Double_t valx);
         Bool_t          Fill(TString name, Double_t valx, Double_t valy);

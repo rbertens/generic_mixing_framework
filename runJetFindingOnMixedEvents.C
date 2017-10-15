@@ -40,6 +40,8 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0,
 
     // add more files if desired, e.g. per class
 
+    TFile* of = new TFile("ME_jets.root", "RECREATE");
+
     // initialize the reader and jet finder
     AliGMFEventReader* reader = new AliGMFEventReader(myChain);
  
@@ -81,7 +83,7 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0,
 
     // write and clear memory
     for(int i = 0; i < 4; i++) {
-        jetFinder[i]->Finalize(Form("myMixedJets_R0%i", i+2));
+        jetFinder[i]->Finalize(of);
         delete jetFinder[i];
     }
 

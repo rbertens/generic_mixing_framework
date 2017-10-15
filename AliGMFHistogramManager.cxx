@@ -68,11 +68,9 @@ TObject* AliGMFHistogramManager::GetHistogram(TString name) {
 }
 
 //_____________________________________________________________________________
-void AliGMFHistogramManager::StoreManager(TString title) {
+void AliGMFHistogramManager::StoreManager(TFile* of) {
     // create output file and write the manager
-    TFile* of(new TFile(title.Data(), "RECREATE"));
     fOutputList->Write();
-    of->Close();
 }
 //_____________________________________________________________________________
 Bool_t  AliGMFHistogramManager::Fill(TString name, Double_t valx) {

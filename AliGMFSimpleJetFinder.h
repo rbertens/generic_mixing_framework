@@ -18,7 +18,7 @@ class AliGMFSimpleJetFinder : public TObject {
         // 'task' type members
         Bool_t Initialize();
         Bool_t AnalyzeEvent(AliGMFEventContainer* event);
-        Bool_t Finalize(TString name);
+        Bool_t Finalize(TFile* of);
 
         // setters
         void    DoBackgroundSubtraction(Bool_t b)       { fDoBackgroundSubtraction = b; }
@@ -57,7 +57,11 @@ class AliGMFSimpleJetFinder : public TObject {
         Bool_t          fRandomizeSplitTrack;   // split tracks collinearly or give them random positions
         Int_t           fRejectNHardestJets;    // reject N hardest jets from rho estimate
          
-         
+        Float_t fPtAssLow;                      // associate pt
+        Float_t fPtAssHigh;                     // associate pt
+        Float_t fPtTrigLow;                     // trigger pt
+        Float_t fPtTrigHigh;                    // trigger pt
+
         AliGMFSimpleEventCuts*        fEventCuts;       // event cuts
         AliGMFSimpleTrackCuts*        fTrackCuts;       // track cuts
         // histograms

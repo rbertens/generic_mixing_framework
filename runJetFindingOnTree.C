@@ -46,6 +46,9 @@ void runJetFindingOnTree(
     AliGMFEventReader* reader = new AliGMFEventReader(myChain);
     cout << reader->GetNumberOfEvents() << " events available for analysis " << endl;
 
+    
+    TFile* of = new TFile(Form("SE_jets_%i_%i.root", cenMin, cenMax), "RECREATE");
+            
     Int_t iEvents = reader->GetNumberOfEvents();
 
     // initialize the jet finder
@@ -80,7 +83,7 @@ void runJetFindingOnTree(
     }
 
     for (int i = 0; i < 4; i++) {
-        jetFinder[i]->Finalize(Form("SE_jets_%i_%i_R0%i", cenMin, cenMax, i+2));
+        jetFinder[i]->Finalize(of);
         delete jetFinder[i];
     }
     
