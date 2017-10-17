@@ -21,6 +21,7 @@ class AliGMFHistogramManager : public TObject {
 
         // manipulation of object
         void            StoreManager(TFile* of);
+        void            StoreManager(const char* title);
         TObject*        GetHistogram(TString name);
         Bool_t          Fill(TString name, Double_t valx);
         Bool_t          Fill(TString name, Double_t valx, Double_t valy);

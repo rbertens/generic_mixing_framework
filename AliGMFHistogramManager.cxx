@@ -70,7 +70,15 @@ TObject* AliGMFHistogramManager::GetHistogram(TString name) {
 //_____________________________________________________________________________
 void AliGMFHistogramManager::StoreManager(TFile* of) {
     // create output file and write the manager
+    of->cd();
     fOutputList->Write();
+}
+//____________________________________________________________________________
+void AliGMFHistogramManager::StoreManager(const char* title) {
+    // create output file and write the manager
+     TFile* of(new TFile(title, "RECREATE"));
+     fOutputList->Write();
+     of->Close();
 }
 //_____________________________________________________________________________
 Bool_t  AliGMFHistogramManager::Fill(TString name, Double_t valx) {

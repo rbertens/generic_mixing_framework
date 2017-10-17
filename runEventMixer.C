@@ -133,7 +133,7 @@ void runEventMixer(
     mixer->SetVertexRange(minVtx, maxVtx);
     mixer->SetEventPlaneRange(minEp, maxEp);
     mixer->SetCentralityRange(minCen, maxCen);
-//    mixer->SetMaxEventsPerFile(10000);
+    mixer->SetMaxEventsPerFile(2500);
 //    mixer->SetMaxEvents(10000);
     mixer->DoQA();
 //    mixer->SetSplittingForTracksWithPtHigherThan(3.);
