@@ -78,6 +78,7 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0,
     for (int i = 0 ; i < iEvents; i ++) {
         for(int j = 0; j < 4; j++) {
             jetFinder[j]->AnalyzeEvent(reader->GetEvent(i));
+            cout <<"Event: " << i << "\r"; cout.flush();
         }
     }
 
