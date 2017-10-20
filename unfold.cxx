@@ -409,12 +409,32 @@ void unfold()
 
     cout << "==================================== UNFOLD ===================================" << endl;
 
+    TString drInputName = "/home/rbertens/Documents/CERN/jet-flow/response/temp_task_bookkeeping/3gev_5gev_plus_reduced_eff/3gev_R02/pythia_frag_merge.root";
+    printf("- Reading file %s ... \n", drInputName.Data());
+    TFile drInput(drInputName.Data());          // detector response input matrix
+    if(drInput.IsZombie()) {
+        printf(" > read error ! < \n");
+        return;
+    }
+    TList* responseList = (TList*)drInput.Get("detector_response_R02_histos");
+    TH2D* detres = (TH2D*)responseList->FindObject("fHistDetectorResponse");
+    TH1D* prior = detres->ProjectionX();
+
+
     TFile of("unfolding.root", "RECREATE"); 
 
-    TH2D* resizedResponse = new TH2D("ptjet", "ptJetMatch", 100, -30, 70, 100, -30, 70);
-    TH2D* resizedEffResponse = new TH2D("ptjet", "ptJetMatch", 100, -30, 70, 100, -30, 70);
+    Double_t binsTrue[] = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 170};
+    TArrayD* trueBins = new TArrayD(sizeof(binsTrue)/sizeof(binsTrue[0]), binsTrue);
+    Double_t binsRec[] = {10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85};
+    TArrayD* recBins = new TArrayD(sizeof(binsRec)/sizeof(binsRec[0]), binsRec);
 
 
+
+
+
+    TH2D* resizedResponse = new TH2D("ptjet", "ptJetMatch", trueBins->GetSize()-1, trueBins->GetArray(), recBins->GetSize()-1, recBins->GetArray());
+    TH2D* resizedEffResponse = new TH2D("ptjet", "ptJetMatch", trueBins->GetSize()-1, trueBins->GetArray(), recBins->GetSize()-1, recBins->GetArray());
+    seHistJets = RebinTH1D(seHistJets, recBins);
 
     // routine for the kinematic efficiency
     TH2D* effResponse = (TH2D*)response->Clone("effResponseClone");
@@ -433,11 +453,11 @@ void unfold()
 
     
     TH2* responseMatrixTransposePrior = GetTransposeResponsMatrix(resizedResponse);
-//    responseMatrixLocalTransposePrior = NormalizeResponsMatrixYaxisWithPrior(responseMatrixLocalTransposePrior, prior);
-//    RooUnfoldResponse responseSVD(0, 0, responseMatrixLocalTransposePrior);
+    responseMatrixTransposePrior = NormalizeResponsMatrixYaxisWithPrior(responseMatrixTransposePrior, prior);
+    RooUnfoldResponse responseSVD(0, 0, responseMatrixTransposePrior);
 
     // note to self: if you introduce the prior, it is multplied with the transposed, hence the trickery above
-    RooUnfoldResponse responseSVD(0, 0, resizedResponse);
+//    RooUnfoldResponse responseSVD(0, 0, resizedResponse);
 
     RooUnfoldSvd unfoldSVD(&responseSVD, seHistJets);
     unfoldedSVD = (TH1D*)unfoldSVD.Hreco(errorTreatment);
@@ -482,17 +502,19 @@ void unfold()
     unfoldedSVD->Write(); 
     foldedSVD->SetNameTitle("RefoldedSpectrum", "refoldedSpectrum");
     foldedSVD->Write();    // re-folded spectrum
-/*
+
     // save more general bookkeeeping histograms to the output directory
-    responseMatrixLocalTransposePrior->SetNameTitle("TransposeResponseMatrix", "Transpose of response matrix, normalize with prior");
-    responseMatrixLocalTransposePrior->SetXTitle("p_{T, jet}^{true} [GeV/c]");
-    responseMatrixLocalTransposePrior->SetYTitle("p_{T, jet}^{rec} [GeV/c]");
-    responseMatrixLocalTransposePrior->Write();
-    priorLocal->SetNameTitle("PriorOriginal", "Prior, original");
-    priorLocal->SetXTitle("p_{t} [GeV/c]");
-    priorLocal->Write();
-  */
+    responseMatrixTransposePrior->SetNameTitle("TransposeResponseMatrix", "Transpose of response matrix, normalize with prior");
+    responseMatrixTransposePrior->SetXTitle("p_{T, jet}^{true} [GeV/c]");
+    responseMatrixTransposePrior->SetYTitle("p_{T, jet}^{rec} [GeV/c]");
+    responseMatrixTransposePrior->Write();
+    prior->SetNameTitle("PriorOriginal", "Prior, original");
+    prior->SetXTitle("p_{t} [GeV/c]");
+    prior->Write();
+  
     resizedResponse->Write();
+    response->Write();
+    kinematicEfficiency->Write();
 
     of.Close();
 
