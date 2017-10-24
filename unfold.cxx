@@ -23,8 +23,8 @@ TMatrixD* CalculatePearsonCoefficients(TMatrixD* covarianceMatrix)
     if(nrows==0 && ncols==0) return 0x0;
     for(Int_t row = 0; row < nrows; row++) {
         for(Int_t col = 0; col<ncols; col++) {
-        if((*covarianceMatrix)(row,row)!=0. && (*covarianceMatrix)(col,col)!=0.) pearson = (*covarianceMatrix)(row,col)/TMath::Sqrt((*covarianceMatrix)(row,row)*(*covarianceMatrix)(col,col));
-        (*pearsonCoefficients)(row,col) = pearson;
+            if((*covarianceMatrix)(row,row)!=0. && (*covarianceMatrix)(col,col)!=0.) pearson = (*covarianceMatrix)(row,col)/TMath::Sqrt((*covarianceMatrix)(row,row)*(*covarianceMatrix)(col,col));
+            (*pearsonCoefficients)(row,col) = pearson;
         }
     }
     return pearsonCoefficients;
@@ -56,60 +56,60 @@ TH1D* RebinTH1D(TH1D* histo, TArrayD* bins) {
 //--------------------------------------------------------------------------------------------------------------------------------------------------
 TH2* RebinTH2D(TH2 *hRMFine, TH2 *hRM) {
 
-  //
-  // Rebin matrix hRMFine to dimensions of hRM
-  // function returns matrix in TH2D format (hRM2) with dimensions from hRM
-  //
+    //
+    // Rebin matrix hRMFine to dimensions of hRM
+    // function returns matrix in TH2D format (hRM2) with dimensions from hRM
+    //
 
-  TH2 *hRM2 = (TH2*)hRM->Clone("hRM2");
-  hRM2->Reset();
+    TH2 *hRM2 = (TH2*)hRM->Clone("hRM2");
+    hRM2->Reset();
 
-  //First normalize columns of input
-  const Int_t nbinsNorm = hRM2->GetNbinsX();
-  TArrayF *normVector = new TArrayF(nbinsNorm);
+    //First normalize columns of input
+    const Int_t nbinsNorm = hRM2->GetNbinsX();
+    TArrayF *normVector = new TArrayF(nbinsNorm);
 
-  for(int ix=1; ix<=hRM2->GetNbinsX(); ix++) {
-    Double_t xLow = hRM2->GetXaxis()->GetBinLowEdge(ix);
-    Double_t xUp = hRM2->GetXaxis()->GetBinUpEdge(ix);
-    //cout << "xLow: " << xLow << " xUp: " << xUp << "\t center: " << hRM2->GetXaxis()->GetBinCenter(ix) << endl;
-    Int_t binxLowFine = hRMFine->GetXaxis()->FindBin(xLow);
-    Int_t binxUpFine = hRMFine->GetXaxis()->FindBin(xUp)-1;
-    //cout << "xLowFine: " << hRMFine->GetXaxis()->GetBinLowEdge(binxLowFine) << "\txUpFine: " << hRMFine->GetXaxis()->GetBinUpEdge(binxUpFine) << endl;
-      normVector->SetAt(hRMFine->Integral(binxLowFine,binxUpFine,1,hRMFine->GetYaxis()->GetNbins()),ix-1);
-  }
-
-  Double_t content, oldcontent = 0.;
-  Int_t ixNew = 0;
-  Int_t iyNew = 0;
-  Double_t xvalLo, xvalUp, yvalLo, yvalUp;
-  Double_t xmin = hRM2->GetXaxis()->GetXmin();
-  Double_t ymin = hRM2->GetYaxis()->GetXmin();
-  Double_t xmax = hRM2->GetXaxis()->GetXmax();
-  Double_t ymax = hRM2->GetYaxis()->GetXmax();
-  for(int ix=1; ix<=hRMFine->GetXaxis()->GetNbins(); ix++) {
-    xvalLo = hRMFine->GetXaxis()->GetBinLowEdge(ix);
-    xvalUp = hRMFine->GetXaxis()->GetBinUpEdge(ix);
-    if(xvalLo<xmin || xvalUp>xmax) continue;
-    ixNew = hRM2->GetXaxis()->FindBin(hRMFine->GetXaxis()->GetBinCenter(ix));
-    for(int iy=1; iy<=hRMFine->GetYaxis()->GetNbins(); iy++) {
-      yvalLo = hRMFine->GetYaxis()->GetBinLowEdge(iy);
-      yvalUp = hRMFine->GetYaxis()->GetBinUpEdge(iy);
-      if(yvalLo<ymin || yvalUp>ymax) continue;
-      content = hRMFine->GetBinContent(ix,iy);
-      iyNew = hRM2->GetYaxis()->FindBin(hRMFine->GetYaxis()->GetBinCenter(iy));
-      oldcontent = hRM2->GetBinContent(ixNew,iyNew);
-
-      Double_t weight = 1.;
-      if(normVector->At(ixNew-1)>0.) {
-          weight = 1./normVector->At(ixNew-1);
-      }
-      hRM2->SetBinContent(ixNew,iyNew,oldcontent+content*weight);
+    for(int ix=1; ix<=hRM2->GetNbinsX(); ix++) {
+        Double_t xLow = hRM2->GetXaxis()->GetBinLowEdge(ix);
+        Double_t xUp = hRM2->GetXaxis()->GetBinUpEdge(ix);
+        //cout << "xLow: " << xLow << " xUp: " << xUp << "\t center: " << hRM2->GetXaxis()->GetBinCenter(ix) << endl;
+        Int_t binxLowFine = hRMFine->GetXaxis()->FindBin(xLow);
+        Int_t binxUpFine = hRMFine->GetXaxis()->FindBin(xUp)-1;
+        //cout << "xLowFine: " << hRMFine->GetXaxis()->GetBinLowEdge(binxLowFine) << "\txUpFine: " << hRMFine->GetXaxis()->GetBinUpEdge(binxUpFine) << endl;
+        normVector->SetAt(hRMFine->Integral(binxLowFine,binxUpFine,1,hRMFine->GetYaxis()->GetNbins()),ix-1);
     }
-  }
 
-  if(normVector) delete normVector;
-  
-  return hRM2;
+    Double_t content, oldcontent = 0.;
+    Int_t ixNew = 0;
+    Int_t iyNew = 0;
+    Double_t xvalLo, xvalUp, yvalLo, yvalUp;
+    Double_t xmin = hRM2->GetXaxis()->GetXmin();
+    Double_t ymin = hRM2->GetYaxis()->GetXmin();
+    Double_t xmax = hRM2->GetXaxis()->GetXmax();
+    Double_t ymax = hRM2->GetYaxis()->GetXmax();
+    for(int ix=1; ix<=hRMFine->GetXaxis()->GetNbins(); ix++) {
+        xvalLo = hRMFine->GetXaxis()->GetBinLowEdge(ix);
+        xvalUp = hRMFine->GetXaxis()->GetBinUpEdge(ix);
+        if(xvalLo<xmin || xvalUp>xmax) continue;
+        ixNew = hRM2->GetXaxis()->FindBin(hRMFine->GetXaxis()->GetBinCenter(ix));
+        for(int iy=1; iy<=hRMFine->GetYaxis()->GetNbins(); iy++) {
+            yvalLo = hRMFine->GetYaxis()->GetBinLowEdge(iy);
+            yvalUp = hRMFine->GetYaxis()->GetBinUpEdge(iy);
+            if(yvalLo<ymin || yvalUp>ymax) continue;
+            content = hRMFine->GetBinContent(ix,iy);
+            iyNew = hRM2->GetYaxis()->FindBin(hRMFine->GetYaxis()->GetBinCenter(iy));
+            oldcontent = hRM2->GetBinContent(ixNew,iyNew);
+
+            Double_t weight = 1.;
+            if(normVector->At(ixNew-1)>0.) {
+                weight = 1./normVector->At(ixNew-1);
+            }
+            hRM2->SetBinContent(ixNew,iyNew,oldcontent+content*weight);
+        }
+    }
+
+    if(normVector) delete normVector;
+
+    return hRM2;
 
 }
 
@@ -339,9 +339,9 @@ TH2D* NormalizeTH2D(TH2D* histo) {
         for(Int_t j(0); j < binsY; j++) {
             if (weight <= 0 ) continue;
             histo->SetBinContent(1+i, j+1, histo->GetBinContent(1+i, j+1)/weight);
-//            if(noError) histo->SetBinError(  1+i, j+1, 0.);
-//            else 
-histo->SetBinError(  1+i, j+1, histo->GetBinError(  1+i, j+1)/weight);
+            //            if(noError) histo->SetBinError(  1+i, j+1, 0.);
+            //            else 
+            histo->SetBinError(  1+i, j+1, histo->GetBinError(  1+i, j+1)/weight);
         }
     }
     return histo;
@@ -355,7 +355,7 @@ void unfold()
 #endif
 
     cout << "==================================== TRAIN SAMPLE ==============================" << endl;
-//    RooUnfoldResponse response (100, -30, 70);
+    //    RooUnfoldResponse response (100, -30, 70);
 
     TH2D* response = 0x0;
     TFile* preCookedResponse = TFile::Open("RM.root");
@@ -364,16 +364,18 @@ void unfold()
         TFile *f = new TFile("/home/rbertens/Documents/CERN/jet-flow/results/2017/UNFOLDING/responses/leticia/TrainEmbeddingR02.root");
         TTree *t1 = (TTree*)f->Get("fTreeJetShape_MC_Merged");
         Float_t ptJet, ptJetMatch;
+        Double_t weightPythiaFromPtHard;
         Int_t ev;
         t1->SetBranchAddress("ptJet",&ptJet);
         t1->SetBranchAddress("ptJetMatch",&ptJetMatch);
+        t1->SetBranchAddress("weightPythiaFromPtHard", &weightPythiaFromPtHard);
 
         response = new TH2D("ptJet", "ptJetMatch", 1000, -300, 700, 1000, -300, 700);
         //read all entries and fill the histograms
         Long64_t nentries = t1->GetEntries();
         for (Long64_t i=0;i<nentries;i++) {
             t1->GetEntry(i);
-            response->Fill(ptJet,ptJetMatch);
+            response->Fill(ptJetMatch,ptJet,weightPythiaFromPtHard);
         }
         TH2D* responseCL = (TH2D*)response->Clone("responseCL");
         responseCL->SetNameTitle("response", "response");
@@ -437,9 +439,9 @@ void unfold()
 
     TFile of("unfolding.root", "RECREATE"); 
 
-    Double_t binsTrue[] = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 170};
+    Double_t binsTrue[] = {0, 10, 20, 30, 40, 50, 60, 120};
     TArrayD* trueBins = new TArrayD(sizeof(binsTrue)/sizeof(binsTrue[0]), binsTrue);
-    Double_t binsRec[] = {10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85};
+    Double_t binsRec[] = {20, 25, 30, 35, 40, 45, 50, 55, 60};
     TArrayD* recBins = new TArrayD(sizeof(binsRec)/sizeof(binsRec[0]), binsRec);
 
 
@@ -449,6 +451,7 @@ void unfold()
     TH2D* resizedResponse = new TH2D("ptjet", "ptJetMatch", trueBins->GetSize()-1, trueBins->GetArray(), recBins->GetSize()-1, recBins->GetArray());
     TH2D* resizedEffResponse = new TH2D("ptjet", "ptJetMatch", trueBins->GetSize()-1, trueBins->GetArray(), recBins->GetSize()-1, recBins->GetArray());
     seHistJets = RebinTH1D(seHistJets, recBins);
+    prior = RebinTH1D(prior, trueBins);
 
     // routine for the kinematic efficiency
     TH2D* effResponse = (TH2D*)response->Clone("effResponseClone");
@@ -465,15 +468,15 @@ void unfold()
     TH1D *foldedLocalSVD(0x0);
     RooUnfold::ErrorTreatment errorTreatment = RooUnfold::kCovToy; // RooUnfold::kCovariance;
 
-    
+
     TH2* responseMatrixTransposePrior = GetTransposeResponsMatrix(resizedResponse);
     responseMatrixTransposePrior = NormalizeResponsMatrixYaxisWithPrior(responseMatrixTransposePrior, prior);
     RooUnfoldResponse responseSVD(0, 0, responseMatrixTransposePrior);
 
     // note to self: if you introduce the prior, it is multplied with the transposed, hence the trickery above
-//    RooUnfoldResponse responseSVD(0, 0, resizedResponse);
+    //    RooUnfoldResponse responseSVD(0, 0, resizedResponse);
 
-    RooUnfoldSvd unfoldSVD(&responseSVD, seHistJets);
+    RooUnfoldSvd unfoldSVD(&responseSVD, seHistJets, 5);
     unfoldedSVD = (TH1D*)unfoldSVD.Hreco(errorTreatment);
     unfoldedSVD->Divide(kinematicEfficiency);
 
@@ -525,7 +528,7 @@ void unfold()
     prior->SetNameTitle("PriorOriginal", "Prior, original");
     prior->SetXTitle("p_{t} [GeV/c]");
     prior->Write();
-  
+
     resizedResponse->Write();
     response->Write();
     kinematicEfficiency->Write();
