@@ -357,21 +357,35 @@ void unfold()
     cout << "==================================== TRAIN SAMPLE ==============================" << endl;
 //    RooUnfoldResponse response (100, -30, 70);
 
-    TFile *f = new TFile("/home/rbertens/Documents/CERN/jet-flow/results/2017/UNFOLDING/responses/leticia/TrainEmbeddingR02.root");
-    TTree *t1 = (TTree*)f->Get("fTreeJetShape_MC_Merged");
-    Float_t ptJet, ptJetMatch;
-    Int_t ev;
-    t1->SetBranchAddress("ptJet",&ptJet);
-    t1->SetBranchAddress("ptJetMatch",&ptJetMatch);
+    TH2D* response = 0x0;
+    TFile* preCookedResponse = TFile::Open("RM.root");
+    if(!preCookedResponse || preCookedResponse->IsZombie()) {
+        cout << "    no RM found - cooking one up " << endl; 
+        TFile *f = new TFile("/home/rbertens/Documents/CERN/jet-flow/results/2017/UNFOLDING/responses/leticia/TrainEmbeddingR02.root");
+        TTree *t1 = (TTree*)f->Get("fTreeJetShape_MC_Merged");
+        Float_t ptJet, ptJetMatch;
+        Int_t ev;
+        t1->SetBranchAddress("ptJet",&ptJet);
+        t1->SetBranchAddress("ptJetMatch",&ptJetMatch);
 
-
-    TH2D* response = new TH2D("ptJet", "ptJetMatch", 1000, -300, 700, 1000, -300, 700);
-    //read all entries and fill the histograms
-    Long64_t nentries = t1->GetEntries();
-    for (Long64_t i=0;i<nentries;i++) {
-        t1->GetEntry(i);
-        response->Fill(ptJet,ptJetMatch);
+        response = new TH2D("ptJet", "ptJetMatch", 1000, -300, 700, 1000, -300, 700);
+        //read all entries and fill the histograms
+        Long64_t nentries = t1->GetEntries();
+        for (Long64_t i=0;i<nentries;i++) {
+            t1->GetEntry(i);
+            response->Fill(ptJet,ptJetMatch);
+        }
+        TH2D* responseCL = (TH2D*)response->Clone("responseCL");
+        responseCL->SetNameTitle("response", "response");
+        preCookedResponse = new TFile("RM.root", "RECREATE");
+        preCookedResponse->ls();
+        responseCL->Write();
+        preCookedResponse->Close();
+    } else {
+        cout << "    using precooked response " << endl;
+        response = (TH2D*)preCookedResponse->Get("response");
     }
+
 
 
     cout << "==================================== GET JETS ==================================" << endl;
