@@ -41,7 +41,7 @@ AliGMFSimpleJetFinder::AliGMFSimpleJetFinder() : TObject(),
     fSplittingThreshold(1e9),
     fSplitTrackPt(3),
     fRandomizeSplitTrack(kFALSE),
-    fRejectNHardestJets(1),
+    fRejectNHardestJets(2),
     fPtAssLow(8),
     fPtAssHigh(9),
     fPtTrigLow(30),
@@ -283,9 +283,9 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
     // FIXME change range definition to selector 
 //    fastjet::Selector range(fastjet::SelectorAbsRapMax(1.-.95*fJetResolution));
     fastjet::RangeDefinition range(fJetResolution-.9, .9-fJetResolution, 0, 2.*fastjet::pi);
-    fastjet::RangeDefinition rangeRho(-.7, .7, 0, 2.*fastjet::pi);
+    fastjet::RangeDefinition rangeRho(-fJetResolution-.9, .9-fJetResolution, 0, 2.*fastjet::pi);
     fastjet::JetDefinition jetDef(fastjet::antikt_algorithm, fJetResolution, recombScheme, strategy);
-    fastjet::JetDefinition jetDefRho(fastjet::kt_algorithm, .2, recombScheme, strategy);
+    fastjet::JetDefinition jetDefRho(fastjet::kt_algorithm, fJetResolution, recombScheme, strategy);
 
     // feed the protojets to fastjet
     fastjet::ClusterSequenceArea clusterSeq(fjInputVector, jetDef, areaDef);
@@ -369,7 +369,7 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
             );
 
     Float_t rcPt(0), rcEta(0), rcPhi(0);
-
+/*
     for(Int_t i = 0; i < fNCones; i++) {
         Bool_t unbiased = GetRandomCone(event, rcPt, rcEta, rcPhi, 
                 backgroundJets[0].eta(), backgroundJets[0].phi());
@@ -382,7 +382,7 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
                 rcPt - rho*TMath::Pi()*fJetResolution*fJetResolution
                 );
     }
-        
+*/      
 
     // fill the jet histograms
     for (UInt_t iJet = 0; iJet < inclusiveJets.size(); iJet++) {
