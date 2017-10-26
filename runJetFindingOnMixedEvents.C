@@ -35,7 +35,7 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0,
     gROOT->LoadMacro("AliGMFSimpleJetFinder.cxx+");
 
     TChain* myChain = new TChain("tree");
-    myChain->Add(Form("/eos/user/r/rbertens/sandbox/mixed_events_noimit/ME_%i.root", fileSuffix));
+    myChain->Add(Form("/eos/user/r/rbertens/sandbox/mixed_events_nolimit_1000perfile/ME_%i.root", fileSuffix));
 
 
     // add more files if desired, e.g. per class
@@ -54,14 +54,14 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0,
     }
    
     // create the jet finders
-    AliGMFSimpleJetFinder* jetFinder[4];
-    float radii[] = {.2, .3, .4, .5};
+    AliGMFSimpleJetFinder* jetFinder[2];
+    float radii[] = {.2, .4};
   
     // create track cuts
     AliGMFSimpleTrackCuts* trackCuts = new AliGMFSimpleTrackCuts();
     trackCuts->SetTrackMinPt(minConstPt);
     
-    for(int i = 0; i < 4; i++) {
+    for(int i = 0; i < 2; i++) {
         jetFinder[i] = new AliGMFSimpleJetFinder();
         jetFinder[i]->SetJetResolution(radii[i]);
         jetFinder[i]->SetSplittingForTracksWithPtHigherThan(splitTracksFrom);
@@ -70,20 +70,21 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0,
         jetFinder[i]->SetLeadingHadronPt(leadingHadronPt);
         jetFinder[i]->SetLeadingHadronMaxPt(leadingHadronMaxPt);
         jetFinder[i]->SetTrackCuts(trackCuts);
+        jetFinder[i]->SetRejectNHardestJets(0);
         jetFinder[i]->Initialize();
     }
     
     
 
     for (int i = 0 ; i < iEvents; i ++) {
-        for(int j = 0; j < 4; j++) {
+        for(int j = 0; j < 2; j++) {
             jetFinder[j]->AnalyzeEvent(reader->GetEvent(i));
             cout <<"Event: " << i << "\r"; cout.flush();
         }
     }
 
     // write and clear memory
-    for(int i = 0; i < 4; i++) {
+    for(int i = 0; i < 2; i++) {
         jetFinder[i]->Finalize(of);
         delete jetFinder[i];
     }

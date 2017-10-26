@@ -52,15 +52,15 @@ void runJetFindingOnTree(
     Int_t iEvents = reader->GetNumberOfEvents();
 
     // initialize the jet finder
-    AliGMFSimpleJetFinder* jetFinder[4];
-    float radii[] = {.2, .3, .4, .5};
+    AliGMFSimpleJetFinder* jetFinder[2];
+    float radii[] = {.2, .4};
      // create the event cuts
     AliGMFSimpleEventCuts* eventCuts = new AliGMFSimpleEventCuts();
     eventCuts->SetCentralityRange(cenMin, cenMax);
     AliGMFSimpleTrackCuts* trackCuts = new AliGMFSimpleTrackCuts();
     trackCuts->SetTrackMinPt(minConstPt);
    
-    for(int i = 0; i < 4; i++) {
+    for(int i = 0; i < 2; i++) {
        jetFinder[i] = new AliGMFSimpleJetFinder();
        jetFinder[i]->SetJetResolution(radii[i]);
        jetFinder[i]->SetSplittingForTracksWithPtHigherThan(splitTracksFrom);
@@ -76,13 +76,13 @@ void runJetFindingOnTree(
     }
 
     for (int i = 0; i < iEvents; i ++) {
-        for(int j = 0; j < 4; j++) {
+        for(int j = 0; j < 2; j++) {
             jetFinder[j]->AnalyzeEvent(reader->GetEvent(i));
             cout <<"Event: " << i << "\r"; cout.flush();
         }
     }
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 2; i++) {
         jetFinder[i]->Finalize(of);
         delete jetFinder[i];
     }
