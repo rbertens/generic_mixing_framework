@@ -305,7 +305,7 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
 
     // first, store background energy density per jet and jet pt of all jets in acceptance
     for (UInt_t iJet = 0; iJet < backgroundJets.size(); iJet++) {
-        if (rangeRho.is_in_range(backgroundJets[iJet]) && backgroundJets[iJet].area() > 0) {
+        if (rangeRho.is_in_range(backgroundJets[iJet]) && backgroundJets[iJet].area() > 0.01) {
             rhoVector[iJet] = backgroundJets[iJet].perp() / backgroundJets[iJet].area();
             ptVector[iJet] = backgroundJets[iJet].perp();
             iBGJets++;
