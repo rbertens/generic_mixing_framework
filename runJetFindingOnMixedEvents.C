@@ -4,7 +4,8 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0,
         Float_t leadingHadronMaxPt = 1e9,
         Float_t splitTracksFrom = 1e9,
         Float_t splitThemIn = 0,
-        Bool_t randomize = kFALSE)
+        Bool_t randomize = kFALSE,
+        Int_t rejectHardJets = 0)
 {
     // example macro to read data from a ttree and perform simple analysis
     // author: Redmer Alexander Bertens (rbertens@cern.ch)
@@ -70,7 +71,7 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0,
         jetFinder[i]->SetLeadingHadronPt(leadingHadronPt);
         jetFinder[i]->SetLeadingHadronMaxPt(leadingHadronMaxPt);
         jetFinder[i]->SetTrackCuts(trackCuts);
-        jetFinder[i]->SetRejectNHardestJets(0);
+        jetFinder[i]->SetRejectNHardestJets(rejectHardJets);
         jetFinder[i]->Initialize();
     }
     
