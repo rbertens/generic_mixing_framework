@@ -23,6 +23,7 @@ class AliGMFSimpleJetFinder : public TObject {
         // setters
         void    DoBackgroundSubtraction(Bool_t b)       { fDoBackgroundSubtraction = b; }
         void    SetJetResolution(Float_t r)             { fJetResolution = r; }
+        void    SetJetResolutionBkg(Float_t r)          { fJetResolutionBkg = r; }
         void    SetLeadingHadronPt(Float_t l)           { fLeadingHadronPt = l; }
         void    SetLeadingHadronMaxPt(Float_t l)        { fLeadingHadronMaxPt = l; }
 
@@ -46,6 +47,7 @@ class AliGMFSimpleJetFinder : public TObject {
     private:
         Bool_t  fDoBackgroundSubtraction;       // do background subtraction
         Float_t fJetResolution;                 // jet resolution parameter
+        Float_t fJetResolutionBkg;              // background jet resolution parameter
         Int_t   fNCones;                        // number of random cones
         Float_t fLeadingHadronPt;               // min leading hadron pt
         Float_t fLeadingHadronMaxPt;            // max pt for leading hadron

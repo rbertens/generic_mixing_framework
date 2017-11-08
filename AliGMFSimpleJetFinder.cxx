@@ -32,6 +32,7 @@ using namespace std;
 AliGMFSimpleJetFinder::AliGMFSimpleJetFinder() : TObject(),
     fDoBackgroundSubtraction(kFALSE),
     fJetResolution(.3),
+    fJetResolutionBkg(.3),
     fNCones(0),
     fLeadingHadronPt(.1),
     fLeadingHadronMaxPt(1e9),
@@ -283,9 +284,9 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
     // FIXME change range definition to selector 
 //    fastjet::Selector range(fastjet::SelectorAbsRapMax(1.-.95*fJetResolution));
     fastjet::RangeDefinition range(fJetResolution-.9, .9-fJetResolution, 0, 2.*fastjet::pi);
-    fastjet::RangeDefinition rangeRho(-fJetResolution-.9, .9-fJetResolution, 0, 2.*fastjet::pi);
+    fastjet::RangeDefinition rangeRho(-fJetResolutionBkg-.9, .9-fJetResolutionBkg, 0, 2.*fastjet::pi);
     fastjet::JetDefinition jetDef(fastjet::antikt_algorithm, fJetResolution, recombScheme, strategy);
-    fastjet::JetDefinition jetDefRho(fastjet::kt_algorithm, fJetResolution, recombScheme, strategy);
+    fastjet::JetDefinition jetDefRho(fastjet::kt_algorithm, fJetResolutionBkg, recombScheme, strategy);
 
     // feed the protojets to fastjet
     fastjet::ClusterSequenceArea clusterSeq(fjInputVector, jetDef, areaDef);
@@ -299,15 +300,15 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
     // vector for the background energy density
     Double_t rhoVector[backgroundJets.size()];
     Int_t iBGJets(0);
-    // helper vectors for the bubble sorter
+    // helper vectors for the bubble sorter - array sizes are maxima, not all indices are used
     Double_t ptVector[backgroundJets.size()];
     Double_t trimmedRhoVector[backgroundJets.size()-fRejectNHardestJets];
 
     // first, store background energy density per jet and jet pt of all jets in acceptance
     for (UInt_t iJet = 0; iJet < backgroundJets.size(); iJet++) {
         if (rangeRho.is_in_range(backgroundJets[iJet]) && backgroundJets[iJet].area() > 0.01) {
-            rhoVector[iJet] = backgroundJets[iJet].perp() / backgroundJets[iJet].area();
-            ptVector[iJet] = backgroundJets[iJet].perp();
+            rhoVector[iBGJets] = backgroundJets[iJet].perp() / backgroundJets[iJet].area();
+            ptVector[iBGJets] = backgroundJets[iJet].perp();
             iBGJets++;
         }
     }
@@ -320,7 +321,7 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
         while (flippedIndex) {
             // no flip has been performed yet
             flippedIndex = kFALSE;
-            for (UInt_t iJet = 0; iJet < backgroundJets.size() - 1; iJet++) {
+            for (UInt_t iJet = 0; iJet < (UInt_t)(iBGJets - 1); iJet++) {
                 // get the i-th and i-th+1 jet and compare their pt
                 // check if pt of jet i+1 is larger than pt of jet i
                 if(ptVector[iJet + 1] > ptVector[iJet]) {
@@ -338,7 +339,6 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
             }
         }
     }
-
 
     Double_t rho(0);
     if(fRejectNHardestJets == 0) {
