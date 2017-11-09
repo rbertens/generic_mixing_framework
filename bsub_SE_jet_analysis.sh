@@ -9,7 +9,6 @@ cd SE_jets_$1_$2_$3
 
 # prepare running through bash, priority, name in the queue
 echo "#!/bin/bash" >> SE_jet_analysis_autoscript.sh    
-echo "kinit -R" >> SE_jet_analysis_autoscript.sh
 export WORKDIR=`pwd`
 echo "cd $WORKDIR" >> SE_jet_analysis_autoscript.sh
 # set some specific paths. ugly, but no other way

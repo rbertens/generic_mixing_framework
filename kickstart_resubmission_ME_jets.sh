@@ -6,5 +6,11 @@ files=(0 557)
 
 for ((i = 0; i < ${files[1]}+1; ++i)); do
     inci=$(( $i + 1 ))
-    ./bsub_ME_jet_analysis.sh $i
+    cd ME_jets_$i
+    if [ ! -s ME_jets.root ]; then
+        echo "i do not exist"
+        pwd
+        bsub -q 1nd ME_jet_analysis_autoscript.sh
+    fi
+    cd .. 
 done
