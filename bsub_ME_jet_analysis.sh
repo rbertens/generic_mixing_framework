@@ -27,7 +27,7 @@ echo "cp $PATH_TO_SOURCE/*.C ." >> ME_jet_analysis_autoscript.sh
 echo "cp $PATH_TO_SOURCE/*.cxx ." >> ME_jet_analysis_autoscript.sh
 echo "cp $PATH_TO_SOURCE/*.h ." >> ME_jet_analysis_autoscript.sh
 
-echo "root -q -b 'runJetFindingOnMixedEvents.C($1, 0, 0, 1e9, 3, 3, kTRUE)'" >> ME_jet_analysis_autoscript.sh
+echo "root -q -b 'runJetFindingOnMixedEvents.C($1, 0, 0, 1e9, 7, 3, kTRUE)'" >> ME_jet_analysis_autoscript.sh
 echo "mv *.root $WORKDIR" >> ME_jet_analysis_autoscript.sh
 echo "rm -rf $TDIR" >> ME_jet_analysis_autoscript.sh
 # change permissions
