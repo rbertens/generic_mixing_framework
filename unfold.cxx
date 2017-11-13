@@ -124,6 +124,8 @@ TGraphErrors* GetRatio(TH1 *h1, TH1* h2)
         printf(" GetRatio called with NULL argument(s) \n ");
         return 0x0;
     }
+    cout << h1->GetName() << endl;
+    cout << h2->GetName() << endl;
     Int_t j(0);
     TGraphErrors *gr = new TGraphErrors();
     gr->GetXaxis()->SetTitle("p_{T, jet} [GeV/c]");
@@ -134,12 +136,13 @@ TGraphErrors* GetRatio(TH1 *h1, TH1* h2)
     h2->Sumw2();
     if(!dud->Divide(h1, h2)) {
         printf(" > ROOT failed to divide two histogams, dividing manually \n < ");
-        for(Int_t i(1); i <= h1->GetNbinsX(); i++) {
+        for(Int_t i = 1; i <= h1->GetNbinsX(); i++) {
             binCent = h1->GetXaxis()->GetBinCenter(i);
             j = h2->FindBin(binCent);
             binWidth = h1->GetXaxis()->GetBinWidth(i);
-            if(h2->GetBinContent(j) > 0.) {
+            if(h2->GetBinContent(j) != 0) { 
                 ratio = h1->GetBinContent(i)/h2->GetBinContent(j);
+              //  cout << "point " << i << " ratio " << ratio << endl;
                 Double_t A = h1->GetBinError(i)/h1->GetBinContent(i);
                 Double_t B = h2->GetBinError(i)/h2->GetBinContent(i);
                 error2 = ratio*ratio*A*A+ratio*ratio*B*B;
@@ -212,11 +215,6 @@ TH1D* MultiplyResponseGenerated(TH1 *hGen, TH2 *hResponse,TH1 *hEfficiency,Bool_
         hRec->SetBinContent(irec,0);
 
     TH1D *hRecGenBin = 0x0;
-    TCanvas *cSlices = 0x0;
-    if(bDrawSlices) {
-        cSlices = new TCanvas("cSlices","cSlices:Slices",400,400);
-        gPad->SetLogy();
-    }
 
     Double_t yieldMC = 0.;
     Double_t yieldMCerror = 0.;
@@ -361,7 +359,7 @@ void unfold()
     TFile* preCookedResponse = TFile::Open("RM.root");
     if(!preCookedResponse || preCookedResponse->IsZombie()) {
         cout << "    no RM found - cooking one up " << endl; 
-        TFile *f = new TFile("/home/rbertens/Documents/CERN/jet-flow/results/2017/UNFOLDING/responses/leticia/TrainEmbeddingR02.root");
+        TFile *f = new TFile("/home/rbertens/Documents/CERN/jet-flow/results/2017/UNFOLDING/responses/leticia/0_10/TrainEmbeddingR02.root");
         TTree *t1 = (TTree*)f->Get("fTreeJetShape_MC_Merged");
         Float_t ptJet, ptJetMatch;
         Double_t weightPythiaFromPtHard;
@@ -395,8 +393,8 @@ void unfold()
     int r = 2;
 
 
-    TFile meJets(Form("/home/rbertens/Documents/CERN/jet-flow/results/2017/SEPTEMBER/event_mixing/analyzed_events_OLD/ME/40_50/merged_myMixedJets_R0%i.root", r));
-    TFile seJets(Form("/home/rbertens/Documents/CERN/jet-flow/results/2017/SEPTEMBER/event_mixing/analyzed_events_OLD/SE/40_50/merged_SE_jets_40_50_R0%i.root", r));
+    TFile meJets("/home/rbertens/Documents/CERN/jet-flow/results/2017/OCTOBER/ME/0_5/ME_jets_0_5.root");
+    TFile seJets("/home/rbertens/Documents/CERN/jet-flow/results/2017/OCTOBER/SE/0_5/SE_jets_0_5.root");
 
     TH1D* meHistJets = (TH1D*)meJets.Get(Form("fHistJetPtSubtracted__R%i", r));
     TH1D* seHistJets = (TH1D*)seJets.Get(Form("fHistJetPtSubtracted__R%i", r));
@@ -406,6 +404,12 @@ void unfold()
 
     TH1D* seHistCent = (TH1D*)seJets.Get(Form("fHistCentrality__R%i", r));
     Int_t seEvents = seHistCent->GetEntries();
+
+    //seHistJets->Scale(1./double(seEvents), "width");
+    meHistJets->Scale(double(seEvents)/double(meEvents), "width");
+
+    TH1D* seHistJetsClone = (TH1D*)seHistJets->Clone("same event jets");
+    TH1D* meHistJetsClone = (TH1D*)meHistJets->Clone("mixed event jets");
 
     meHistJets->SetTitle("ME jets");
     meHistJets->GetYaxis()->SetTitle("#frac{1}{N_{evt}}#frac{d#it{N}}{d#it{p}_{T}} (GeV/#it{c})^{-1}");
@@ -421,6 +425,7 @@ void unfold()
     seHistJets->Add(meHistJets, -1);
 
 
+    TH1D* seHistJetsDifference = seHistJets->Clone("difference");
 
 
     cout << "==================================== UNFOLD ===================================" << endl;
@@ -439,9 +444,9 @@ void unfold()
 
     TFile of("unfolding.root", "RECREATE"); 
 
-    Double_t binsTrue[] = {0, 10, 20, 30, 40, 50, 60, 120};
+    Double_t binsTrue[] = {0, 10, 20, 30, 40, 50, 60, 70, 80,90, 100, 150};
     TArrayD* trueBins = new TArrayD(sizeof(binsTrue)/sizeof(binsTrue[0]), binsTrue);
-    Double_t binsRec[] = {20, 25, 30, 35, 40, 45, 50, 55, 60};
+    Double_t binsRec[] = {20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90};
     TArrayD* recBins = new TArrayD(sizeof(binsRec)/sizeof(binsRec[0]), binsRec);
 
 
@@ -458,27 +463,45 @@ void unfold()
     TH2D* responseNorm = NormalizeTH2D(effResponse);
     resizedEffResponse = (TH2D*)RebinTH2D(responseNorm, resizedEffResponse);
     TH1D* kinematicEfficiency = resizedEffResponse->ProjectionX();
+    
+    for(Int_t iB = 0; iB < kinematicEfficiency->GetNbinsX(); iB++) {
+        kinematicEfficiency->SetBinError(iB, 0);
+    }
+
 
 
     // prepare response matrix: all slides in truth normalized to 1
     resizedResponse = (TH2D*)RebinTH2D(response, resizedResponse);
-    resizedResponse = NormalizeTH2D(resizedResponse);
+    resizedResponse = NormalizeTH2D(resizedResponse);//FIXME
 
     TH1D *unfoldedLocalSVD(0x0)
     TH1D *foldedLocalSVD(0x0);
     RooUnfold::ErrorTreatment errorTreatment = RooUnfold::kCovToy; // RooUnfold::kCovariance;
 
 
+
+    // REMMEBER REMEMBER REMEMBER
+    // RooUnfold expects Fill(measured, true), that's why you transpose your matrix here
+    //
     TH2* responseMatrixTransposePrior = GetTransposeResponsMatrix(resizedResponse);
-    responseMatrixTransposePrior = NormalizeResponsMatrixYaxisWithPrior(responseMatrixTransposePrior, prior);
+    responseMatrixTransposePrior = NormalizeResponsMatrixYaxisWithPrior(responseMatrixTransposePrior, prior);//FIXME
     RooUnfoldResponse responseSVD(0, 0, responseMatrixTransposePrior);
 
     // note to self: if you introduce the prior, it is multplied with the transposed, hence the trickery above
     //    RooUnfoldResponse responseSVD(0, 0, resizedResponse);
 
-    RooUnfoldSvd unfoldSVD(&responseSVD, seHistJets, 5);
+    RooUnfoldSvd unfoldSVD(&responseSVD, seHistJets, 4);
     unfoldedSVD = (TH1D*)unfoldSVD.Hreco(errorTreatment);
+
+/*
+    RooUnfoldResponse responseBayes(0, 0, responseMatrixTransposePrior);
+    RooUnfoldBayes unfoldSVD(&responseBayes, seHistJets, 14);
+    unfoldedSVD = (TH1D*)unfoldSVD.Hreco();
+    */
+
     unfoldedSVD->Divide(kinematicEfficiency);
+
+
 
 
     // get the pearson coefficients from the covariance matrix
@@ -505,12 +528,13 @@ void unfold()
 
     // 7) refold the unfolded spectrum
     TH1D* foldedSVD = MultiplyResponseGenerated(unfoldedSVD, resizedResponse, kinematicEfficiency, kFALSE);
-    TGraphErrors* ratio = GetRatio(seHistCent, foldedSVD);
+ /*
+    TGraphErrors* ratio = GetRatio(seHistJetsClone, foldedSVD);
     ratio->SetNameTitle("RatioRefoldedMeasured", "Ratio measured / re-folded");
     ratio->GetXaxis()->SetTitle("p_{t}^{rec, rec} [GeV/ c]");
     ratio->GetYaxis()->SetTitle("ratio measured / re-folded");
     ratio->Write();
-
+*/
     // write the measured, unfolded and re-folded spectra to the output directory
     seHistJets->SetNameTitle("InputSpectrum", "input spectrum (measured)");
     seHistJets->SetXTitle("p_{t}^{rec} [GeV/c]");
@@ -532,6 +556,11 @@ void unfold()
     resizedResponse->Write();
     response->Write();
     kinematicEfficiency->Write();
+
+    seHistJetsClone->Write();
+    meHistJetsClone->Write();
+    seHistJetsDifference->Write();
+
 
     of.Close();
 
