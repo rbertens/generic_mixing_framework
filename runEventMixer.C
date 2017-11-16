@@ -32,6 +32,7 @@ void runEventMixer(
 
     // define the input chain and create an event reader
     TChain* myChain = new TChain("tree");
+/*
     myChain->Add("$PATH_TO_DATA/137161.root");
     myChain->Add("$PATH_TO_DATA/137162.root");
     myChain->Add("$PATH_TO_DATA/137230.root");
@@ -122,6 +123,70 @@ void runEventMixer(
     myChain->Add("$PATH_TO_DATA/139505.root");
     myChain->Add("$PATH_TO_DATA/139507.root");
     myChain->Add("$PATH_TO_DATA/139510.root");
+*/
+    myChain->Add("$PATH_TO_DATA/167902.root");
+    myChain->Add("$PATH_TO_DATA/167903.root"); 
+    myChain->Add("$PATH_TO_DATA/167915.root"); 
+    myChain->Add("$PATH_TO_DATA/167920.root"); 
+    myChain->Add("$PATH_TO_DATA/167987.root");
+    myChain->Add("$PATH_TO_DATA/167988.root"); 
+    myChain->Add("$PATH_TO_DATA/168066.root"); 
+    myChain->Add("$PATH_TO_DATA/168068.root"); 
+    myChain->Add("$PATH_TO_DATA/168069.root"); 
+    myChain->Add("$PATH_TO_DATA/168076.root"); 
+    myChain->Add("$PATH_TO_DATA/168104.root"); 
+    myChain->Add("$PATH_TO_DATA/168107.root"); 
+    myChain->Add("$PATH_TO_DATA/168108.root"); 
+    myChain->Add("$PATH_TO_DATA/168115.root"); 
+    myChain->Add("$PATH_TO_DATA/168212.root"); 
+    myChain->Add("$PATH_TO_DATA/168310.root"); 
+    myChain->Add("$PATH_TO_DATA/168311.root"); 
+    myChain->Add("$PATH_TO_DATA/168322.root"); 
+    myChain->Add("$PATH_TO_DATA/168325.root"); 
+    myChain->Add("$PATH_TO_DATA/168341.root"); 
+    myChain->Add("$PATH_TO_DATA/168342.root"); 
+    myChain->Add("$PATH_TO_DATA/168361.root"); 
+    myChain->Add("$PATH_TO_DATA/168362.root"); 
+    myChain->Add("$PATH_TO_DATA/168458.root"); 
+    myChain->Add("$PATH_TO_DATA/168460.root"); 
+    myChain->Add("$PATH_TO_DATA/168461.root"); 
+    myChain->Add("$PATH_TO_DATA/168464.root"); 
+    myChain->Add("$PATH_TO_DATA/168467.root"); 
+    myChain->Add("$PATH_TO_DATA/168511.root"); 
+    myChain->Add("$PATH_TO_DATA/168512.root"); 
+    myChain->Add("$PATH_TO_DATA/168777.root"); 
+    myChain->Add("$PATH_TO_DATA/168826.root"); 
+    myChain->Add("$PATH_TO_DATA/168984.root"); 
+    myChain->Add("$PATH_TO_DATA/168988.root"); 
+    myChain->Add("$PATH_TO_DATA/168992.root"); 
+    myChain->Add("$PATH_TO_DATA/169035.root"); 
+    myChain->Add("$PATH_TO_DATA/169091.root"); 
+    myChain->Add("$PATH_TO_DATA/169094.root"); 
+    myChain->Add("$PATH_TO_DATA/169138.root"); 
+    myChain->Add("$PATH_TO_DATA/169143.root"); 
+    myChain->Add("$PATH_TO_DATA/169144.root"); 
+    myChain->Add("$PATH_TO_DATA/169145.root"); 
+    myChain->Add("$PATH_TO_DATA/169148.root"); 
+    myChain->Add("$PATH_TO_DATA/169156.root"); 
+    myChain->Add("$PATH_TO_DATA/169160.root"); 
+    myChain->Add("$PATH_TO_DATA/169167.root"); 
+    myChain->Add("$PATH_TO_DATA/169238.root"); 
+    myChain->Add("$PATH_TO_DATA/169411.root"); 
+    myChain->Add("$PATH_TO_DATA/169415.root"); 
+    myChain->Add("$PATH_TO_DATA/169417.root"); 
+    myChain->Add("$PATH_TO_DATA/169835.root"); 
+    myChain->Add("$PATH_TO_DATA/169837.root"); 
+    myChain->Add("$PATH_TO_DATA/169838.root"); 
+    myChain->Add("$PATH_TO_DATA/169846.root"); 
+    myChain->Add("$PATH_TO_DATA/169855.root"); 
+    myChain->Add("$PATH_TO_DATA/169858.root"); 
+    myChain->Add("$PATH_TO_DATA/169859.root"); 
+    myChain->Add("$PATH_TO_DATA/169923.root"); 
+    myChain->Add("$PATH_TO_DATA/169956.root"); 
+    myChain->Add("$PATH_TO_DATA/170027.root"); 
+    myChain->Add("$PATH_TO_DATA/170036.root"); 
+    myChain->Add("$PATH_TO_DATA/170081.root");
+
 
     AliGMFEventReader* reader = new AliGMFEventReader(myChain);
     // create the mixer and connect the input event reader

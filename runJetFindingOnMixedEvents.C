@@ -55,14 +55,14 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0,
     }
    
     // create the jet finders
-    AliGMFSimpleJetFinder* jetFinder[2];
-    float radii[] = {.2, .4};
+    AliGMFSimpleJetFinder* jetFinder[3];
+    float radii[] = {.2, .4, .6};
   
     // create track cuts
     AliGMFSimpleTrackCuts* trackCuts = new AliGMFSimpleTrackCuts();
     trackCuts->SetTrackMinPt(minConstPt);
     
-    for(int i = 0; i < 2; i++) {
+    for(int i = 0; i < 3; i++) {
         jetFinder[i] = new AliGMFSimpleJetFinder();
         jetFinder[i]->SetJetResolution(radii[i]);
         jetFinder[i]->SetSplittingForTracksWithPtHigherThan(splitTracksFrom);
@@ -78,14 +78,14 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0,
     
 
     for (int i = 0 ; i < iEvents; i ++) {
-        for(int j = 0; j < 2; j++) {
+        for(int j = 0; j < 3; j++) {
             jetFinder[j]->AnalyzeEvent(reader->GetEvent(i));
-            cout <<"Event: " << i << "\r"; cout.flush();
+        //    cout <<"Event: " << i << "\r"; cout.flush();
         }
     }
 
     // write and clear memory
-    for(int i = 0; i < 2; i++) {
+    for(int i = 0; i < 3; i++) {
         jetFinder[i]->Finalize(of);
         delete jetFinder[i];
     }
