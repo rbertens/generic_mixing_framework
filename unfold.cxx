@@ -1,3 +1,14 @@
+////////////////////////////////////////////////////////////////////////////////
+
+
+Int_t regularization = 4;
+Double_t binsTrue[] = {0, 10, 20, 30, 40, 50, 60, 70, 80,90, 200};
+Double_t binsRec[] = {30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90};
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+
 
 #if !defined(__CINT__) || defined(__MAKECINT__)
 #include <iostream>
@@ -359,7 +370,7 @@ void unfold()
     TFile* preCookedResponse = TFile::Open("RM.root");
     if(!preCookedResponse || preCookedResponse->IsZombie()) {
         cout << "    no RM found - cooking one up " << endl; 
-        TFile *f = new TFile("/home/rbertens/Documents/CERN/jet-flow/results/2017/UNFOLDING/responses/leticia/0_10/TrainEmbeddingR02.root");
+        TFile *f = new TFile("/home/rbertens/Documents/CERN/jet-flow/results/2017/UNFOLDING/responses/05/TrainEmbedding.root");
         TTree *t1 = (TTree*)f->Get("fTreeJetShape_MC_Merged");
         Float_t ptJet, ptJetMatch;
         Double_t weightPythiaFromPtHard;
@@ -440,19 +451,19 @@ void unfold()
     TList* responseList = (TList*)drInput.Get("detector_response_R02_histos");
     TH2D* detres = (TH2D*)responseList->FindObject("fHistDetectorResponse");
     TH1D* prior = detres->ProjectionX();
-
-
-    TFile of("unfolding.root", "RECREATE"); 
-
-    Double_t binsTrue[] = {0, 10, 20, 30, 40, 50, 60, 70, 80,90, 100, 150};
     TArrayD* trueBins = new TArrayD(sizeof(binsTrue)/sizeof(binsTrue[0]), binsTrue);
-    Double_t binsRec[] = {20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90};
     TArrayD* recBins = new TArrayD(sizeof(binsRec)/sizeof(binsRec[0]), binsRec);
 
 
 
-
-
+    TFile of(Form("unfolded_DL%i-%i_PL%i-%i_KREG%i.root", (int)recBins->At(0), (int)recBins->At(recBins->GetSize()-1), (int)trueBins->At(0), (int)trueBins->At(trueBins->GetSize()-1), regularization), "RECREATE"); 
+/*
+cout << (int)recBins->At(0) << endl;
+cout << (int)recBins->At(recBins->GetSize()-1) << endl;
+cout << (int)trueBins->At(0) <<endl;
+cout << (int)trueBins->At(trueBins->GetSize()-1) << endl;
+cout <<regularization << endl;
+*/
     TH2D* resizedResponse = new TH2D("ptjet", "ptJetMatch", trueBins->GetSize()-1, trueBins->GetArray(), recBins->GetSize()-1, recBins->GetArray());
     TH2D* resizedEffResponse = new TH2D("ptjet", "ptJetMatch", trueBins->GetSize()-1, trueBins->GetArray(), recBins->GetSize()-1, recBins->GetArray());
     seHistJets = RebinTH1D(seHistJets, recBins);
@@ -474,8 +485,8 @@ void unfold()
     resizedResponse = (TH2D*)RebinTH2D(response, resizedResponse);
     resizedResponse = NormalizeTH2D(resizedResponse);//FIXME
 
-    TH1D *unfoldedLocalSVD(0x0)
-    TH1D *foldedLocalSVD(0x0);
+    TH1D *unfoldedSVD(0x0)
+    TH1D *foldedSVD(0x0);
     RooUnfold::ErrorTreatment errorTreatment = RooUnfold::kCovToy; // RooUnfold::kCovariance;
 
 
@@ -490,7 +501,7 @@ void unfold()
     // note to self: if you introduce the prior, it is multplied with the transposed, hence the trickery above
     //    RooUnfoldResponse responseSVD(0, 0, resizedResponse);
 
-    RooUnfoldSvd unfoldSVD(&responseSVD, seHistJets, 4);
+    RooUnfoldSvd unfoldSVD(&responseSVD, seHistJets, regularization);
     unfoldedSVD = (TH1D*)unfoldSVD.Hreco(errorTreatment);
 
 /*
@@ -540,7 +551,10 @@ void unfold()
     seHistJets->SetXTitle("p_{t}^{rec} [GeV/c]");
     seHistJets->Write(); // input spectrum
     unfoldedSVD->SetNameTitle("UnfoldedSpectrum","unfolded spectrum");
+    TH1D* unfoldedSVDScaled = (TH1D*)unfoldedSVD->Clone("unfolded, scaled");
+    unfoldedSVDScaled->Scale(1./double(seEvents));
     unfoldedSVD->Write(); 
+    unfoldedSVDScaled->Write();
     foldedSVD->SetNameTitle("RefoldedSpectrum", "refoldedSpectrum");
     foldedSVD->Write();    // re-folded spectrum
 
