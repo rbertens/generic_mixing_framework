@@ -43,6 +43,7 @@ class AliGMFSimpleJetFinder : public TObject {
         void    SetRandomizeSplitTrackEtaPhi(Bool_t r) {
             fRandomizeSplitTrack = r;
         }
+        void    SetIsME(Bool_t m)                       { fIsME = m; }
 
     private:
         Bool_t  fDoBackgroundSubtraction;       // do background subtraction
@@ -57,6 +58,7 @@ class AliGMFSimpleJetFinder : public TObject {
         Double_t        fSplittingThreshold;    // split tracks with pt higher than this
         Double_t        fSplitTrackPt;          // split tracks have maximally this pt
         Bool_t          fRandomizeSplitTrack;   // split tracks collinearly or give them random positions
+        Bool_t          fIsME;                  // general flag for ME (e.g. recoil jet analysis)
         Int_t           fRejectNHardestJets;    // reject N hardest jets from rho estimate
          
         Float_t fPtAssLow;                      // associate pt

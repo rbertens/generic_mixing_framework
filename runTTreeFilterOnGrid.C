@@ -15,14 +15,14 @@ void runTTreeFilterOnGrid() {
 
 
     // select range of runs to analyze (see runs[] for definition)
-    Int_t firstrun = 0;
-    Int_t lastrun = 24;// max 91 for 2010
-    Int_t year = 20111;  // set to 
+    Int_t firstrun = 42;
+    Int_t lastrun = 63;// max 91 for 2010
+    Int_t year = 2011;  // set to 
                                 // 2010 for 2010
                                 // 2011 for good 2011 runs
                                 // 20111 for irocc13 issue runs
                                 // 20112 for orocc08 issue runs
-    Bool_t terminate =          kTRUE; // run in terminate mode
+    Bool_t terminate =           kFALSE; // run in terminate mode
     Bool_t downloadoutput =      kFALSE;// get the final output files
 
 
@@ -43,9 +43,9 @@ void runTTreeFilterOnGrid() {
     alienHandler->SetOverwriteMode();
     if(!terminate) alienHandler->SetRunMode("full");
     else alienHandler->SetRunMode("terminate");
-    alienHandler->SetNtestFiles(3);
+    alienHandler->SetNtestFiles(1);
     alienHandler->SetAPIVersion("V1.1x");
-    alienHandler->SetAliPhysicsVersion("vAN-20170801-1");
+    alienHandler->SetAliPhysicsVersion("vAN-20171101-1");
     alienHandler->SetFileForTestMode("filelist.txt");
 
     if(year == 2010) {
@@ -123,11 +123,14 @@ void runTTreeFilterOnGrid() {
     gROOT->LoadMacro("add_task_macros/AddTaskTTreeFilter.C");
 
     // launch the task
-    if(year == 2010) AddTaskTTreeFilter();
+    AliAnalysisTaskTTreeFilter* task;
+    if(year == 2010) task = AddTaskTTreeFilter();
     else {
-        AddTaskTTreeFilter(
+        task = AddTaskTTreeFilter(
                 TString("myFilteredTTree2011.root"),
                 AliVEvent::kMB | AliVEvent::kCentral | AliVEvent::kSemiCentral);
+        AliGMFEventCuts* eventcuts = task->GetEventCuts();
+        eventcuts->Set2010PileUpRejection(kFALSE);
     }
 
 
