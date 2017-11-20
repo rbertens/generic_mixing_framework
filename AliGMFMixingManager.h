@@ -1,5 +1,5 @@
 #ifndef VERBOSE
-#define VERBOSE 0
+#define VERBOSE 1
 #endif
 
 #ifndef AliGMFMixingManager_H
@@ -78,6 +78,7 @@ class AliGMFMixingManager : public TObject {
     // setters - IO
     void SetMaxEvents(Int_t e)                  {fMaxEvents = e;}
     void SetMaxEventsPerFile(Int_t e)           {fMaxEventsPerFile = e;}
+    void SetAllowBufferPadding(Int_t o)         {fBufferPadding = o;}
 
     void SetEventReader(AliGMFEventReader* r)   {fEventReader = r;}
     void DoQA();
@@ -106,6 +107,7 @@ class AliGMFMixingManager : public TObject {
     Float_t     fCentralityMin;     // minimum event centrality
     Float_t     fCentralityMax;     // maximum event centrality
     Int_t       fMaxEvents;         // maximum number of mixed events that will be generated
+    Int_t       fBufferPadding;     // percentage of padding that is attached to the event buffer (for high multiplicity classes)
     Int_t       fMaxEventsPerFile;  // maximum number of mixed events written per file
 
     howToChooseMultiplicity     fHowToChooseMultiplicity;       // how to choose multiplicity

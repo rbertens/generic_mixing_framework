@@ -34,6 +34,7 @@ AliGMFMixingManager::AliGMFMixingManager() : TObject(),
     fCentralityMin(1),
     fCentralityMax(-1),
     fMaxEvents(-1),
+    fBufferPadding(-1),
     fMaxEventsPerFile(1e9),
     fHowToChooseMultiplicity(kUseDistribution),
     fSplittingThreshold(1e9),
@@ -130,24 +131,46 @@ void AliGMFMixingManager::InitializeMixingCache() {
     }
 
 #if VERBOSE > 0
-    printf("   ... created cache (this can allocate a lot of RAM)  ... ");
+    printf("   ... created cache (this can allocate a lot of RAM, but only once!)  ... \n ");
 #endif
 
-    fEventCache = new TObjArray(fMultiplicityMax, 0);
-    fEventCache->SetOwner(kTRUE);
-
-    for(Int_t i(0); i < fMultiplicityMax; i++) {
-        // allocate the track buffer
-        TClonesArray* trackBuffer = new TClonesArray("AliGMFTTreeTrack", fMultiplicityMax);
-        for(Int_t j(0); j < fMultiplicityMax; j++) {
-            new((*trackBuffer)[j]) AliGMFTTreeTrack();
+    if(fBufferPadding <= 0) {
+        fEventCache = new TObjArray(fMultiplicityMax, 0);
+        fEventCache->SetOwner(kTRUE);
+        for(Int_t i(0); i < fMultiplicityMax; i++) {
+            // allocate the track buffer
+            TClonesArray* trackBuffer = new TClonesArray("AliGMFTTreeTrack", fMultiplicityMax);
+            for(Int_t j(0); j < fMultiplicityMax; j++) {
+                new((*trackBuffer)[j]) AliGMFTTreeTrack();
+            }
+            // allocate full event buffer
+            fEventCache->AddAt(new AliGMFEventContainer(
+                        new AliGMFTTreeHeader(),
+                        trackBuffer,
+                        i), // this is the container ID
+                    i); // this is the iterator of the object array
+        } 
+    } else {
+        // calculate the size of the event buffer including the padding
+        fBufferPadding = fMultiplicityMax + fMultiplicityMax*(((float)fBufferPadding)/100.);
+        fEventCache = new TObjArray(fBufferPadding, 0);
+        fEventCache->SetOwner(kTRUE);
+#if VERBOSE > 0
+        printf(" Buffer padded to %i from %i \n", fBufferPadding, fMultiplicityMax);
+#endif
+        for(Int_t i(0); i < fBufferPadding; i++) {
+            // allocate the track buffer
+            TClonesArray* trackBuffer = new TClonesArray("AliGMFTTreeTrack", fMultiplicityMax);
+            for(Int_t j(0); j < fMultiplicityMax; j++) {
+                new((*trackBuffer)[j]) AliGMFTTreeTrack();
+            }
+            // allocate full event buffer
+            fEventCache->AddAt(new AliGMFEventContainer(
+                        new AliGMFTTreeHeader(),
+                        trackBuffer,
+                        i), // this is the container ID
+                    i); // this is the iterator of the object array
         }
-        // allocate full event buffer
-        fEventCache->AddAt(new AliGMFEventContainer(
-                    new AliGMFTTreeHeader(),
-                    trackBuffer,
-                    i), // this is the container ID
-                i); // this is the iterator of the object array
     }
 #if VERBOSE > 0
     printf("   ... done  \n");
@@ -210,7 +233,8 @@ Bool_t AliGMFMixingManager::FillMixingCache() {
         }
 
         // if the cache is full, break the loop
-        if(iCache == fMultiplicityMax) break;
+        if(iCache == fMultiplicityMax && fBufferPadding <= 0) break;
+        else if(iCache == fBufferPadding) break;
     }
 #if VERBOSE > 0
     cout << endl;
@@ -248,8 +272,23 @@ AliGMFTTreeTrack* AliGMFMixingManager::GetNextTrackFromEventI(Int_t i) {
     // first stage the i-th event
     StageCachedEvent(i);
 
-    return fBufferedEvent->GetNextTrack();    
-
+    if(fBufferPadding <= 0) {
+        return fBufferedEvent->GetNextTrack();    
+    } else {
+        AliGMFTTreeTrack* track = fBufferedEvent->GetNextTrack();
+        if(!track) {
+            // we ran out of tracks in this specific event , so we try an event from the overflow buffer
+            Int_t bufferOffset(0);
+            while(!track) {
+                StageCachedEvent(bufferOffset + fMultiplicityMax);
+                track = fBufferedEvent->GetNextTrack();
+                bufferOffset++;
+                // avoid running out-of-bounds
+                if((bufferOffset + fMultiplicityMax) > fBufferPadding) break;
+            }
+        }
+        return track;
+    }
 }
 //_____________________________________________________________________________
 Int_t AliGMFMixingManager::DoPerChunkMixing() {

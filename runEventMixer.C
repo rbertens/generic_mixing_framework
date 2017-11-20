@@ -10,7 +10,8 @@ void runEventMixer(
         Float_t maxEp = 2,
         Float_t minCen = 0,
         Float_t maxCen = 10,
-        Int_t year = 11)
+        Int_t year = 10,
+        Int_t bufferPadding = -1)
 {
 
     // example macro to read data from a ttree and perform simple analysis
@@ -32,7 +33,7 @@ void runEventMixer(
 
     // define the input chain and create an event reader
     TChain* myChain = new TChain("tree");
-
+ 
     if(year == 10) {
         myChain->Add("$PATH_TO_DATA/137161.root");
         myChain->Add("$PATH_TO_DATA/137162.root");
@@ -204,7 +205,7 @@ void runEventMixer(
     mixer->DoQA();
     //    mixer->SetSplittingForTracksWithPtHigherThan(3.);
     //    mixer->SetSplitTrackPt(1.);
-
+    mixer->SetAllowBufferPadding(bufferPadding);
 
     // run the mixer
     mixer->DoPerChunkMixing();
