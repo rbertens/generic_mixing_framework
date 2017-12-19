@@ -64,12 +64,12 @@ AliGMFMixingManager::~AliGMFMixingManager() {
 void AliGMFMixingManager::DoQA() {
     // initialize the QA manager
     fQAManager = new AliGMFHistogramManager();
-    fQAManager->BookTH1D("fHistRejectedMultiplicity", "counts", 1000, 0, 4000);
+    fQAManager->BookTH1D("fHistRejectedMultiplicity", "counts", 4000, 0, 4000);
     fQAManager->BookTH2D("fHistRejectedMultCent", "counts", "percentile", 100, 0, 4000, 100, 0, 100);
     fQAManager->BookTH1D("fHistRejectedVertex", "cm", 100, -12, 12);
     fQAManager->BookTH1D("fHistRejectedCentrality", "percentile", 100, 0, 100);
     fQAManager->BookTH1D("fHistRejectedEP", "rad", 100, -2, 2);
-    fQAManager->BookTH1D("fHistAcceptedMultiplicity", "counts", 1000, 0, 4000);
+    fQAManager->BookTH1D("fHistAcceptedMultiplicity", "counts", 4000, 0, 4000);
     fQAManager->BookTH2D("fHistAcceptedMultCent", "counts", "percentile", 100, 0, 4000, 100, 0, 100);
     fQAManager->BookTH1D("fHistAcceptedVertex", "cm", 100, -12, 12);
     fQAManager->BookTH1D("fHistAcceptedCentrality", "percentile", 100, 0, 100);
@@ -86,8 +86,8 @@ void AliGMFMixingManager::DoQA() {
     fQAManager->BookTH1D("fHistMixedVertex", "cm", 100, -12, 12);
     fQAManager->BookTH1D("fHistMixedCentrality", "percentile", 100, 0, 100);
     fQAManager->BookTH1D("fHistMixedEventPlane", "#Psi", 100, -4, 4);
-    fQAManager->BookTH1D("fHistMixedMultiplicity", "counts", 1000, 0, 4000);
-    fQAManager->BookTH1D("fHistMixedMultiplicityNoSplitting", "counts", 1000, 0, 4000);
+    fQAManager->BookTH1D("fHistMixedMultiplicity", "counts", 4000, 0, 4000);
+    fQAManager->BookTH1D("fHistMixedMultiplicityNoSplitting", "counts", 4000, 0, 4000);
 }
 //_____________________________________________________________________________
 Bool_t AliGMFMixingManager::Initialize() {
