@@ -36,7 +36,7 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0,
     gROOT->LoadMacro("AliGMFSimpleJetFinder.cxx+");
 
     TChain* myChain = new TChain("tree");
-    myChain->Add(Form("/eos/user/r/rbertens/sandbox/mixed_events_nolimit_1000perfile/ME_%i.root", fileSuffix));
+    myChain->Add(Form("/eos/user/r/rbertens/sandbox/five_times_loop/ME_%i.root", fileSuffix));
 
 
     // add more files if desired, e.g. per class
