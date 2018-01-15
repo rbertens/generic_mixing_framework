@@ -1,5 +1,5 @@
 #ifndef VERBOSE
-#define VERBOSE 1
+#define VERBOSE e
 #endif
 
 #ifndef AliGMFMixingManager_H

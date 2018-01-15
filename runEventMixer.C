@@ -191,7 +191,7 @@ void runEventMixer(
     } else if (year == 100) {
 
 
-        for(int cycles = 0; cycles < 5; cycles++) {
+        for(int cycles = 0; cycles < 3; cycles++) {
 
         myChain->Add("$PATH_TO_DATA/137161.root");
         myChain->Add("$PATH_TO_DATA/137162.root");
