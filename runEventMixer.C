@@ -191,7 +191,7 @@ void runEventMixer(
     } else if (year == 100) {
 
 
-        for(int cycles = 0; cycles < 3; cycles++) {
+        for(int cycles = 0; cycles < 25; cycles++) {
 
         myChain->Add("$PATH_TO_DATA/137161.root");
         myChain->Add("$PATH_TO_DATA/137162.root");
@@ -299,7 +299,7 @@ void runEventMixer(
     mixer->SetVertexRange(minVtx, maxVtx);
     mixer->SetEventPlaneRange(minEp, maxEp);
     mixer->SetCentralityRange(minCen, maxCen);
-    mixer->SetMaxEventsPerFile(2500);
+    mixer->SetMaxEventsPerFile(1000);
     //    mixer->SetMaxEvents(10000);
     mixer->DoQA();
     //    mixer->SetSplittingForTracksWithPtHigherThan(3.);
