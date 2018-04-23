@@ -36,7 +36,7 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0,
     gROOT->LoadMacro("AliGMFSimpleJetFinder.cxx+");
 
     TChain* myChain = new TChain("tree");
-    myChain->Add(Form("/eos/user/r/rbertens/sandbox/overflow_directly_on_eos/ME_%i.root", fileSuffix));
+    myChain->Add(Form("ME_%i.root", fileSuffix));
 
 
     // add more files if desired, e.g. per class

@@ -13,16 +13,19 @@ echo "#!/bin/bash" >> ME_jet_analysis_autoscript.sh
 echo "kinit -R" >> ME_jet_analysis_autoscript.sh
 echo "klist" >> ME_jet_analysis_autoscript.sh
 export WORKDIR=`pwd`
-echo "cd $WORKDIR" >> ME_jet_analysis_autoscript.sh
+#echo "cd $WORKDIR" >> ME_jet_analysis_autoscript.sh
 # set some specific paths. ugly, but no other way
-echo "source /eos/user/r/rbertens/env_aliroot.sh" >> ME_jet_analysis_autoscript.sh
+echo "source ~/env_aliroot.sh" >> ME_jet_analysis_autoscript.sh
 export PATH_TO_SOURCE=/eos/user/r/rbertens/projects/generic_mixing_framework
-echo "export PATH_TO_SOURCE=$PATH_TO_SOURCE" >> ME_jet_analysis_autoscript.sh
 
 export TDIR=`mktemp -u`
 echo "mkdir -p $TDIR" >> ME_jet_analysis_autoscript.sh
 echo "cd $TDIR" >> ME_jet_analysis_autoscript.sh
 
+#grab data from eos, hardcoded path here to avoid typos 
+echo "xrdcp root://eosuser.cern.ch//eos/user/r/rbertens/sandbox/directly_on_eos/ME_$1.root ." >> ME_jet_analysis_autoscript.sh
+
+# make sources available
 echo "xrdcp root://eosuser.cern.ch/$PATH_TO_SOURCE/AliAnalysisTaskTTreeFilter.h ." >> ME_jet_analysis_autoscript.sh
 echo "xrdcp root://eosuser.cern.ch/$PATH_TO_SOURCE/AliGMFEventContainer.h ." >> ME_jet_analysis_autoscript.sh
 echo "xrdcp root://eosuser.cern.ch/$PATH_TO_SOURCE/AliGMFEventCuts.h ." >> ME_jet_analysis_autoscript.sh
