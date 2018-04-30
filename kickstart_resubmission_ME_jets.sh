@@ -2,7 +2,7 @@
 # no you don't - so here's a little helper script
 
 # file range
-files=(0 557)
+files=(0 4684)
 
 for ((i = 0; i < ${files[1]}+1; ++i)); do
     inci=$(( $i + 1 ))

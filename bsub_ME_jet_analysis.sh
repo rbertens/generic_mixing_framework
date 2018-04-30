@@ -6,7 +6,6 @@ echo " "
 # create a unique folder
 mkdir ME_jets_$1
 cd ME_jets_$1
-echo " -> looking for jets in file ME_jets_$1.root"
 
 # prepare running through bash, priority, name in the queue
 echo "#!/bin/bash" >> ME_jet_analysis_autoscript.sh    
@@ -52,13 +51,11 @@ echo "xrdcp root://eosuser.cern.ch/$PATH_TO_SOURCE/AliGMFTrackCuts.cxx ." >> ME_
 echo "xrdcp root://eosuser.cern.ch/$PATH_TO_SOURCE/AliGMFTTreeHeader.cxx ." >> ME_jet_analysis_autoscript.sh
 echo "xrdcp root://eosuser.cern.ch/$PATH_TO_SOURCE/AliGMFTTreeTrack.cxx ." >> ME_jet_analysis_autoscript.sh
 
-echo "xrdcp root://eosuser.cern.ch/$PATH_TO_SOURCE/readTTree.C ." >> ME_jet_analysis_autoscript.sh
 echo "xrdcp root://eosuser.cern.ch/$PATH_TO_SOURCE/runEventMixer.C ." >> ME_jet_analysis_autoscript.sh
 echo "xrdcp root://eosuser.cern.ch/$PATH_TO_SOURCE/runJetFindingOnMixedEvents.C ." >> ME_jet_analysis_autoscript.sh
 echo "xrdcp root://eosuser.cern.ch/$PATH_TO_SOURCE/runJetFindingOnTree.C ." >> ME_jet_analysis_autoscript.sh
 echo "xrdcp root://eosuser.cern.ch/$PATH_TO_SOURCE/runTTreeFilter.C ." >> ME_jet_analysis_autoscript.sh
 echo "xrdcp root://eosuser.cern.ch/$PATH_TO_SOURCE/runTTreeFilterOnGrid.C ." >> ME_jet_analysis_autoscript.sh
-echo "xrdcp root://eosuser.cern.ch/$PATH_TO_SOURCE/TTreeFilterOnGrid.C ." >> ME_jet_analysis_autoscript.sh
 
 echo "root -q -b 'runJetFindingOnMixedEvents.C($1, 0, 0, 1e9, 3, 3, kTRUE)'" >> ME_jet_analysis_autoscript.sh
 echo "xrdcp ME_jets.root root://eosuser.cern.ch/$WORKDIR" >> ME_jet_analysis_autoscript.sh
@@ -66,6 +63,10 @@ echo "rm -rf $TDIR" >> ME_jet_analysis_autoscript.sh
 # change permissions
 chmod +x ME_jet_analysis_autoscript.sh
 
+echo " --------- here's your JDL ------------ "
+cat ME_jet_analysis_autoscript.sh
+echo " ---------- it's on its way ! --------- "
+
 # launch the autolauncher
-#bsub -q 8nh ME_jet_analysis_autoscript.sh
+bsub -q 8nh -W 20:30 ME_jet_analysis_autoscript.sh
 cd .. 
