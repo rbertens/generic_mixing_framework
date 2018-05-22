@@ -40,7 +40,7 @@ void runJetFindingOnTree(
 
     // add the desired numbers to a chain (not exception safe for now!)
     TChain* myChain = new TChain("tree");
-    myChain->Add(Form("/eos/user/r/rbertens/sandbox/merge/%i.root", file));
+    myChain->Add(Form("%i.root", file));
 //    myChain->Add("merge/137844.root"); 
     // initialize the reader and jet finder
     AliGMFEventReader* reader = new AliGMFEventReader(myChain);
