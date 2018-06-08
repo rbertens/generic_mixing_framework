@@ -11,7 +11,8 @@ void runEventMixer(
         Float_t minCen = 0,
         Float_t maxCen = 10,
         Int_t year = 10,
-        Int_t bufferPadding = -1)
+        Int_t bufferPadding = -1,
+        Int_t iCycles = 2)
 {
 
     // example macro to read data from a ttree and perform simple analysis
@@ -191,7 +192,7 @@ void runEventMixer(
     } else if (year == 100) {
 
 
-        for(int cycles = 0; cycles < 2; cycles++) {
+        for(int cycles = 0; cycles < iCycles; cycles++) {
 
         myChain->Add("$PATH_TO_DATA/137161.root");
         myChain->Add("$PATH_TO_DATA/137162.root");
