@@ -45,6 +45,9 @@ AliGMFMixingManager::AliGMFMixingManager() : TObject(),
     fBufferedEvent(0x0), 
     fTrackArray(0x0),
     fOutputFile(0x0),
+    fEventReader(0x0),
+    fAutoOverflow(kTRUE),
+    fOverflowPosition(-1),
     fEventBufferPosition(0),
     fTrackBufferPosition(0),
     fQAManager(0x0),
@@ -88,6 +91,8 @@ void AliGMFMixingManager::DoQA() {
     fQAManager->BookTH1D("fHistMixedEventPlane", "#Psi", 100, -4, 4);
     fQAManager->BookTH1D("fHistMixedMultiplicity", "counts", 4000, 0, 4000);
     fQAManager->BookTH1D("fHistMixedMultiplicityNoSplitting", "counts", 4000, 0, 4000);
+    fQAManager->BookTH1D("fHistPassesOverData", "data passes", 1, 0, 1);
+    
 }
 //_____________________________________________________________________________
 Bool_t AliGMFMixingManager::Initialize() {
@@ -177,21 +182,26 @@ void AliGMFMixingManager::InitializeMixingCache() {
 #endif
 }
 //_____________________________________________________________________________
-Bool_t AliGMFMixingManager::FillMixingCache() {
+Bool_t AliGMFMixingManager::FillMixingCache(Int_t iCache) {
     // go through the events in the reader until we've found M events that
     // can be used for mixing, caching the index numbers of the eligible events
     // we start at the buffer position
 
+    // if iCache is negative, it means we've already once automatically overflowed the cache
+    // we cannot do it twice, so we pretend to run out of data
+    if(iCache < 0) return kFALSE;
+
+
     AliGMFTTreeTrack* track(0x0);
     AliGMFEventContainer* currentEvent(0x0);
     AliGMFEventContainer* cachedEvent(0x0);
-    Int_t iCache(0);
 #if VERBOSE > 0
     printf(" ::FillMixingCache:: \n");
     printf("   ... filling cache from buffer position  %i \n", fEventBufferPosition);
 #endif
 
-    if(!fMultiplicityDist.empty()) fMultiplicityDist.clear();
+    // only flush the multiplicity cache if this is a fresh mixing cache
+    if(!fMultiplicityDist.empty() && fOverflowPosition < 0) fMultiplicityDist.clear();
 
     while ((currentEvent = fEventReader->GetEvent(fEventBufferPosition))) {
         // the buffer position moves with each event 
@@ -235,13 +245,28 @@ Bool_t AliGMFMixingManager::FillMixingCache() {
         // if the cache is full, break the loop
         if(iCache == fMultiplicityMax && fBufferPadding <= 0) break;
         else if(iCache == fBufferPadding) break;
-    }
+   }
 #if VERBOSE > 0
     cout << endl;
 #endif
 
-    // exit status is false when the end of the event buffer is reached, otherwise true
-    if(!currentEvent) return kFALSE;
+    // TODO if the cache is NOT full, but we reach the end of the read buffer, 
+    // fAutoOverflow will determine whether we keep filling the cache, or just
+    // let the process end
+    if(!currentEvent && !fAutoOverflow) return kFALSE;
+    else if (!currentEvent) {
+        // remember how many events you originally want to create
+        // otherwise you artificially enhance low occurence events
+        if(fOverflowPosition < 0) fOverflowPosition = fMultiplicityDist.size();
+        // roll back the event buffer position
+        fEventBufferPosition = 0;
+        // try to resume filling the cache
+        if(fQAManager) fQAManager->Fill("fHistPassesOverData", 1);
+#if VERBOSE > 0
+    printf(" Input event buffer depleted, resetting buffer at cache position %i \n", iCache);
+#endif
+        FillMixingCache(iCache);
+    }
     return kTRUE;
 }
 //_____________________________________________________________________________
@@ -322,7 +347,7 @@ Int_t AliGMFMixingManager::DoPerChunkMixing() {
             WriteCurrentTreeToFile(kTRUE);
             j = 0;
         }
-        if(fMaxEvents > 0 && i > fMaxEvents) {
+        if(fMaxEvents >= 0 && i > fMaxEvents) {
             WriteCurrentTreeToFile(kTRUE);
             break;
         }
@@ -333,7 +358,7 @@ Int_t AliGMFMixingManager::DoPerChunkMixing() {
     Finish();
 #if VERBOSE > 0
     if(i > 0) {
-        printf(" Event mixer finished and should have written %i events and %i tracks \n", i, i*fMultiplicityMin);
+        printf(" Event mixer finished and should have written at least %i events and %i tracks \n", i, i*fMultiplicityMin);
     } else {
         printf(" The mixer couldn't cache sufficient candidate events for mixing. \n");
         printf(" Try re-running with less stringent event selection criteria. \n");
@@ -437,6 +462,8 @@ void AliGMFMixingManager::CreateNewEventChunk()
             }
             iMixedTracks++;
             if(iMixedTracks >= sampledMultiplicity) break;
+            // check if this was an overflow event, so we might kill the procedure before
+            // reaching the max
         }
         // write the tree and perform cleanup
         if(iMixedTracks < sampledMultiplicity) FlushCurrentTTree();
@@ -446,6 +473,19 @@ void AliGMFMixingManager::CreateNewEventChunk()
                 fQAManager->Fill("fHistMixedMultiplicityNoSplitting", iMixedTracks - splitTracks);
             }
             PushToTTree();
+            // check if this is a chunk that was created using automatic overfilling of the
+            // mixing buffer. if yes, and if the mixing buffer is as large as the mixed buffer
+            // terminate mixing
+#if VERBOSE > 0
+            std::cout << "     - writing mixed event " << fTrackBufferPosition << "\r"; cout.flush();
+#endif
+
+            if(fAutoOverflow && (fTrackBufferPosition >= fOverflowPosition)) {
+                // not only do we need to return, but we also need to tell the manager that we will stop mixing now
+                // for this we set the max event counter to 0, which will trigger the mixing to exit
+                fMaxEvents = 0;
+                return;
+            }
         }
     }
 }
@@ -481,5 +521,8 @@ void AliGMFMixingManager::FlushCurrentTTree() {
 void AliGMFMixingManager::Finish() {
     // write and close the files
     WriteCurrentTreeToFile(kFALSE);
-    if(fQAManager) fQAManager->StoreManager("mixingQA.root");
+    if(fQAManager) {
+        fQAManager->StoreRatio("fHistAcceptedMultiplicity", "fHistMixedMultiplicity", "fHistMultRatios");
+        fQAManager->StoreManager("mixingQA.root");
+    }
 }

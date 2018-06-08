@@ -10,9 +10,9 @@ void runEventMixer(
         Float_t maxEp = 2,
         Float_t minCen = 0,
         Float_t maxCen = 10,
-        Int_t year = 10,
+        Bool_t AutoOverflow,
         Int_t bufferPadding = -1,
-        Int_t iCycles = 2)
+        Int_t year = 10)
 {
 
     // example macro to read data from a ttree and perform simple analysis
@@ -189,10 +189,11 @@ void runEventMixer(
         myChain->Add("$PATH_TO_DATA/170027.root"); 
         myChain->Add("$PATH_TO_DATA/170036.root"); 
         myChain->Add("$PATH_TO_DATA/170081.root");
+<<<<<<< HEAD
     } else if (year == 100) {
 
 
-        for(int cycles = 0; cycles < iCycles; cycles++) {
+        for(int cycles = 0; cycles < 2; cycles++) {
 
         myChain->Add("$PATH_TO_DATA/137161.root");
         myChain->Add("$PATH_TO_DATA/137162.root");
@@ -289,6 +290,9 @@ void runEventMixer(
 
     }
 
+=======
+    } 
+>>>>>>>  implement system that automatically makes multiple passes over the data if the mixing buffer cannot be filled
 
     AliGMFEventReader* reader = new AliGMFEventReader(myChain);
     // create the mixer and connect the input event reader
@@ -306,6 +310,7 @@ void runEventMixer(
     //    mixer->SetSplittingForTracksWithPtHigherThan(3.);
     //    mixer->SetSplitTrackPt(1.);
     mixer->SetAllowBufferPadding(bufferPadding);
+    mixer->SetAutoOverflow(AutoOverflow);
 
     // run the mixer
     mixer->DoPerChunkMixing();

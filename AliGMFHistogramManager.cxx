@@ -66,7 +66,18 @@ TObject* AliGMFHistogramManager::GetHistogram(TString name) {
     // return a pointer to a histogram named 'name'
     return static_cast<TH1*>(fOutputList->FindObject(Form("%s_%s", name.Data(), fManagerName.Data())));
 }
-
+//_____________________________________________________________________________
+Bool_t AliGMFHistogramManager::StoreRatio(TString a, TString b, TString name) {
+    // take the ratio of histograms a and b, and add them to the manager
+    TH1* _ha = static_cast<TH1*>(GetHistogram(a));
+    TH1* _hb = static_cast<TH1*>(GetHistogram(b));
+    TH1* clone = static_cast<TH1*>(_ha->Clone(name.Data()));
+    if(clone && _hb) {
+        clone->Divide(_hb);
+        fOutputList->Add(clone);
+        return kTRUE;
+    } else return kFALSE; 
+}
 //_____________________________________________________________________________
 void AliGMFHistogramManager::StoreManager(TFile* of) {
     // create output file and write the manager

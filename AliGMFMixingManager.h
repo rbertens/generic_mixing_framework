@@ -1,5 +1,5 @@
 #ifndef VERBOSE
-#define VERBOSE e
+#define VERBOSE 1
 #endif
 
 #ifndef AliGMFMixingManager_H
@@ -81,13 +81,14 @@ class AliGMFMixingManager : public TObject {
     void SetAllowBufferPadding(Int_t o)         {fBufferPadding = o;}
 
     void SetEventReader(AliGMFEventReader* r)   {fEventReader = r;}
+    void SetAutoOverflow(Bool_t r)               {fAutoOverflow = r;}
     void DoQA();
 
  private:
 
     Bool_t      IsSelected(AliGMFEventContainer* event);
     void        InitializeMixingCache();
-    Bool_t      FillMixingCache();
+    Bool_t      FillMixingCache(Int_t iCache = 0);
     void        StageCachedEvent(Int_t i);
     void        FillHeaderWithCachedEventInfo();
     AliGMFTTreeTrack*   GetNextTrackFromEventI(Int_t i);
@@ -125,6 +126,8 @@ class AliGMFMixingManager : public TObject {
 
     // misc
     AliGMFEventReader*          fEventReader;           // event reader
+    Bool_t                      fAutoOverflow;          // automatic overflow of read buffer when cache cannot be filled
+    Int_t                       fOverflowPosition;      // cache position at which overflow started
     Int_t                       fEventBufferPosition;   //! global buffer position
     Int_t                       fTrackBufferPosition;   //! 'walks' trough the track cache 
     AliGMFHistogramManager*     fQAManager;             // run QA 

@@ -25,6 +25,7 @@ class AliGMFHistogramManager : public TObject {
         TObject*        GetHistogram(TString name);
         Bool_t          Fill(TString name, Double_t valx);
         Bool_t          Fill(TString name, Double_t valx, Double_t valy);
+        Bool_t          StoreRatio(TString a, TString b, TString name);
 
     private:
 
