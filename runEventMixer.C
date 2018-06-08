@@ -10,7 +10,7 @@ void runEventMixer(
         Float_t maxEp = 2,
         Float_t minCen = 0,
         Float_t maxCen = 10,
-        Bool_t AutoOverflow,
+        Bool_t AutoOverflow = kTRUE,
         Int_t bufferPadding = -1,
         Int_t year = 10)
 {
@@ -189,110 +189,7 @@ void runEventMixer(
         myChain->Add("$PATH_TO_DATA/170027.root"); 
         myChain->Add("$PATH_TO_DATA/170036.root"); 
         myChain->Add("$PATH_TO_DATA/170081.root");
-<<<<<<< HEAD
-    } else if (year == 100) {
-
-
-        for(int cycles = 0; cycles < 2; cycles++) {
-
-        myChain->Add("$PATH_TO_DATA/137161.root");
-        myChain->Add("$PATH_TO_DATA/137162.root");
-        myChain->Add("$PATH_TO_DATA/137230.root");
-        myChain->Add("$PATH_TO_DATA/137231.root");
-        myChain->Add("$PATH_TO_DATA/137232.root");
-        myChain->Add("$PATH_TO_DATA/137235.root");
-        myChain->Add("$PATH_TO_DATA/137236.root");
-        myChain->Add("$PATH_TO_DATA/137243.root");
-        myChain->Add("$PATH_TO_DATA/137430.root");
-        myChain->Add("$PATH_TO_DATA/137431.root");
-        myChain->Add("$PATH_TO_DATA/137432.root");
-        myChain->Add("$PATH_TO_DATA/137434.root");
-        myChain->Add("$PATH_TO_DATA/137439.root");
-        myChain->Add("$PATH_TO_DATA/137440.root");
-        myChain->Add("$PATH_TO_DATA/137441.root");
-        myChain->Add("$PATH_TO_DATA/137443.root");
-        myChain->Add("$PATH_TO_DATA/137530.root");
-        myChain->Add("$PATH_TO_DATA/137531.root");
-        myChain->Add("$PATH_TO_DATA/137539.root");
-        myChain->Add("$PATH_TO_DATA/137541.root");
-        myChain->Add("$PATH_TO_DATA/137544.root");
-        myChain->Add("$PATH_TO_DATA/137546.root");
-        myChain->Add("$PATH_TO_DATA/137549.root");
-        myChain->Add("$PATH_TO_DATA/137595.root");
-        myChain->Add("$PATH_TO_DATA/137608.root");
-        myChain->Add("$PATH_TO_DATA/137638.root");
-        myChain->Add("$PATH_TO_DATA/137639.root");
-        myChain->Add("$PATH_TO_DATA/137685.root");
-        myChain->Add("$PATH_TO_DATA/137686.root");
-        myChain->Add("$PATH_TO_DATA/137691.root");
-        myChain->Add("$PATH_TO_DATA/137692.root");
-        myChain->Add("$PATH_TO_DATA/137693.root");
-        myChain->Add("$PATH_TO_DATA/137704.root");
-        myChain->Add("$PATH_TO_DATA/137718.root");
-        myChain->Add("$PATH_TO_DATA/137722.root");
-        myChain->Add("$PATH_TO_DATA/137724.root");
-        myChain->Add("$PATH_TO_DATA/137751.root");
-        myChain->Add("$PATH_TO_DATA/137752.root");
-        myChain->Add("$PATH_TO_DATA/137844.root");
-        myChain->Add("$PATH_TO_DATA/137848.root");
-        myChain->Add("$PATH_TO_DATA/138190.root");
-        myChain->Add("$PATH_TO_DATA/138192.root");
-        myChain->Add("$PATH_TO_DATA/138197.root");
-        myChain->Add("$PATH_TO_DATA/138201.root");
-        myChain->Add("$PATH_TO_DATA/138225.root");
-        myChain->Add("$PATH_TO_DATA/138275.root");
-        myChain->Add("$PATH_TO_DATA/138364.root");
-        myChain->Add("$PATH_TO_DATA/138396.root");
-        myChain->Add("$PATH_TO_DATA/138438.root");
-        myChain->Add("$PATH_TO_DATA/138439.root");
-        myChain->Add("$PATH_TO_DATA/138442.root");
-        myChain->Add("$PATH_TO_DATA/138469.root");
-        myChain->Add("$PATH_TO_DATA/138534.root");
-        myChain->Add("$PATH_TO_DATA/138578.root");
-        myChain->Add("$PATH_TO_DATA/138579.root");
-        myChain->Add("$PATH_TO_DATA/138582.root");
-        myChain->Add("$PATH_TO_DATA/138583.root");
-        myChain->Add("$PATH_TO_DATA/138621.root");
-        myChain->Add("$PATH_TO_DATA/138624.root");
-        myChain->Add("$PATH_TO_DATA/138638.root");
-        myChain->Add("$PATH_TO_DATA/138652.root");
-        myChain->Add("$PATH_TO_DATA/138653.root");
-        myChain->Add("$PATH_TO_DATA/138662.root");
-        myChain->Add("$PATH_TO_DATA/138666.root");
-        myChain->Add("$PATH_TO_DATA/138730.root");
-        myChain->Add("$PATH_TO_DATA/138732.root");
-        myChain->Add("$PATH_TO_DATA/138837.root");
-        myChain->Add("$PATH_TO_DATA/138870.root");
-        myChain->Add("$PATH_TO_DATA/138871.root");
-        myChain->Add("$PATH_TO_DATA/138872.root");
-        myChain->Add("$PATH_TO_DATA/139028.root");
-        myChain->Add("$PATH_TO_DATA/139029.root");
-        myChain->Add("$PATH_TO_DATA/139036.root");
-        myChain->Add("$PATH_TO_DATA/139037.root");
-        myChain->Add("$PATH_TO_DATA/139038.root");
-        myChain->Add("$PATH_TO_DATA/139105.root");
-        myChain->Add("$PATH_TO_DATA/139107.root");
-        myChain->Add("$PATH_TO_DATA/139309.root");
-        myChain->Add("$PATH_TO_DATA/139310.root");
-        myChain->Add("$PATH_TO_DATA/139314.root");
-        myChain->Add("$PATH_TO_DATA/139328.root");
-        myChain->Add("$PATH_TO_DATA/139329.root");
-        myChain->Add("$PATH_TO_DATA/139360.root");
-        myChain->Add("$PATH_TO_DATA/139437.root");
-        myChain->Add("$PATH_TO_DATA/139438.root");
-        myChain->Add("$PATH_TO_DATA/139465.root");
-        myChain->Add("$PATH_TO_DATA/139503.root");
-        myChain->Add("$PATH_TO_DATA/139505.root");
-        myChain->Add("$PATH_TO_DATA/139507.root");
-        myChain->Add("$PATH_TO_DATA/139510.root");
-        }
-
-
-    }
-
-=======
     } 
->>>>>>>  implement system that automatically makes multiple passes over the data if the mixing buffer cannot be filled
 
     AliGMFEventReader* reader = new AliGMFEventReader(myChain);
     // create the mixer and connect the input event reader
