@@ -53,7 +53,7 @@ AliGMFMixingManager::AliGMFMixingManager() : TObject(),
     fQAManager(0x0),
     fEventCache(0x0),
     fOnTheFlyMultDist(0x0),
-    fRandomMultiplicity(kTRUE)
+    fRandomMultiplicity(kFALSE)
 {
     // default constructor
 }
@@ -212,13 +212,13 @@ Bool_t AliGMFMixingManager::FillMixingCache(Int_t iCache) {
             cachedEvent->FlushAndFill(currentEvent);
             // and shuffle the indices of the tracks
             cachedEvent->ShuffleTrackIndices();
-            fOnTheFlyMultDist->Fill(currentEvent->GetMultiplicity());
+            if(fOverflowPosition < 0) fOnTheFlyMultDist->Fill(currentEvent->GetMultiplicity());
             fMultiplicityDist.push_back(currentEvent->GetMultiplicity());
             iCache++;
 #if VERBOSE > 0
             std::cout << "     - caching event " << iCache << " found at buffer position " << fEventBufferPosition << "\r"; cout.flush();
 #endif
-            if(fQAManager) {
+            if(fQAManager && fOverflowPosition < 0) {
                 // multiplicity is retrieved from the current event, otherwise we just get the buffer mult
                 fQAManager->Fill("fHistAcceptedMultiplicity", currentEvent->GetMultiplicity());
                 fQAManager->Fill("fHistAcceptedMultCent", currentEvent->GetMultiplicity(), cachedEvent->GetCentrality());
@@ -234,7 +234,7 @@ Bool_t AliGMFMixingManager::FillMixingCache(Int_t iCache) {
                     }
                 }
             }
-        } else if (fQAManager) {
+        } else if (fQAManager && fOverflowPosition < 0) {
             fQAManager->Fill("fHistRejectedVertex", currentEvent->GetZvtx());
             fQAManager->Fill("fHistRejectedMultiplicity", currentEvent->GetMultiplicity());
             fQAManager->Fill("fHistRejectedCentrality", currentEvent->GetCentrality());
