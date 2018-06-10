@@ -480,7 +480,7 @@ void AliGMFMixingManager::CreateNewEventChunk()
             std::cout << "     - writing mixed event " << fTrackBufferPosition << "\r"; cout.flush();
 #endif
 
-            if(fAutoOverflow && (fTrackBufferPosition >= fOverflowPosition)) {
+            if(fAutoOverflow && fOverflowPosition > 0 && (fTrackBufferPosition >= fOverflowPosition)) {
                 // not only do we need to return, but we also need to tell the manager that we will stop mixing now
                 // for this we set the max event counter to 0, which will trigger the mixing to exit
                 fMaxEvents = 0;
