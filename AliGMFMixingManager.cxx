@@ -348,7 +348,7 @@ Int_t AliGMFMixingManager::DoPerChunkMixing() {
             j = 0;
         }
         if(fMaxEvents >= 0 && i > fMaxEvents) {
-            WriteCurrentTreeToFile(kTRUE);
+            WriteCurrentTreeToFile(kFALSE);
             break;
         }
 
