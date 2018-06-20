@@ -347,11 +347,7 @@ Int_t AliGMFMixingManager::DoPerChunkMixing() {
             WriteCurrentTreeToFile(kTRUE);
             j = 0;
         }
-        if(fMaxEvents >= 0 && i > fMaxEvents) {
-            WriteCurrentTreeToFile(kFALSE);
-            break;
-        }
-
+        if(fMaxEvents >= 0 && i > fMaxEvents) break;
     }
 
     // 3) write the tree to a file
