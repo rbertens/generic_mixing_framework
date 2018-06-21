@@ -93,7 +93,7 @@ void AliGMFMixingManager::DoQA() {
     fQAManager->BookTH1D("fHistFailedMultiplicity", "counts", 4000, 0, 4000);
     fQAManager->BookTH1D("fHistMixedMultiplicityNoSplitting", "counts", 4000, 0, 4000);
     fQAManager->BookTH1D("fHistPassesOverData", "data passes", 1, 0, 1);
-    
+
 }
 //_____________________________________________________________________________
 Bool_t AliGMFMixingManager::Initialize() {
@@ -246,7 +246,7 @@ Bool_t AliGMFMixingManager::FillMixingCache(Int_t iCache) {
         // if the cache is full, break the loop
         if(iCache == fMultiplicityMax && fBufferPadding <= 0) break;
         else if(iCache == fBufferPadding) break;
-   }
+    }
 #if VERBOSE > 0
     cout << endl;
 #endif
@@ -264,7 +264,7 @@ Bool_t AliGMFMixingManager::FillMixingCache(Int_t iCache) {
         // try to resume filling the cache
         if(fQAManager) fQAManager->Fill("fHistPassesOverData", 1);
 #if VERBOSE > 0
-    printf(" Input event buffer depleted, resetting buffer at cache position %i \n", iCache);
+        printf(" Input event buffer depleted, resetting buffer at cache position %i \n", iCache);
 #endif
         FillMixingCache(iCache);
     }
