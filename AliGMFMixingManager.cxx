@@ -90,6 +90,7 @@ void AliGMFMixingManager::DoQA() {
     fQAManager->BookTH1D("fHistMixedCentrality", "percentile", 100, 0, 100);
     fQAManager->BookTH1D("fHistMixedEventPlane", "#Psi", 100, -4, 4);
     fQAManager->BookTH1D("fHistMixedMultiplicity", "counts", 4000, 0, 4000);
+    fQAManager->BookTH1D("fHistFailedMultiplicity", "counts", 4000, 0, 4000);
     fQAManager->BookTH1D("fHistMixedMultiplicityNoSplitting", "counts", 4000, 0, 4000);
     fQAManager->BookTH1D("fHistPassesOverData", "data passes", 1, 0, 1);
     
@@ -218,7 +219,7 @@ Bool_t AliGMFMixingManager::FillMixingCache(Int_t iCache) {
 #if VERBOSE > 0
             std::cout << "     - caching event " << iCache << " found at buffer position " << fEventBufferPosition << "\r"; cout.flush();
 #endif
-            if(fQAManager && fOverflowPosition < 0) {
+            if(fQAManager && fOverflowPosition < 0 && iCache < fMultiplicityMax) {
                 // multiplicity is retrieved from the current event, otherwise we just get the buffer mult
                 fQAManager->Fill("fHistAcceptedMultiplicity", currentEvent->GetMultiplicity());
                 fQAManager->Fill("fHistAcceptedMultCent", currentEvent->GetMultiplicity(), cachedEvent->GetCentrality());
@@ -462,7 +463,10 @@ void AliGMFMixingManager::CreateNewEventChunk()
             // reaching the max
         }
         // write the tree and perform cleanup
-        if(iMixedTracks < sampledMultiplicity) FlushCurrentTTree();
+        if(iMixedTracks < sampledMultiplicity) {
+            FlushCurrentTTree();
+            if(fQAManager) fQAManager->Fill("fHistFailedMultiplicity", iMixedTracks);
+        }
         else {
             if(fQAManager) {
                 fQAManager->Fill("fHistMixedMultiplicity", iMixedTracks);
@@ -475,13 +479,16 @@ void AliGMFMixingManager::CreateNewEventChunk()
 #if VERBOSE > 0
             std::cout << "     - writing mixed event " << fTrackBufferPosition << "\r"; cout.flush();
 #endif
-
-            if(fAutoOverflow && fOverflowPosition > 0 && (fTrackBufferPosition >= fOverflowPosition)) {
+            if(fBufferPadding < 0 && fAutoOverflow && fOverflowPosition > 0 && (fTrackBufferPosition >= fOverflowPosition)) {
                 // not only do we need to return, but we also need to tell the manager that we will stop mixing now
                 // for this we set the max event counter to 0, which will trigger the mixing to exit
                 fMaxEvents = 0;
                 return;
+            } else if (fBufferPadding > 0 && fAutoOverflow && fOverflowPosition > 0 && ((fTrackBufferPosition >= fOverflowPosition) || (fTrackBufferPosition >= fMultiplicityMax-1))) {
+                fMaxEvents = 0;
+                return;
             }
+
         }
     }
 }
