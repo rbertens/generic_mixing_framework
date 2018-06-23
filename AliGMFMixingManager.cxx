@@ -36,7 +36,6 @@ AliGMFMixingManager::AliGMFMixingManager() : TObject(),
     fMaxEvents(-1),
     fBufferPadding(-1),
     fMaxEventsPerFile(1e9),
-    fHowToChooseMultiplicity(kUseDistribution),
     fSplittingThreshold(1e9),
     fSplitTrackPt(3),
     fMultInvariantSplitting(kTRUE),
@@ -310,7 +309,7 @@ AliGMFTTreeTrack* AliGMFMixingManager::GetNextTrackFromEventI(Int_t i) {
                 track = fBufferedEvent->GetNextTrack();
                 bufferOffset++;
                 // avoid running out-of-bounds
-                if((bufferOffset + fMultiplicityMax) > fBufferPadding) break;
+                if((bufferOffset + fMultiplicityMax) > fBufferPadding-1) break;
             }
         }
         return track;
@@ -371,19 +370,19 @@ Bool_t AliGMFMixingManager::IsSelected(AliGMFEventContainer* event) {
     // check if this event meets the criteria for mixing
     Bool_t pass = kTRUE;
     if(!event) return kFALSE;
-    if(event->GetMultiplicity() > fMultiplicityMax || event->GetMultiplicity() < fMultiplicityMin) {
+    if(event->GetMultiplicity() >= fMultiplicityMax || event->GetMultiplicity() < fMultiplicityMin) {
         pass = kFALSE;
         if(fQAManager) fQAManager->Fill("fHistRejectionReason", 0);
     }
-    if(event->GetZvtx() < fVertexMin || event->GetZvtx() > fVertexMax) {
+    if(event->GetZvtx() < fVertexMin || event->GetZvtx() >= fVertexMax) {
         pass = kFALSE;
         if(fQAManager) fQAManager->Fill("fHistRejectionReason", 1);
     }
-    if(event->GetEventPlane() > fEventPlaneMax || event->GetEventPlane() < fEventPlaneMin) {
+    if(event->GetEventPlane() >= fEventPlaneMax || event->GetEventPlane() < fEventPlaneMin) {
         pass = kFALSE;
         if(fQAManager) fQAManager->Fill("fHistRejectionReason", 2);
     }
-    if(event->GetCentrality() > fCentralityMax || event->GetCentrality() < fCentralityMin) {
+    if(event->GetCentrality() >= fCentralityMax || event->GetCentrality() < fCentralityMin) {
         pass = kFALSE;
         if(fQAManager) fQAManager->Fill("fHistRejectionReason", 3);
     }
