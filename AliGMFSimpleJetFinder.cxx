@@ -369,8 +369,8 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
             rho
             );
 
-    Float_t rcPt(0), rcEta(0), rcPhi(0);
     /*
+    Float_t rcPt(0), rcEta(0), rcPhi(0);
        for(Int_t i = 0; i < fNCones; i++) {
        Bool_t unbiased = GetRandomCone(event, rcPt, rcEta, rcPhi, 
        backgroundJets[0].eta(), backgroundJets[0].phi());
@@ -390,7 +390,7 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
         if (!range.is_in_range(inclusiveJets[iJet])) continue;
         // loop over constituents to apply leading hadron cut
         std::vector<fastjet::PseudoJet> constituents = clusterSeq.constituents(inclusiveJets[iJet]);
-        Double_t maxpt(0);
+        Double_t maxpt(0), pickMe(0);
         for(UInt_t i(0); i < constituents.size(); i++) {
             if(constituents[i].perp() > maxpt) maxpt = constituents[i].perp();
         }
@@ -399,6 +399,8 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
         if(inclusiveJets[iJet].area() < .56*TMath::Pi()*fJetResolution*fJetResolution) continue;
 
         // unfortunately tracks need to be filled in a second loop over the constituents 
+        // by looping over the constituents *within* the jet loop, we de-factor loop over all
+        // tracks, taking into account the possible track splitting
         for(UInt_t i(0); i < constituents.size(); i++) {
             fHistogramManager->Fill(
                     "fHistConstituentPt", 
@@ -406,8 +408,10 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
                     );
             // do recoil jet yield analysis in one go 
             if(fIsME) {
-                // just pick a random track every so often
-                if(i%50 == 0) {
+                // just pick a random track every so often, and then bookkeep the angular distribution
+                // of jets w.r.t. this track
+                pickMe = gRandom->Uniform(0,1);
+                if(pickMe > .99) {
                     for (UInt_t jJet = 0; jJet < inclusiveJets.size(); jJet++) {
                         if (!range.is_in_range(inclusiveJets[jJet])) continue;
                         fHistogramManager->Fill(
@@ -419,7 +423,7 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
                                 inclusiveJets[jJet].perp() - rho * inclusiveJets[jJet].area(),
                                 PhaseShift(TMath::Pi() - (inclusiveJets[jJet].phi() - constituents[i].phi())));
                     }
-                } else if ((i+1)%50 == 0) {
+                } else if (pickMe < .01) {
                     for (UInt_t jJet = 0; jJet < inclusiveJets.size(); jJet++) {
                         if (!range.is_in_range(inclusiveJets[jJet])) continue;
                         fHistogramManager->Fill(

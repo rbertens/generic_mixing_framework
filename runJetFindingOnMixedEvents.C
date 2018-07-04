@@ -72,6 +72,7 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0,
         jetFinder[i]->SetLeadingHadronMaxPt(leadingHadronMaxPt);
         jetFinder[i]->SetTrackCuts(trackCuts);
         jetFinder[i]->SetRejectNHardestJets(rejectHardJets);
+        jetFinder[i]->SetIsME(kTRUE);
         jetFinder[i]->Initialize();
     }
     
