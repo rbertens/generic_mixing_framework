@@ -4,7 +4,7 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0,
         Float_t leadingHadronMaxPt = 1e9,
         Float_t splitTracksFrom = 1e9,
         Float_t splitThemIn = 0,
-        Bool_t randomize = kFALSE,
+        Bool_t randomize = kTRUE,
         Int_t rejectHardJets = 0)
 {
     // example macro to read data from a ttree and perform simple analysis
@@ -68,6 +68,7 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0,
         jetFinder[i]->SetSplittingForTracksWithPtHigherThan(splitTracksFrom);
         jetFinder[i]->SetSplitTrackPt(splitThemIn);
         jetFinder[i]->SetRandomizeSplitTrackEtaPhi(randomize);   
+        jetFinder[i]->SetPreserveSplitTrackPhi(randomize);
         jetFinder[i]->SetLeadingHadronPt(leadingHadronPt);
         jetFinder[i]->SetLeadingHadronMaxPt(leadingHadronMaxPt);
         jetFinder[i]->SetTrackCuts(trackCuts);
@@ -77,11 +78,11 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0,
     }
     
     
-
+    //iEvents = 100;
     for (int i = 0 ; i < iEvents; i ++) {
         for(int j = 0; j < 3; j++) {
             jetFinder[j]->AnalyzeEvent(reader->GetEvent(i));
-        //    cout <<"Event: " << i << "\r"; cout.flush();
+//            cout <<"Event: " << i << "\r"; cout.flush();
         }
     }
 

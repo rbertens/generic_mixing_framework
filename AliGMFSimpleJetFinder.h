@@ -43,6 +43,12 @@ class AliGMFSimpleJetFinder : public TObject {
         void    SetRandomizeSplitTrackEtaPhi(Bool_t r) {
             fRandomizeSplitTrack = r;
         }
+        void    SetPreserveSplitTrackPhi(Bool_t r) {
+            fPreserveSplitTrackPhi = r;
+        }
+        void    SetCollinearSplittingOverMEs(Bool_t r) {
+            fCollinearSplittingOverMEs = r;
+        }
         void    SetIsME(Bool_t m)                       { fIsME = m; }
 
     private:
@@ -58,6 +64,8 @@ class AliGMFSimpleJetFinder : public TObject {
         Double_t        fSplittingThreshold;    // split tracks with pt higher than this
         Double_t        fSplitTrackPt;          // split tracks have maximally this pt
         Bool_t          fRandomizeSplitTrack;   // split tracks collinearly or give them random positions
+        Bool_t          fPreserveSplitTrackPhi; // preserve flow of split tracks
+        Bool_t          fCollinearSplittingOverMEs;     // split tracks collinearly into different MEs
         Bool_t          fIsME;                  // general flag for ME (e.g. recoil jet analysis)
         Int_t           fRejectNHardestJets;    // reject N hardest jets from rho estimate
          
@@ -65,6 +73,11 @@ class AliGMFSimpleJetFinder : public TObject {
         Float_t fPtAssHigh;                     // associate pt
         Float_t fPtTrigLow;                     // trigger pt
         Float_t fPtTrigHigh;                    // trigger pt
+
+        std::vector<double> fBufferedPx;        // px split off, store for next event
+        std::vector<double> fBufferedPy;        // py split off, store for next event
+        std::vector<double> fBufferedPz;        // pz split off, store for next event
+        std::vector<int>    fEventNumber;       // event number
 
         AliGMFSimpleEventCuts*        fEventCuts;       // event cuts
         AliGMFSimpleTrackCuts*        fTrackCuts;       // track cuts
