@@ -4,7 +4,7 @@
 #include "TH1D.h"
 #include "TH2D.h"
 #include "TH3F.h"
-#include "TList.h"
+#include "THashList.h"
 #include "TFile.h"
 #include "TObject.h"
 
@@ -19,7 +19,7 @@ AliGMFHistogramManager::AliGMFHistogramManager(TString name) : TObject(),
     fOutputList(0x0),
     fManagerName("") {
     // default constructor
-    fOutputList = new TList();
+    fOutputList = new THashList();
     fOutputList->SetOwner(kTRUE);
     fManagerName += name;
 
@@ -62,12 +62,12 @@ TH3F* AliGMFHistogramManager::BookTH3F(const char* name, const char* x, const ch
     return histogram;   
 }
 //_____________________________________________________________________________
-TObject* AliGMFHistogramManager::GetHistogram(TString name) {
+TObject* AliGMFHistogramManager::GetHistogram(const TString &name) {
     // return a pointer to a histogram named 'name'
     return static_cast<TH1*>(fOutputList->FindObject(Form("%s_%s", name.Data(), fManagerName.Data())));
 }
 //_____________________________________________________________________________
-Bool_t AliGMFHistogramManager::StoreRatio(TString a, TString b, TString name) {
+Bool_t AliGMFHistogramManager::StoreRatio(const TString &a, const TString &b, const TString &name) {
     // take the ratio of histograms a and b, and add them to the manager
     TH1* _ha = static_cast<TH1*>(GetHistogram(a));
     TH1* _hb = static_cast<TH1*>(GetHistogram(b));
@@ -92,7 +92,7 @@ void AliGMFHistogramManager::StoreManager(const char* title) {
      of->Close();
 }
 //_____________________________________________________________________________
-Bool_t  AliGMFHistogramManager::Fill(TString name, Double_t valx) {
+Bool_t  AliGMFHistogramManager::Fill(const TString &name, const Double_t &valx) {
     // find and fill histogram
     TH1* _temp = static_cast<TH1*>(GetHistogram(name));
     if (_temp) {
@@ -102,7 +102,7 @@ Bool_t  AliGMFHistogramManager::Fill(TString name, Double_t valx) {
     return kFALSE;
 }
 //_____________________________________________________________________________
-Bool_t  AliGMFHistogramManager::Fill(TString name, Double_t valx, Double_t valy) {
+Bool_t  AliGMFHistogramManager::Fill(const TString &name, const Double_t &valx, const Double_t &valy) {
     // find and fill histogram
     TH2* _temp = static_cast<TH2*>(GetHistogram(name));
     if (_temp) {

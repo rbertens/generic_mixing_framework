@@ -92,6 +92,8 @@ void AliGMFMixingManager::DoQA() {
     fQAManager->BookTH1D("fHistFailedMultiplicity", "counts", 4000, 0, 4000);
     fQAManager->BookTH1D("fHistMixedMultiplicityNoSplitting", "counts", 4000, 0, 4000);
     fQAManager->BookTH1D("fHistPassesOverData", "data passes", 1, 0, 1);
+    fQAManager->BookTH1D("fHistNumberOfSEs", "counts", 1, 0, 1);
+    fQAManager->BookTH1D("fHistNumberOfMEs", "counts", 1, 0, 1);
 
 }
 //_____________________________________________________________________________
@@ -207,6 +209,7 @@ Bool_t AliGMFMixingManager::FillMixingCache(Int_t iCache) {
         // the buffer position moves with each event 
         fEventBufferPosition++;
         if(IsSelected(currentEvent)) {
+            if(fQAManager) fQAManager->Fill("fHistNumberOfSEs", 0.5);
             // this event meets out criteria, we make a local copy of it to the cache
             cachedEvent = static_cast<AliGMFEventContainer*>(fEventCache->At(iCache));
             cachedEvent->FlushAndFill(currentEvent);
@@ -261,7 +264,7 @@ Bool_t AliGMFMixingManager::FillMixingCache(Int_t iCache) {
         // roll back the event buffer position
         fEventBufferPosition = 0;
         // try to resume filling the cache
-        if(fQAManager) fQAManager->Fill("fHistPassesOverData", 1);
+        if(fQAManager) fQAManager->Fill("fHistPassesOverData", 0.5);
 #if VERBOSE > 0
         printf(" Input event buffer depleted, resetting buffer at cache position %i \n", iCache);
 #endif
@@ -470,6 +473,7 @@ void AliGMFMixingManager::CreateNewEventChunk()
             if(fQAManager) {
                 fQAManager->Fill("fHistMixedMultiplicity", iMixedTracks);
                 fQAManager->Fill("fHistMixedMultiplicityNoSplitting", iMixedTracks - splitTracks);
+                fQAManager->Fill("fHistNumberOfMEs", 0.5);
             }
             PushToTTree();
             // check if this is a chunk that was created using automatic overfilling of the
@@ -524,7 +528,10 @@ void AliGMFMixingManager::Finish() {
     // write and close the files
     WriteCurrentTreeToFile(kFALSE);
     if(fQAManager) {
+        // we add the ratio of multiplicity distributions as sanity check
         fQAManager->StoreRatio("fHistAcceptedMultiplicity", "fHistMixedMultiplicity", "fHistMultRatios");
+        // and a possible event weight
+        fQAManager->StoreRatio("fHistNumberOfSEs", "fHistNumberOfMEs", "event_weight");
         fQAManager->StoreManager("mixingQA.root");
     }
 }
