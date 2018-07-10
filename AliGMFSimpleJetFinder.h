@@ -18,6 +18,7 @@ class AliGMFSimpleJetFinder : public TObject {
         // 'task' type members
         Bool_t Initialize();
         Bool_t AnalyzeEvent(AliGMFEventContainer* event);
+        void   ApplyEventWeight(Double_t w);
         Bool_t Finalize(TFile* of);
 
         // setters

@@ -514,11 +514,15 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
     return kTRUE;
 }
 //_____________________________________________________________________________
+void AliGMFSimpleJetFinder::ApplyEventWeight(Double_t weight) {
+    // apply an event weight
+    fHistogramManager->WeighAllHistograms(weight);
+}
+//_____________________________________________________________________________
 Bool_t AliGMFSimpleJetFinder::Finalize(TFile* of) {
     of->cd();
     fHistogramManager->StoreManager(of);
     return kTRUE;
-
 }
 //_____________________________________________________________________________
 void AliGMFSimpleJetFinder::GenerateV2(Double_t &phi, Double_t &pt) const
