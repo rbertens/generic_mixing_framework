@@ -111,3 +111,12 @@ Bool_t  AliGMFHistogramManager::Fill(const TString &name, const Double_t &valx, 
     }
     return kFALSE;
 }
+//_____________________________________________________________________________
+void AliGMFHistogramManager::WeighAllHistograms(const Double_t weight) {
+    // weigh all histograms in this manager by a constant factor
+    for(Int_t i = 0; i < fOutputList->GetSize(); i++) {
+        TH1* _temp = static_cast<TH1*>(fOutputList->At(i));
+        if(_temp) _temp->Scale(weight);
+    }
+}
+//_____________________________________________________________________________

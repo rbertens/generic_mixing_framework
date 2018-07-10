@@ -26,6 +26,7 @@ class AliGMFHistogramManager : public TObject {
         Bool_t          Fill(const TString &name, const Double_t &valx);
         Bool_t          Fill(const TString &name, const Double_t &valx, const Double_t &valy);
         Bool_t          StoreRatio(const TString &a, const TString &b, const TString &name);
+        void            WeighAllHistograms(const Double_t weight); 
 
     private:
 
