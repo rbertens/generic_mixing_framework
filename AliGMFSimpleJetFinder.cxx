@@ -147,7 +147,7 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
     // define the fastjet input vector and create a pointer to a track
     std::vector <fastjet::PseudoJet> fjInputVector;
     AliGMFTTreeTrack* track(0x0);
-    AliGMFTTreeTrack* mockUpTrack(0x0);
+    AliGMFTTreeTrack* mockUpTrack = new AliGMFTTreeTrack();
 
     // track kinematics
     Double_t px(0), py(0), pz(0), totalE(0);
@@ -165,9 +165,9 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
             if(fMockupEvent->GetNextTrack()->GetNumber() != mockUpTrack->GetNumber()) {
                 // iterator is now at the position for the next track
                 // we use now the mockup track, reset it, push the buffer back by one and continue the loop
-                px = mockUpTrack->GetPt()*TMath::Cos(track->GetPhi()); 
-                py = mockUpTrack->GetPt()*TMath::Sin(track->GetPhi());  
-                pz = mockUpTrack->GetPt()*TMath::SinH(track->GetEta()); 
+                px = mockUpTrack->GetPt()*TMath::Cos(mockUpTrack->GetPhi()); 
+                py = mockUpTrack->GetPt()*TMath::Sin(mockUpTrack->GetPhi());  
+                pz = mockUpTrack->GetPt()*TMath::SinH(mockUpTrack->GetEta()); 
                 totalE = px*px+py*py+pz*pz;
                 if (!(totalE >  0)) continue;
                 fastjet::PseudoJet fjInputProtoJet(
