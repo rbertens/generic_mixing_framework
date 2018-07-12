@@ -13,12 +13,22 @@ class AliGMFTTreeTrack : public TObject {
 
         AliGMFTTreeTrack();
         void       Fill(AliGMFTTreeTrack* track);
+        void       Fill(Double_t pt, Double_t eta, Double_t phi, 
+                Short_t charge, Bool_t used, Int_t number) {
+            fPt = pt;
+            fEta = eta;
+            fPhi = phi;
+            fCharge = charge;
+            fUsed = used;
+            fNumber = number; 
+        }
 
         void       SetPt(Float_t pt)                {fPt =          pt;}
         void       SetEta(Float_t eta)              {fEta =         eta;}
         void       SetPhi(Float_t phi)              {fPhi =         phi;}
         void       SetCharge(Short_t charge)        {fCharge =      charge;}
         void       SetUsed(Bool_t used)             {fUsed =        used;}
+        void       SetNumber(Int_t number)          {fNumber =      number;}
 
         Float_t    GetPt() const                    {return fPt;}
         Float_t    GetEta() const                   {return fEta;}
@@ -26,8 +36,10 @@ class AliGMFTTreeTrack : public TObject {
         Float_t    GetCharge() const                {return fCharge;}
         Bool_t     GetUsed() const                  {return fUsed;}
         Bool_t     GetFilled() const                {return fFilled;}
+        Int_t      GetNumber() const                {return fNumber;}
 
         void       Reset();
+        void       PrintInfo();
     private:
 #if COMPRESSION_LEVEL > 1
         // maximum compression level
@@ -49,7 +61,8 @@ class AliGMFTTreeTrack : public TObject {
 
         // some transient members that we'll use for bookkeeping, but dont want to store now
         Bool_t        fUsed;        //! was track used for mixing ? 
-        Bool_t        fFilled;      //! was track filled ? 
+        Bool_t        fFilled;      //! was track filled ?
+        Int_t         fNumber;      //! just an int - use as you see fit 
 
         virtual ~AliGMFTTreeTrack(); // default destructor
 

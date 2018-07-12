@@ -49,10 +49,12 @@ class AliGMFSimpleJetFinder : public TObject {
         }
         void    SetCollinearSplittingOverMEs(Bool_t r) {
             fCollinearSplittingOverMEs = r;
+            fRandomizeSplitTrack = kFALSE;
         }
         void    SetIsME(Bool_t m)                       { fIsME = m; }
 
     private:
+        Int_t   fEventNumber;                   // number of event that's currently being analyzed
         Bool_t  fDoBackgroundSubtraction;       // do background subtraction
         Float_t fJetResolution;                 // jet resolution parameter
         Float_t fJetResolutionBkg;              // background jet resolution parameter
@@ -75,13 +77,10 @@ class AliGMFSimpleJetFinder : public TObject {
         Float_t fPtTrigLow;                     // trigger pt
         Float_t fPtTrigHigh;                    // trigger pt
 
-        std::vector<double> fBufferedPx;        // px split off, store for next event
-        std::vector<double> fBufferedPy;        // py split off, store for next event
-        std::vector<double> fBufferedPz;        // pz split off, store for next event
-        std::vector<int>    fEventNumber;       // event number
-
         AliGMFSimpleEventCuts*        fEventCuts;       // event cuts
         AliGMFSimpleTrackCuts*        fTrackCuts;       // track cuts
+        AliGMFEventContainer*         fMockupEvent;     // dummy event for bookkeeping
+
         // histograms
         AliGMFHistogramManager* fHistogramManager;      // histogram manager
 

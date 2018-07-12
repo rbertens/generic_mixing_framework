@@ -6,7 +6,7 @@
 #include "TH3F.h"
 #include "THashList.h"
 #include "TFile.h"
-#include "TObject.h"
+#include "TH1.h"
 
 #include "AliGMFHistogramManager.h"
 
@@ -62,7 +62,7 @@ TH3F* AliGMFHistogramManager::BookTH3F(const char* name, const char* x, const ch
     return histogram;   
 }
 //_____________________________________________________________________________
-TObject* AliGMFHistogramManager::GetHistogram(const TString &name) {
+TH1* AliGMFHistogramManager::GetHistogram(const TString &name) {
     // return a pointer to a histogram named 'name'
     return static_cast<TH1*>(fOutputList->FindObject(Form("%s_%s", name.Data(), fManagerName.Data())));
 }

@@ -205,4 +205,33 @@ AliGMFTTreeTrack* AliGMFEventContainer::GetNextTrack() {
     }
     return track;
 }
-
+//_____________________________________________________________________________
+void AliGMFEventContainer::ResetTrack(Int_t i) {
+    // reset track at index i
+    AliGMFTTreeTrack* track = GetTrack(i);
+    if(track) track->Reset();
+}
+//_____________________________________________________________________________
+Int_t AliGMFEventContainer::FindEmptyTrack() {
+    // find a slot of the tclones array that has an empty track in it,
+    // return the index to that element, or -1 when no track is found
+    AliGMFTTreeTrack* track(0x0);
+    for(Int_t i = 0; i < GetNumberOfTracks(); i++) {
+        track = GetTrack(i);
+        if(track && !track->GetUsed()) return i;
+    }
+    return -1;
+}
+//_____________________________________________________________________________
+AliGMFTTreeTrack* AliGMFEventContainer::FindOrCreateEmptyTrack() {
+    // find a slot of the tclones array that has an empty track in it,
+    // return the index to that element, or add a new track if no track was found
+    Int_t trackIdx(FindEmptyTrack());
+    if(trackIdx < 0) {
+        // create a new track
+        trackIdx = GetNumberOfTracks();
+        new((*fTracks)[trackIdx]) AliGMFTTreeTrack();
+    }
+    return GetTrack(trackIdx);
+}
+//_____________________________________________________________________________

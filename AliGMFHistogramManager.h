@@ -5,7 +5,7 @@ class TH1D;
 class TH2D;
 class TH3F;
 class THashList;
-class TObject;
+class TH1;
 class TFile;
 
 class AliGMFHistogramManager : public TObject {
@@ -22,7 +22,7 @@ class AliGMFHistogramManager : public TObject {
         // manipulation of object
         void            StoreManager(TFile* of);
         void            StoreManager(const char* title);
-        TObject*        GetHistogram(const TString &name);
+        TH1*            GetHistogram(const TString &name);
         Bool_t          Fill(const TString &name, const Double_t &valx);
         Bool_t          Fill(const TString &name, const Double_t &valx, const Double_t &valy);
         Bool_t          StoreRatio(const TString &a, const TString &b, const TString &name);

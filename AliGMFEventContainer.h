@@ -43,7 +43,10 @@ class AliGMFEventContainer : public TObject {
        Float_t                  GetZvtx()               { return fHeader->GetZvtx(); }
        Float_t                  GetCentrality()         { return fHeader->GetCentrality(); }
        ULong_t                  GetRunNumber()          { return fHeader->GetRunNumber(); }
-       
+      
+       Int_t                    FindEmptyTrack();
+       AliGMFTTreeTrack*        FindOrCreateEmptyTrack();
+
        AliGMFTTreeHeader*       GetHeader()             { return fHeader;}
        TClonesArray*            GetTracks()             { return fTracks;}
        
@@ -51,6 +54,12 @@ class AliGMFEventContainer : public TObject {
 
        void                     ShuffleTrackIndices();
        void                     ResetTrackIndices();
+       void                     ResetTrack(Int_t i);
+       void                     ResetTrackIterator(Int_t to = -1) { 
+           fTrackIterator = to; 
+       }
+       void                     PushBackTrackIterator() { fTrackIterator--; }
+       Int_t                    GetTrackIterator()      { return fTrackIterator; }
        Int_t                    FlushOutZeroes();
 
    private:

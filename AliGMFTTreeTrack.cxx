@@ -4,13 +4,16 @@
 
 ClassImp(AliGMFTTreeTrack);
 
+using namespace std;
+
 AliGMFTTreeTrack::AliGMFTTreeTrack() : TObject(),
     fPt          (0.),
     fEta         (0.),
     fPhi         (0.),
     fCharge      (0.),
     fUsed        (kFALSE),
-    fFilled      (kFALSE)
+    fFilled      (kFALSE),
+    fNumber      (0)
 {
   // default constructor
 }
@@ -25,6 +28,7 @@ void AliGMFTTreeTrack::Fill(AliGMFTTreeTrack* track) {
     fCharge = track->GetCharge();
     fUsed = track->GetUsed();
     fFilled = kTRUE;
+    fNumber = track->GetNumber();
 }
 //_____________________________________________________________________________
 void AliGMFTTreeTrack::Reset() {
@@ -35,4 +39,9 @@ void AliGMFTTreeTrack::Reset() {
     fCharge = -1;
     fUsed = kFALSE;
     fFilled = kFALSE;
+    fNumber = 0;
+}
+//_____________________________________________________________________________
+void AliGMFTTreeTrack::PrintInfo() {
+    printf(" pt %.4f \t eta %.4f \t phi %.4f \n", fPt, fEta, fPhi);
 }
