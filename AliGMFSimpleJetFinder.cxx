@@ -3,7 +3,6 @@
 // Redmer Alexander Bertens, 2017 (UTK, CERN)
 
 #include "fastjet/Selector.hh"
-//#include "fastjet/tools/JetMedianBackgroundEstimator.hh"
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/ClusterSequence.hh"
 #include "fastjet/ClusterSequenceArea.hh"
@@ -165,23 +164,11 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
             if(fMockupEvent->GetNextTrack()->GetNumber() != mockUpTrack->GetNumber()) {
                 // iterator is now at the position for the next track
                 // we use now the mockup track, reset it, push the buffer back by one and continue the loop
-                px = mockUpTrack->GetPt()*TMath::Cos(mockUpTrack->GetPhi()); 
-                py = mockUpTrack->GetPt()*TMath::Sin(mockUpTrack->GetPhi());  
-                pz = mockUpTrack->GetPt()*TMath::SinH(mockUpTrack->GetEta()); 
-                totalE = px*px+py*py+pz*pz;
-                if (!(totalE >  0)) continue;
-                fastjet::PseudoJet fjInputProtoJet(
-                        px, 
-                        py, 
-                        pz, 
-                        TMath::Sqrt(totalE));
-                fjInputProtoJet.set_user_index(j);
-                fjInputVector.push_back(fjInputProtoJet);
+                AddProtoJetToCollection(fjInputVector, mockUpTrack, j);
                 fHistogramManager->Fill(
                         "fHistMockedUpConstituentPt", 
                         mockUpTrack->GetPt()
                         );
-                j++;
                 // do the 'cleanup' for the mockup event
                 mockUpTrack->Reset();
                 fMockupEvent->PushBackTrackIterator();
@@ -198,43 +185,22 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
         // decide how to deal with the track based on its pt
         if(track->GetPt() <= fSplittingThreshold) {
             // track is selected and pt smaller than threshold, use it directly in jet finding
-            px = track->GetPt()*TMath::Cos(track->GetPhi()); 
-            py = track->GetPt()*TMath::Sin(track->GetPhi());  
-            pz = track->GetPt()*TMath::SinH(track->GetEta()); 
-            totalE = px*px+py*py+pz*pz;
-            if (!(totalE >  0)) continue;
-            fastjet::PseudoJet fjInputProtoJet(
-                    px, 
-                    py, 
-                    pz, 
-                    TMath::Sqrt(totalE));
-            fjInputProtoJet.set_user_index(j);
-            fjInputVector.push_back(fjInputProtoJet);
+            AddProtoJetToCollection(fjInputVector, track, j);
             fHistogramManager->Fill(
                     "fHistConsideredConstituentPt", 
                     track->GetPt()
                     );
-            j++;
         } else if ((track->GetPt() > fSplittingThreshold) && (fSplitTrackPt <= 0)) {
             // in this case, if a track has a pt larger than the max pt,
             // truncate it to this max value, and discard the rest of the pt
             px = fSplittingThreshold*TMath::Cos(track->GetPhi()); 
             py = fSplittingThreshold*TMath::Sin(track->GetPhi());  
             pz = fSplittingThreshold*TMath::SinH(track->GetEta()); 
-            totalE = px*px+py*py+pz*pz;
-            if (!(totalE >  0)) continue;
-            fastjet::PseudoJet fjInputProtoJet(
-                    px, 
-                    py, 
-                    pz, 
-                    TMath::Sqrt(totalE));
-            fjInputProtoJet.set_user_index(j);
-            fjInputVector.push_back(fjInputProtoJet);
+            AddProtoJetToCollection(fjInputVector, px, py, pz, j);
             fHistogramManager->Fill(
                     "fHistMockedUpConstituentPt", 
                     fSplittingThreshold
                     );
-            j++;
         } else {
             // track pt is larger than the threshold, keep the pt that is 'truncated off'
             // what is split off gets distributed randomly either in eta or in eta and phi
@@ -245,20 +211,11 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
             px = splitTrackPt*TMath::Cos(track->GetPhi()); 
             py = splitTrackPt*TMath::Sin(track->GetPhi());  
             pz = splitTrackPt*TMath::SinH(track->GetEta()); 
-            totalE = px*px+py*py+pz*pz;
-            if (!(totalE >  0)) continue;
-            fastjet::PseudoJet fjInputProtoJet(
-                    px, 
-                    py, 
-                    pz, 
-                    TMath::Sqrt(totalE));
-            fjInputProtoJet.set_user_index(j);
-            fjInputVector.push_back(fjInputProtoJet);
+            AddProtoJetToCollection(fjInputVector, px, py, pz, j);
             fHistogramManager->Fill(
                     "fHistMockedUpConstituentPt", 
                     splitTrackPt
                     );
-            j++;
             // now, as long as the track pt is still too high, 'create'
             // new tracks which have fixed pt and add them as pseudojet
             splitTrackPt = (fHistConstituentPt->GetEntries() > 0) ? fHistConstituentPt->GetRandom() : gRandom->Uniform(.15, fSplittingThreshold);
@@ -285,8 +242,6 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
                     py = splitTrackPt*TMath::Sin(track->GetPhi());  
                     pz = splitTrackPt*TMath::SinH(track->GetEta()); 
                 }
-                totalE = px*px+py*py+pz*pz;
-                if (!(totalE >  0)) continue;
                 // depending on whether or not collinear redistribution over MEs is requested
                 // choose to plug in the track here, or buffer it for later
                 if(fCollinearSplittingOverMEs) {
@@ -294,18 +249,11 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
                     mockUpTrack->Fill(splitTrackPt, eta, phi, track->GetCharge(), kTRUE, fEventNumber);
                     fMockupEvent->FindOrCreateEmptyTrack()->Fill(mockUpTrack);
                 } else {
-                    fastjet::PseudoJet fjInputProtoJet(
-                            px, 
-                            py, 
-                            pz, 
-                            TMath::Sqrt(totalE));
-                    fjInputProtoJet.set_user_index(j);
-                    fjInputVector.push_back(fjInputProtoJet);
+                    AddProtoJetToCollection(fjInputVector, px, py, pz, j);
                     fHistogramManager->Fill(
                             "fHistMockedUpConstituentPt", 
                             splitTrackPt
                             );
-                    j++;
                 }
                 // decrease the track pt here: the result of the truncation
                 track->SetPt(track->GetPt() - splitTrackPt);
@@ -335,25 +283,16 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
                 py = pt*TMath::Sin(track->GetPhi());  
                 pz = pt*TMath::SinH(track->GetEta()); 
             }
-            totalE = px*px+py*py+pz*pz;
-            if (!(totalE >  0)) continue;
             if(fCollinearSplittingOverMEs) {
                 mockUpTrack->Reset();
                 mockUpTrack->Fill(splitTrackPt, eta, phi, track->GetCharge(), kTRUE, fEventNumber);
                 fMockupEvent->FindOrCreateEmptyTrack()->Fill(mockUpTrack);
             } else {
-                fastjet::PseudoJet fjInputTruncatedProtoJet(
-                        px, 
-                        py, 
-                        pz, 
-                        TMath::Sqrt(totalE));
-                fjInputTruncatedProtoJet.set_user_index(j);
-                fjInputVector.push_back(fjInputTruncatedProtoJet);
+                AddProtoJetToCollection(fjInputVector, px, py, pz, j);
                 fHistogramManager->Fill(
                         "fHistMockedUpConstituentPt", 
                         pt
                         );
-                j++;
             }
         }
     }
@@ -635,4 +574,28 @@ Bool_t AliGMFSimpleJetFinder::GetRandomCone(AliGMFEventContainer* event, Float_t
     }
     // check if cone overlaps with provided 
     return (TMath::Sqrt((etaJet-eta)*(etaJet-eta)+(phiJet-phi)*(phiJet-phi)) > fJetResolution);
+}
+//_____________________________________________________________________________
+void     AliGMFSimpleJetFinder::AddProtoJetToCollection( std::vector<fastjet::PseudoJet>& protoJetCollection,
+       Double_t &px, Double_t &py, Double_t &pz, Int_t &j ) {
+    // add a protojet to a protojet collection
+    Double_t totalE = px*px+py*py+pz*pz;
+    if (!(totalE >  0)) return;
+    fastjet::PseudoJet fjInputProtoJet(
+            px, 
+            py, 
+            pz, 
+            TMath::Sqrt(totalE));
+    fjInputProtoJet.set_user_index(j);
+    protoJetCollection.push_back(fjInputProtoJet);
+    j++;
+}
+//_____________________________________________________________________________
+void     AliGMFSimpleJetFinder::AddProtoJetToCollection( std::vector<fastjet::PseudoJet>& protoJetCollection, AliGMFTTreeTrack* track, Int_t &j ) {
+    // add a protojet to a protojet collection
+    Double_t px = track->GetPt()*TMath::Cos(track->GetPhi()); 
+    Double_t py = track->GetPt()*TMath::Sin(track->GetPhi());  
+    Double_t pz = track->GetPt()*TMath::SinH(track->GetEta()); 
+
+    AddProtoJetToCollection(protoJetCollection, px, py, pz, j);
 }

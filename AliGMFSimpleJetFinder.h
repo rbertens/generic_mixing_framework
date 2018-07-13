@@ -7,6 +7,8 @@ class AliGMFHistogramManager;
 class AliGMFSimpleEventCuts;
 class AliGMFSimpleTrackCuts;
 
+class PseudoJet;
+
 #include "TF1.h"
 #include "AliGMFSimpleTrackCuts.h"
 
@@ -96,6 +98,11 @@ class AliGMFSimpleJetFinder : public TObject {
         void     GenerateV2(Double_t &phi, Double_t &pt) const;
         void     GenerateV3(Double_t &phi, Double_t &pt) const;
         Bool_t   GetRandomCone(AliGMFEventContainer* event, Float_t &pt, Float_t &eta, Float_t &phi, Float_t etaJet = -2, Float_t phiJet = -10);
+
+        void     AddProtoJetToCollection( std::vector<fastjet::PseudoJet> &protoJetCollection,
+               Double_t &px, Double_t &py, Double_t &pz, Int_t &j );
+        void     AddProtoJetToCollection( std::vector<fastjet::PseudoJet> &protoJetCollection,
+               AliGMFTTreeTrack* track, Int_t &j );
 
         ClassDef(AliGMFSimpleJetFinder, 1);
 
