@@ -5,7 +5,8 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0,
         Float_t splitTracksFrom = 1e9,
         Float_t splitThemIn = 0,
         Bool_t randomize = kTRUE,
-        Int_t rejectHardJets = 0)
+        Int_t rejectHardJets = 0,
+        Bool_t collinear = kFALSE)
 {
     // example macro to read data from a ttree and perform simple analysis
     // author: Redmer Alexander Bertens (rbertens@cern.ch)
@@ -74,17 +75,29 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0,
         jetFinder[i]->SetTrackCuts(trackCuts);
         jetFinder[i]->SetRejectNHardestJets(rejectHardJets);
         jetFinder[i]->SetIsME(kTRUE);
+        jetFinder[i]->SetCollinearSplittingOverMEs(collinear);
         jetFinder[i]->Initialize();
     }
     
     
-    //iEvents = 100;
+//    iEvents = 20;
     for (int i = 0 ; i < iEvents; i ++) {
         for(int j = 0; j < 3; j++) {
             jetFinder[j]->AnalyzeEvent(reader->GetEvent(i));
 //            cout <<"Event: " << i << "\r"; cout.flush();
         }
     }
+    // for fCollinearSplittingOverMEs, the first 5 events are used for caching
+    // now we want to use them here
+    if(collinear) {
+        for (int i = 0 ; i < 5; i ++) {
+            for(int j = 0; j < 3; j++) {
+                jetFinder[j]->AnalyzeEvent(reader->GetEvent(i));
+//                cout <<"Event: " << i << "\r"; cout.flush();
+            }
+        }
+    }
+   
 
     // write and clear memory
     for(int i = 0; i < 3; i++) {

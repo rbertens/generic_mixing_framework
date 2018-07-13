@@ -192,6 +192,7 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
                 fMockupEvent->PushBackTrackIterator();
             } else {
                 fMockupEvent->PushBackTrackIterator();
+
             }
         }
     }
@@ -315,6 +316,12 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
         }
     }
     fHistogramManager->Fill("fHistMultiplicity", j);
+
+    if(fCollinearSplittingOverMEs && fEventNumber < 5) {
+        fEventNumber++;
+        return kTRUE;
+    }
+
 
     // setup the jet finder for signal and background jets
     fastjet::GhostedAreaSpec     ghostSpec(.95, 1, 0.001, 1, .1, 1e-100);
@@ -597,6 +604,7 @@ Bool_t AliGMFSimpleJetFinder::GetRandomCone(AliGMFEventContainer* event, Float_t
 void     AliGMFSimpleJetFinder::AddProtoJetToCollection( std::vector<fastjet::PseudoJet>& protoJetCollection,
        Double_t &px, Double_t &py, Double_t &pz, Int_t &j ) {
     // add a protojet to a protojet collection
+    if(fCollinearSplittingOverMEs && fEventNumber < 5) return;
     Double_t totalE = px*px+py*py+pz*pz;
     if (!(totalE >  0)) return;
     fastjet::PseudoJet fjInputProtoJet(
@@ -611,6 +619,7 @@ void     AliGMFSimpleJetFinder::AddProtoJetToCollection( std::vector<fastjet::Ps
 //_____________________________________________________________________________
 void     AliGMFSimpleJetFinder::AddProtoJetToCollection( std::vector<fastjet::PseudoJet>& protoJetCollection, AliGMFTTreeTrack* track, Int_t &j ) {
     // add a protojet to a protojet collection
+    if(fCollinearSplittingOverMEs && fEventNumber < 5) return;
     Double_t px = track->GetPt()*TMath::Cos(track->GetPhi()); 
     Double_t py = track->GetPt()*TMath::Sin(track->GetPhi());  
     Double_t pz = track->GetPt()*TMath::SinH(track->GetEta()); 
