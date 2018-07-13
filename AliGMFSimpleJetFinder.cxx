@@ -149,7 +149,7 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
     AliGMFTTreeTrack* mockUpTrack = new AliGMFTTreeTrack();
 
     // track kinematics
-    Double_t px(0), py(0), pz(0), totalE(0);
+    Double_t px(0), py(0), pz(0);
     Int_t j(0);
 
     // only used when randomizing in eta, phi
@@ -158,19 +158,37 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
 
 
     if(fCollinearSplittingOverMEs && fEventNumber > 0) {
+        AliGMFTTreeTrack* tempTrackA(0x0);
+        AliGMFTTreeTrack* tempTrackB(0x0);
         fMockupEvent->ResetTrackIterator();
         for(Int_t i(0); i < fMockupEvent->GetNumberOfTracks()-1; i++) {
-            mockUpTrack = fMockupEvent->GetNextTrack();
-            if(fMockupEvent->GetNextTrack()->GetNumber() != mockUpTrack->GetNumber()) {
-                // iterator is now at the position for the next track
-                // we use now the mockup track, reset it, push the buffer back by one and continue the loop
-                AddProtoJetToCollection(fjInputVector, mockUpTrack, j);
+            // try to get two tracks and see if they are not split from the same track
+            tempTrackA = fMockupEvent->GetNextTrack();
+            // in case there is no buffer, just stop this procedure
+            if(!tempTrackA) break;
+            // this is safe: if next track is not found, tempTrack will be set to NULL
+            tempTrackB = fMockupEvent->GetNextTrack();
+            if(tempTrackA && (!tempTrackB)) {
+                // in this case there is no next track to compare with, so it's fine to put it in
+                AddProtoJetToCollection(fjInputVector, tempTrackA, j);
                 fHistogramManager->Fill(
                         "fHistMockedUpConstituentPt", 
-                        mockUpTrack->GetPt()
+                        tempTrackA->GetPt()
                         );
                 // do the 'cleanup' for the mockup event
-                mockUpTrack->Reset();
+                tempTrackA->Reset();
+                // no need in continuing when we are out of mockup tracks
+                break;           
+            } else if((tempTrackA && tempTrackB) && (tempTrackA->GetNumber() != tempTrackB->GetNumber())) {
+                // iterator is now at the position for the next track
+                // we use now the mockup track, reset it, push the buffer back by one and continue the loop
+                AddProtoJetToCollection(fjInputVector, tempTrackA, j);
+                fHistogramManager->Fill(
+                        "fHistMockedUpConstituentPt", 
+                        tempTrackA->GetPt()
+                        );
+                // do the 'cleanup' for the mockup event
+                tempTrackA->Reset();
                 fMockupEvent->PushBackTrackIterator();
             } else {
                 fMockupEvent->PushBackTrackIterator();
@@ -246,7 +264,7 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
                 // choose to plug in the track here, or buffer it for later
                 if(fCollinearSplittingOverMEs) {
                     mockUpTrack->Reset();
-                    mockUpTrack->Fill(splitTrackPt, eta, phi, track->GetCharge(), kTRUE, fEventNumber);
+                    mockUpTrack->Fill(splitTrackPt, eta, phi, track->GetCharge(), kTRUE, Concatenate(fEventNumber,i));
                     fMockupEvent->FindOrCreateEmptyTrack()->Fill(mockUpTrack);
                 } else {
                     AddProtoJetToCollection(fjInputVector, px, py, pz, j);
@@ -285,7 +303,7 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
             }
             if(fCollinearSplittingOverMEs) {
                 mockUpTrack->Reset();
-                mockUpTrack->Fill(splitTrackPt, eta, phi, track->GetCharge(), kTRUE, fEventNumber);
+                mockUpTrack->Fill(splitTrackPt, eta, phi, track->GetCharge(), kTRUE, Concatenate(fEventNumber, i));
                 fMockupEvent->FindOrCreateEmptyTrack()->Fill(mockUpTrack);
             } else {
                 AddProtoJetToCollection(fjInputVector, px, py, pz, j);

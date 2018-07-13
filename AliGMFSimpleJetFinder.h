@@ -95,6 +95,15 @@ class AliGMFSimpleJetFinder : public TObject {
             return x; 
         }
 
+        static Int_t Concatenate(Int_t a, Int_t b) {
+            Int_t base(1);
+            while (base <= b) base *= 10;
+            return a*base + b;
+        }
+
+
+
+
         void     GenerateV2(Double_t &phi, Double_t &pt) const;
         void     GenerateV3(Double_t &phi, Double_t &pt) const;
         Bool_t   GetRandomCone(AliGMFEventContainer* event, Float_t &pt, Float_t &eta, Float_t &phi, Float_t etaJet = -2, Float_t phiJet = -10);
