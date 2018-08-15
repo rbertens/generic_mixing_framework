@@ -5,7 +5,7 @@
 #! /bin/bash
 COUNTER=0
 
-for file in `find . -name 'myMixedEvents*'`; do
+for file in `find . -size +10240c -name 'myMixedEvents*'`; do
     echo "File ME_$COUNTER) found at ${file}"
     if [ -L ME_$COUNTER.root ]; then
           echo "  -> symlink with name ME_$COUNTER.root exists, unlinking first ..."
