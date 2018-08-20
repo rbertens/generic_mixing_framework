@@ -2,6 +2,7 @@ void runJetFindingOnTree(
         Int_t cenMin = 0,
         Int_t cenMax = 10,
         Int_t file = 0,
+        Int_t rejectNJ = 2,
         Float_t minConstPt = 0.,
         Float_t leadingHadronPt = 0,
         Float_t leadingHadronMaxPt = 1e9,
@@ -63,6 +64,7 @@ void runJetFindingOnTree(
     for(int i = 0; i < 3; i++) {
        jetFinder[i] = new AliGMFSimpleJetFinder();
        jetFinder[i]->SetJetResolution(radii[i]);
+       jetFinder[i]->SetJetResolutionBkg(radii[i]);
        jetFinder[i]->SetSplittingForTracksWithPtHigherThan(splitTracksFrom);
        jetFinder[i]->SetSplitTrackPt(splitThemIn);
        jetFinder[i]->SetRandomizeSplitTrackEtaPhi(randomize);
@@ -72,6 +74,7 @@ void runJetFindingOnTree(
        // pass the event cuts to the jet finder
        jetFinder[i]->SetEventCuts(eventCuts);
        jetFinder[i]->SetTrackCuts(trackCuts);
+       jetFinder[i]->SetRejectNHardestJets(rejectNJ);
        jetFinder[i]->Initialize();
     }
 
