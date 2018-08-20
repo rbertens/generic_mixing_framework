@@ -1,5 +1,5 @@
 #ifndef COMPRESSION_LEVEL
-#define COMPRESSION_LEVEL 1 
+#define COMPRESSION_LEVEL 0 
 #endif
 
 #ifndef AliGMFTTreeHeader_H
@@ -70,5 +70,4 @@ class AliGMFTTreeHeader : public TObject{
   ClassDef(AliGMFTTreeHeader, 2);    // Help class
 };
 
-#endif
-	
+#endif	
