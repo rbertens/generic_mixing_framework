@@ -1,9 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-Int_t regularization = 4;
-Double_t binsTrue[] = {0, 10, 20, 30, 40, 50, 60, 70, 80,90, 200};
-Double_t binsRec[] = {30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90};
+Double_t binsTrue[] = {0, 10, 20, 30, 40, 50, 60, 70, 80,90, 100, 200};
+Double_t binsRec[] = {10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80};
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -153,7 +152,7 @@ TGraphErrors* GetRatio(TH1 *h1, TH1* h2)
             binWidth = h1->GetXaxis()->GetBinWidth(i);
             if(h2->GetBinContent(j) != 0) { 
                 ratio = h1->GetBinContent(i)/h2->GetBinContent(j);
-              //  cout << "point " << i << " ratio " << ratio << endl;
+                //  cout << "point " << i << " ratio " << ratio << endl;
                 Double_t A = h1->GetBinError(i)/h1->GetBinContent(i);
                 Double_t B = h2->GetBinError(i)/h2->GetBinContent(i);
                 error2 = ratio*ratio*A*A+ratio*ratio*B*B;
@@ -357,7 +356,337 @@ TH2D* NormalizeTH2D(TH2D* histo) {
 }
 
 
-void unfold()
+
+
+
+void unfoldBayesSimple(int itmin = 1, int itmax = 20)
+{
+#ifdef __CINT__
+    gSystem->Load("/home/rbertens/Documents/CERN/jet-flow/results/2017/UNFOLDING/RooUnfold/libRooUnfold");
+#endif
+    cout << "==================================== TRAIN SAMPLE ==============================" << endl;
+    //    RooUnfoldResponse response (100, -30, 70);
+    TArrayD* trueBins = new TArrayD(sizeof(binsTrue)/sizeof(binsTrue[0]), binsTrue);
+    TArrayD* recBins = new TArrayD(sizeof(binsRec)/sizeof(binsRec[0]), binsRec);
+
+
+
+    RooUnfoldResponse* response = 0x0;//(16, 0, 80);
+    TFile* preCookedResponse = TFile::Open("RM.root");
+    if(!preCookedResponse || preCookedResponse->IsZombie()) {
+        cout << "    no RM found - cooking one up " << endl; 
+        TFile *f = new TFile("/home/rbertens/Documents/CERN/jet-flow/results/2018/responses/R02/0_5/TrainEmbedding.root");
+        TTree *t1 = (TTree*)f->Get("fTreeJetShape_MC_Merged");
+        Float_t ptJet, ptJetMatch;
+        Double_t weightPythiaFromPtHard;
+        Int_t ev;
+        t1->SetBranchAddress("ptJet",&ptJet);
+        t1->SetBranchAddress("ptJetMatch",&ptJetMatch);
+        t1->SetBranchAddress("weightPythiaFromPtHard", &weightPythiaFromPtHard);
+
+        response = new RooUnfoldResponse(
+                new TH1D("measured", "measured", recBins->GetSize()-1, recBins->GetArray()),
+                new TH1D("truth", "truth", trueBins->GetSize()-1, trueBins->GetArray()),
+                new TH2D("response", "response", recBins->GetSize()-1, recBins->GetArray(),trueBins->GetSize()-1, trueBins->GetArray()));
+        //read all entries and fill the histograms
+        Long64_t nentries = t1->GetEntries();
+        for (Long64_t i=0;i<nentries;i++) {
+            t1->GetEntry(i);
+            response->Fill(ptJet,ptJetMatch,weightPythiaFromPtHard);
+        }
+        RooUnfoldResponse* responseCL = (RooUnfoldResponse*)response->Clone("responseCL");
+        responseCL->SetNameTitle("response", "response");
+        preCookedResponse = new TFile("RM.root", "RECREATE");
+        preCookedResponse->ls();
+        responseCL->Write();
+        preCookedResponse->Close();
+    } else {
+        cout << "    using precooked response " << endl;
+        response = (RooUnfoldResponse*)preCookedResponse->Get("response");
+    }
+
+
+    cout << "==================================== GET JETS ==================================" << endl;
+
+    int r = 2;
+
+
+    TFile meJets("/home/rbertens/Documents/CERN/jet-flow/results/2018/JUNE/ME/0_5/ME_jets_0_5.root");
+    TFile seJets("/home/rbertens/Documents/CERN/jet-flow/results/2018/JUNE/SE/0_5/SE_jets_0_5.root");
+
+    TH1D* meHistJets = (TH1D*)meJets.Get(Form("fHistJetPtSubtracted__R%i", r));
+    TH1D* seHistJets = (TH1D*)seJets.Get(Form("fHistJetPtSubtracted__R%i", r));
+
+    TH1D* meHistCent = (TH1D*)meJets.Get(Form("fHistCentrality__R%i", r));
+    //    Int_t meEvents = meHistCent->GetEntries();
+    Int_t meEvents = meHistJets->GetBinContent(132);
+    TH1D* seHistCent = (TH1D*)seJets.Get(Form("fHistCentrality__R%i", r));
+    //    Int_t seEvents = seHistCent->GetEntries();
+    Int_t seEvents = seHistJets->GetBinContent(132);    
+
+    //seHistJets->Scale(1./double(seEvents), "width");
+    meHistJets->Scale(double(seEvents)/double(meEvents), "width");
+
+    TH1D* seHistJetsClone = (TH1D*)seHistJets->Clone("same event jets");
+    TH1D* meHistJetsClone = (TH1D*)meHistJets->Clone("mixed event jets");
+
+    TH1D* seHistJetsClone2 = (TH1D*)seHistJets->Clone("same event jets 2");
+    seHistJetsClone2->Divide(meHistJetsClone);
+
+
+
+
+
+    meHistJets->SetTitle("ME jets");
+    meHistJets->GetYaxis()->SetTitle("#frac{1}{N_{evt}}#frac{d#it{N}}{d#it{p}_{T}} (GeV/#it{c})^{-1}");
+    meHistJets->SetLineColor(kRed);
+    meHistJets->SetMarkerColor(kRed);
+
+    seHistJets->SetTitle("SE jets");
+
+    meHistJets->DrawCopy();
+    seHistJets->DrawCopy("same");
+
+
+    seHistJets->Add(meHistJets, -1);
+
+
+    TH1D* seHistJetsDifference = seHistJets->Clone("difference");
+
+
+    cout << "==================================== UNFOLD ===================================" << endl;
+
+    TFile of(Form("Bayes_unfolded_DL%i-%i_PL%i-%i_KREG%i.root", (int)recBins->At(0), (int)recBins->At(recBins->GetSize()-1), (int)trueBins->At(0), (int)trueBins->At(trueBins->GetSize()-1)), "RECREATE"); 
+
+    seHistJets = RebinTH1D(seHistJets, recBins);
+
+    TH1D *unfoldedSVD = (TH1D*)seHistJets->Clone("unfoldedSVD");
+    unfoldedSVD->Reset();
+    TH1D *foldedSVD(0x0);
+    RooUnfold::ErrorTreatment errorTreatment = RooUnfold::kCovToy; // RooUnfold::kCovariance;
+
+    for(int iIterations = itmin; iIterations < itmax; iIterations++) {
+        RooUnfoldBayes unfold(response, seHistJets, iIterations);
+        unfoldedSVD = (TH1D*)unfold.Hreco();
+        unfold.PrintTable(cout, unfoldedSVD);
+        unfoldedSVD->SetNameTitle(Form("UnfoldedSpectrum_%i", iIterations),Form("unfolded spectrum it %i", iIterations));
+        unfoldedSVD->Write(); 
+ 
+
+        // get the pearson coefficients from the covariance matrix
+        TMatrixD covarianceMatrix = unfold.Ereco(errorTreatment);
+        TMatrixD *pearson = (TMatrixD*)CalculatePearsonCoefficients(&covarianceMatrix);
+        TH2D* hPearson(0x0);
+        if(pearson) {
+            hPearson = new TH2D(*pearson);
+            pearson->Print();
+            hPearson->SetNameTitle(Form("PearsonCoefficients_%i", iIterations), Form("Pearson coefficients it %i", iIterations));
+            hPearson->Write();
+        }
+    }
+    /*
+    // plot singular values and d_i vector
+    TSVDUnfold_local* svdUnfold = unfoldSVD.Impl();
+    TH1* hSVal = svdUnfold->GetSV();
+    TH1D* hdi = svdUnfold->GetD();
+    hSVal->SetNameTitle("SingularValuesOfAC", "Singular values of AC^{-1}");
+    hSVal->SetXTitle("singular values");
+    hSVal->Write();
+    hdi->SetNameTitle("dVector", "d vector after orthogonal transformation");
+    hdi->SetXTitle("|d_{i}^{kreg}|");
+    hdi->Write();
+    */
+    // 7) refold the unfolded spectrum
+    //    TH1D* foldedSVD = MultiplyResponseGenerated(unfoldedSVD, (TH2D*)response, kinematicEfficiency, kFALSE);
+    /*
+       TGraphErrors* ratio = GetRatio(seHistJetsClone, foldedSVD);
+       ratio->SetNameTitle("RatioRefoldedMeasured", "Ratio measured / re-folded");
+       ratio->GetXaxis()->SetTitle("p_{t}^{rec, rec} [GeV/ c]");
+       ratio->GetYaxis()->SetTitle("ratio measured / re-folded");
+       ratio->Write();
+       */
+    // write the measured, unfolded and re-folded spectra to the output directory
+    seHistJets->SetNameTitle("InputSpectrum", "input spectrum (measured)");
+    seHistJets->SetXTitle("p_{t}^{rec} [GeV/c]");
+    seHistJets->Write(); // input spectrum
+
+   seHistJetsClone->Write();
+    meHistJetsClone->Write();
+    seHistJetsDifference->Write();
+    seHistJetsClone2->Write();
+
+
+    of.Close();
+
+
+
+
+}
+
+void unfoldSVD(int itmin, int itmax)
+{
+#ifdef __CINT__
+    gSystem->Load("/home/rbertens/Documents/CERN/jet-flow/results/2017/UNFOLDING/RooUnfold/libRooUnfold");
+#endif
+
+
+
+
+
+
+    TArrayD* trueBins = new TArrayD(sizeof(binsTrue)/sizeof(binsTrue[0]), binsTrue);
+    TArrayD* recBins = new TArrayD(sizeof(binsRec)/sizeof(binsRec[0]), binsRec);
+
+
+
+    RooUnfoldResponse* response = 0x0;//(16, 0, 80);
+    TFile* preCookedResponse = TFile::Open("RM.root");
+    if(!preCookedResponse || preCookedResponse->IsZombie()) {
+        cout << "    no RM found - cooking one up " << endl; 
+        TFile *f = new TFile("/home/rbertens/Documents/CERN/jet-flow/results/2018/responses/R02/0_5/TrainEmbedding.root");
+        TTree *t1 = (TTree*)f->Get("fTreeJetShape_MC_Merged");
+        Float_t ptJet, ptJetMatch;
+        Double_t weightPythiaFromPtHard;
+        Int_t ev;
+        t1->SetBranchAddress("ptJet",&ptJet);
+        t1->SetBranchAddress("ptJetMatch",&ptJetMatch);
+        t1->SetBranchAddress("weightPythiaFromPtHard", &weightPythiaFromPtHard);
+
+        response = new RooUnfoldResponse(
+                new TH1D("measured", "measured", recBins->GetSize()-1, recBins->GetArray()),
+                new TH1D("truth", "truth", trueBins->GetSize()-1, trueBins->GetArray()),
+                new TH2D("response", "response", recBins->GetSize()-1, recBins->GetArray(),trueBins->GetSize()-1, trueBins->GetArray()));
+        //read all entries and fill the histograms
+        Long64_t nentries = t1->GetEntries();
+        for (Long64_t i=0;i<nentries;i++) {
+            t1->GetEntry(i);
+            response->Fill(ptJet,ptJetMatch,weightPythiaFromPtHard);
+        }
+        RooUnfoldResponse* responseCL = (RooUnfoldResponse*)response->Clone("responseCL");
+        responseCL->SetNameTitle("response", "response");
+        preCookedResponse = new TFile("RM.root", "RECREATE");
+        preCookedResponse->ls();
+        responseCL->Write();
+        preCookedResponse->Close();
+    } else {
+        cout << "    using precooked response " << endl;
+        response = (RooUnfoldResponse*)preCookedResponse->Get("response");
+    }
+
+
+    cout << "==================================== GET JETS ==================================" << endl;
+
+    int r = 2;
+
+
+    TFile meJets("/home/rbertens/Documents/CERN/jet-flow/results/2018/JUNE/ME/0_5/ME_jets_0_5.root");
+    TFile seJets("/home/rbertens/Documents/CERN/jet-flow/results/2018/JUNE/SE/0_5/SE_jets_0_5.root");
+
+    TH1D* meHistJets = (TH1D*)meJets.Get(Form("fHistJetPtSubtracted__R%i", r));
+    TH1D* seHistJets = (TH1D*)seJets.Get(Form("fHistJetPtSubtracted__R%i", r));
+
+    TH1D* meHistCent = (TH1D*)meJets.Get(Form("fHistCentrality__R%i", r));
+    //    Int_t meEvents = meHistCent->GetEntries();
+    Int_t meEvents = meHistJets->GetBinContent(132);
+    TH1D* seHistCent = (TH1D*)seJets.Get(Form("fHistCentrality__R%i", r));
+    //    Int_t seEvents = seHistCent->GetEntries();
+    Int_t seEvents = seHistJets->GetBinContent(132);    
+
+    //seHistJets->Scale(1./double(seEvents), "width");
+    meHistJets->Scale(double(seEvents)/double(meEvents), "width");
+
+    TH1D* seHistJetsClone = (TH1D*)seHistJets->Clone("same event jets");
+    TH1D* meHistJetsClone = (TH1D*)meHistJets->Clone("mixed event jets");
+
+    TH1D* seHistJetsClone2 = (TH1D*)seHistJets->Clone("same event jets 2");
+    seHistJetsClone2->Divide(meHistJetsClone);
+
+
+
+
+
+    meHistJets->SetTitle("ME jets");
+    meHistJets->GetYaxis()->SetTitle("#frac{1}{N_{evt}}#frac{d#it{N}}{d#it{p}_{T}} (GeV/#it{c})^{-1}");
+    meHistJets->SetLineColor(kRed);
+    meHistJets->SetMarkerColor(kRed);
+
+    seHistJets->SetTitle("SE jets");
+
+    meHistJets->DrawCopy();
+    seHistJets->DrawCopy("same");
+
+
+    seHistJets->Add(meHistJets, -1);
+
+
+    TH1D* seHistJetsDifference = seHistJets->Clone("difference");
+
+
+    cout << "==================================== UNFOLD ===================================" << endl;
+
+    TFile of(Form("SVD_unfolded_DL%i-%i_PL%i-%i_KREG%i.root", (int)recBins->At(0), (int)recBins->At(recBins->GetSize()-1), (int)trueBins->At(0), (int)trueBins->At(trueBins->GetSize()-1)), "RECREATE"); 
+
+    seHistJets = RebinTH1D(seHistJets, recBins);
+
+    TH1D *unfoldedSVD = (TH1D*)seHistJets->Clone("unfoldedSVD");
+    unfoldedSVD->Reset();
+    TH1D *foldedSVD(0x0);
+    RooUnfold::ErrorTreatment errorTreatment = RooUnfold::kCovToy; // RooUnfold::kCovariance;
+
+    for(int iIterations = itmin; iIterations < itmax; iIterations++) {
+        RooUnfoldSvd unfold(response, seHistJets, iIterations);
+        unfoldedSVD = (TH1D*)unfold.Hreco();
+        unfold.PrintTable(cout, unfoldedSVD);
+        unfoldedSVD->SetNameTitle(Form("UnfoldedSpectrum_%i", iIterations),Form("unfolded spectrum it %i", iIterations));
+        unfoldedSVD->Write(); 
+ 
+
+        // get the pearson coefficients from the covariance matrix
+        TMatrixD covarianceMatrix = unfold.Ereco(errorTreatment);
+        TMatrixD *pearson = (TMatrixD*)CalculatePearsonCoefficients(&covarianceMatrix);
+        TH2D* hPearson(0x0);
+        if(pearson) {
+            hPearson = new TH2D(*pearson);
+            pearson->Print();
+            hPearson->SetNameTitle(Form("PearsonCoefficients_%i", iIterations), Form("Pearson coefficients it %i", iIterations));
+            hPearson->Write();
+        }
+    }
+
+    // plot singular values and d_i vector
+    TSVDUnfold_local* svdUnfold = unfold.Impl();
+    TH1* hSVal = svdUnfold->GetSV();
+    TH1D* hdi = svdUnfold->GetD();
+    hSVal->SetNameTitle("SingularValuesOfAC", "Singular values of AC^{-1}");
+    hSVal->SetXTitle("singular values");
+    hSVal->Write();
+    hdi->SetNameTitle("dVector", "d vector after orthogonal transformation");
+    hdi->SetXTitle("|d_{i}^{kreg}|");
+    hdi->Write();
+
+    seHistJets->SetNameTitle("InputSpectrum", "input spectrum (measured)");
+    seHistJets->SetXTitle("p_{t}^{rec} [GeV/c]");
+    seHistJets->Write(); // input spectrum
+
+    seHistJetsClone->Write();
+    meHistJetsClone->Write();
+    seHistJetsDifference->Write();
+    seHistJetsClone2->Write();
+
+
+    of.Close();
+
+    ///////////////////////////////
+
+}
+
+
+
+
+
+
+
+void unfoldLegacy(int regularization = 4)
 {
 #ifdef __CINT__
     gSystem->Load("/home/rbertens/Documents/CERN/jet-flow/results/2017/UNFOLDING/RooUnfold/libRooUnfold");
@@ -370,7 +699,7 @@ void unfold()
     TFile* preCookedResponse = TFile::Open("RM.root");
     if(!preCookedResponse || preCookedResponse->IsZombie()) {
         cout << "    no RM found - cooking one up " << endl; 
-        TFile *f = new TFile("/home/rbertens/Documents/CERN/jet-flow/results/2017/UNFOLDING/responses/05/TrainEmbedding.root");
+        TFile *f = new TFile("/home/rbertens/Documents/CERN/jet-flow/results/2018/responses/R02/0_5/TrainEmbedding.root");
         TTree *t1 = (TTree*)f->Get("fTreeJetShape_MC_Merged");
         Float_t ptJet, ptJetMatch;
         Double_t weightPythiaFromPtHard;
@@ -404,23 +733,31 @@ void unfold()
     int r = 2;
 
 
-    TFile meJets("/home/rbertens/Documents/CERN/jet-flow/results/2017/OCTOBER/ME/0_5/ME_jets_0_5.root");
-    TFile seJets("/home/rbertens/Documents/CERN/jet-flow/results/2017/OCTOBER/SE/0_5/SE_jets_0_5.root");
+    TFile meJets("/home/rbertens/Documents/CERN/jet-flow/results/2018/JUNE/ME/0_5/ME_jets_0_5.root");
+    TFile seJets("/home/rbertens/Documents/CERN/jet-flow/results/2018/JUNE/SE/0_5/SE_jets_0_5.root");
 
     TH1D* meHistJets = (TH1D*)meJets.Get(Form("fHistJetPtSubtracted__R%i", r));
     TH1D* seHistJets = (TH1D*)seJets.Get(Form("fHistJetPtSubtracted__R%i", r));
 
     TH1D* meHistCent = (TH1D*)meJets.Get(Form("fHistCentrality__R%i", r));
-    Int_t meEvents = meHistCent->GetEntries();
-
+    //    Int_t meEvents = meHistCent->GetEntries();
+    Int_t meEvents = meHistJets->GetBinContent(132);
     TH1D* seHistCent = (TH1D*)seJets.Get(Form("fHistCentrality__R%i", r));
-    Int_t seEvents = seHistCent->GetEntries();
+    //    Int_t seEvents = seHistCent->GetEntries();
+    Int_t seEvents = seHistJets->GetBinContent(132);    
 
     //seHistJets->Scale(1./double(seEvents), "width");
     meHistJets->Scale(double(seEvents)/double(meEvents), "width");
 
     TH1D* seHistJetsClone = (TH1D*)seHistJets->Clone("same event jets");
     TH1D* meHistJetsClone = (TH1D*)meHistJets->Clone("mixed event jets");
+
+    TH1D* seHistJetsClone2 = (TH1D*)seHistJets->Clone("same event jets 2");
+    seHistJetsClone2->Divide(meHistJetsClone);
+
+
+
+
 
     meHistJets->SetTitle("ME jets");
     meHistJets->GetYaxis()->SetTitle("#frac{1}{N_{evt}}#frac{d#it{N}}{d#it{p}_{T}} (GeV/#it{c})^{-1}");
@@ -450,20 +787,20 @@ void unfold()
     }
     TList* responseList = (TList*)drInput.Get("detector_response_R02_histos");
     TH2D* detres = (TH2D*)responseList->FindObject("fHistDetectorResponse");
-    TH1D* prior = detres->ProjectionX();
+    TH1D* prior = (TH1D*)seHistJets->Clone("prior_from_data");    //detres->ProjectionX();
     TArrayD* trueBins = new TArrayD(sizeof(binsTrue)/sizeof(binsTrue[0]), binsTrue);
     TArrayD* recBins = new TArrayD(sizeof(binsRec)/sizeof(binsRec[0]), binsRec);
 
 
 
     TFile of(Form("unfolded_DL%i-%i_PL%i-%i_KREG%i.root", (int)recBins->At(0), (int)recBins->At(recBins->GetSize()-1), (int)trueBins->At(0), (int)trueBins->At(trueBins->GetSize()-1), regularization), "RECREATE"); 
-/*
-cout << (int)recBins->At(0) << endl;
-cout << (int)recBins->At(recBins->GetSize()-1) << endl;
-cout << (int)trueBins->At(0) <<endl;
-cout << (int)trueBins->At(trueBins->GetSize()-1) << endl;
-cout <<regularization << endl;
-*/
+    /*
+       cout << (int)recBins->At(0) << endl;
+       cout << (int)recBins->At(recBins->GetSize()-1) << endl;
+       cout << (int)trueBins->At(0) <<endl;
+       cout << (int)trueBins->At(trueBins->GetSize()-1) << endl;
+       cout <<regularization << endl;
+       */
     TH2D* resizedResponse = new TH2D("ptjet", "ptJetMatch", trueBins->GetSize()-1, trueBins->GetArray(), recBins->GetSize()-1, recBins->GetArray());
     TH2D* resizedEffResponse = new TH2D("ptjet", "ptJetMatch", trueBins->GetSize()-1, trueBins->GetArray(), recBins->GetSize()-1, recBins->GetArray());
     seHistJets = RebinTH1D(seHistJets, recBins);
@@ -474,7 +811,7 @@ cout <<regularization << endl;
     TH2D* responseNorm = NormalizeTH2D(effResponse);
     resizedEffResponse = (TH2D*)RebinTH2D(responseNorm, resizedEffResponse);
     TH1D* kinematicEfficiency = resizedEffResponse->ProjectionX();
-    
+
     for(Int_t iB = 0; iB < kinematicEfficiency->GetNbinsX(); iB++) {
         kinematicEfficiency->SetBinError(iB, 0);
     }
@@ -483,10 +820,16 @@ cout <<regularization << endl;
 
     // prepare response matrix: all slides in truth normalized to 1
     resizedResponse = (TH2D*)RebinTH2D(response, resizedResponse);
-    resizedResponse = NormalizeTH2D(resizedResponse);//FIXME
+    //    resizedResponse = NormalizeTH2D(resizedResponse);//FIXME
+
+
+    //    resizedResponse = response;
+
+
+
 
     TH1D *unfoldedSVD(0x0)
-    TH1D *foldedSVD(0x0);
+        TH1D *foldedSVD(0x0);
     RooUnfold::ErrorTreatment errorTreatment = RooUnfold::kCovToy; // RooUnfold::kCovariance;
 
 
@@ -494,21 +837,22 @@ cout <<regularization << endl;
     // REMMEBER REMEMBER REMEMBER
     // RooUnfold expects Fill(measured, true), that's why you transpose your matrix here
     //
-    TH2* responseMatrixTransposePrior = GetTransposeResponsMatrix(resizedResponse);
-    responseMatrixTransposePrior = NormalizeResponsMatrixYaxisWithPrior(responseMatrixTransposePrior, prior);//FIXME
+    TH2* responseMatrixTransposePrior = resizedResponse;
+    //GetTransposeResponsMatrix(resizedResponse);
+    //    responseMatrixTransposePrior = NormalizeResponsMatrixYaxisWithPrior(responseMatrixTransposePrior, prior);//FIXME
     RooUnfoldResponse responseSVD(0, 0, responseMatrixTransposePrior);
 
     // note to self: if you introduce the prior, it is multplied with the transposed, hence the trickery above
     //    RooUnfoldResponse responseSVD(0, 0, resizedResponse);
 
-    RooUnfoldSvd unfoldSVD(&responseSVD, seHistJets, regularization);
-    unfoldedSVD = (TH1D*)unfoldSVD.Hreco(errorTreatment);
+    //    RooUnfoldSvd unfoldSVD(&responseSVD, seHistJets, regularization);// FIXME
+    //    unfoldedSVD = (TH1D*)unfoldSVD.Hreco(errorTreatment);//FIXME
 
-/*
+
     RooUnfoldResponse responseBayes(0, 0, responseMatrixTransposePrior);
-    RooUnfoldBayes unfoldSVD(&responseBayes, seHistJets, 14);
+    RooUnfoldBayes unfoldSVD(&responseBayes, seHistJets, regularization);
     unfoldedSVD = (TH1D*)unfoldSVD.Hreco();
-    */
+
 
     unfoldedSVD->Divide(kinematicEfficiency);
 
@@ -525,7 +869,7 @@ cout <<regularization << endl;
         hPearson->SetNameTitle("PearsonCoefficients", "Pearson coefficients");
         hPearson->Write();
     }
-
+    /*
     // plot singular values and d_i vector
     TSVDUnfold_local* svdUnfold = unfoldSVD.Impl();
     TH1* hSVal = svdUnfold->GetSV();
@@ -536,16 +880,16 @@ cout <<regularization << endl;
     hdi->SetNameTitle("dVector", "d vector after orthogonal transformation");
     hdi->SetXTitle("|d_{i}^{kreg}|");
     hdi->Write();
-
+    */
     // 7) refold the unfolded spectrum
     TH1D* foldedSVD = MultiplyResponseGenerated(unfoldedSVD, resizedResponse, kinematicEfficiency, kFALSE);
- /*
-    TGraphErrors* ratio = GetRatio(seHistJetsClone, foldedSVD);
-    ratio->SetNameTitle("RatioRefoldedMeasured", "Ratio measured / re-folded");
-    ratio->GetXaxis()->SetTitle("p_{t}^{rec, rec} [GeV/ c]");
-    ratio->GetYaxis()->SetTitle("ratio measured / re-folded");
-    ratio->Write();
-*/
+    /*
+       TGraphErrors* ratio = GetRatio(seHistJetsClone, foldedSVD);
+       ratio->SetNameTitle("RatioRefoldedMeasured", "Ratio measured / re-folded");
+       ratio->GetXaxis()->SetTitle("p_{t}^{rec, rec} [GeV/ c]");
+       ratio->GetYaxis()->SetTitle("ratio measured / re-folded");
+       ratio->Write();
+       */
     // write the measured, unfolded and re-folded spectra to the output directory
     seHistJets->SetNameTitle("InputSpectrum", "input spectrum (measured)");
     seHistJets->SetXTitle("p_{t}^{rec} [GeV/c]");
@@ -574,6 +918,7 @@ cout <<regularization << endl;
     seHistJetsClone->Write();
     meHistJetsClone->Write();
     seHistJetsDifference->Write();
+    seHistJetsClone2->Write();
 
 
     of.Close();
@@ -585,3 +930,5 @@ cout <<regularization << endl;
     ///////////////////////////////
 
 }
+
+
