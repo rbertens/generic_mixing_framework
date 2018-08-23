@@ -74,6 +74,7 @@ Bool_t AliGMFSimpleJetFinder::Initialize() {
     fHistogramManager->BookTH1D("fHistConstituentPt", "p_{T}^{constituent}", 500, 0, 100);
     fHistogramManager->BookTH1D("fHistConsideredConstituentPt", "p_{T}^{considered constituent}", 500, 0, 100);
     fHistogramManager->BookTH1D("fHistMockedUpConstituentPt", "p_{T}^{mocked up constituent}", 500, 0, 100);
+    fHistogramManager->BookTH2D("fHistMockedUpConstituentEtaPhi", "#eta^{track}", "#phi^{track}", 100, -1, 1, 100, 0, TMath::TwoPi());
     fHistogramManager->BookTH1D("fHistJetPtSubtracted", "p_{T}^{jet sub} = p_{T}^{jet} - #rho A ", 500, -130, 370); 
     fHistogramManager->BookTH2D("fHistRecoilJetBkgSpectrum", "p_{T}^{jet raw}", "#Delta #phi", 500, -130, 370, 40, 0, TMath::TwoPi()); 
     fHistogramManager->BookTH2D("fHistRecoilJetTriSpectrum", "p_{T}^{jet raw}", "#Delta #phi", 500, -130, 370, 40, 0, TMath::TwoPi()); 
@@ -278,7 +279,7 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
                 // choose to plug in the track here, or buffer it for later
                 if(fCollinearSplittingOverMEs) {
                     mockUpTrack->Reset();
-                    mockUpTrack->Fill(splitTrackPt, track->GetEta(), GetPhi(), track->GetCharge(), kTRUE, Concatenate(fEventNumber,i));
+                    mockUpTrack->Fill(splitTrackPt, track->GetEta(), track->GetPhi(), track->GetCharge(), kTRUE, Concatenate(fEventNumber,i));
                     fMockupEvent->FindOrCreateEmptyTrack()->Fill(mockUpTrack);
                 } else {
                     AddProtoJetToCollection(fjInputVector, px, py, pz, j);
