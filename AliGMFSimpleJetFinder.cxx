@@ -178,6 +178,11 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
                         "fHistMockedUpConstituentPt", 
                         tempTrackA->GetPt()
                         );
+                fHistogramManager->Fill(
+                        "fHistMockedUpConstituentEtaPhi",
+                        tempTrackA->GetEta(),
+                        tempTrackA->GetPhi()
+                        );
                 // do the 'cleanup' for the mockup event
                 tempTrackA->Reset();
                 // no need in continuing when we are out of mockup tracks
@@ -189,6 +194,11 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
                 fHistogramManager->Fill(
                         "fHistMockedUpConstituentPt", 
                         tempTrackA->GetPt()
+                        );
+                fHistogramManager->Fill(
+                        "fHistMockedUpConstituentEtaPhi",
+                        tempTrackA->GetEta(),
+                        tempTrackA->GetPhi()
                         );
                 // do the 'cleanup' for the mockup event
                 tempTrackA->Reset();
@@ -268,7 +278,7 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
                 // choose to plug in the track here, or buffer it for later
                 if(fCollinearSplittingOverMEs) {
                     mockUpTrack->Reset();
-                    mockUpTrack->Fill(splitTrackPt, eta, phi, track->GetCharge(), kTRUE, Concatenate(fEventNumber,i));
+                    mockUpTrack->Fill(splitTrackPt, track->GetEta(), GetPhi(), track->GetCharge(), kTRUE, Concatenate(fEventNumber,i));
                     fMockupEvent->FindOrCreateEmptyTrack()->Fill(mockUpTrack);
                 } else {
                     AddProtoJetToCollection(fjInputVector, px, py, pz, j);
@@ -307,7 +317,7 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
             }
             if(fCollinearSplittingOverMEs) {
                 mockUpTrack->Reset();
-                mockUpTrack->Fill(splitTrackPt, eta, phi, track->GetCharge(), kTRUE, Concatenate(fEventNumber, i));
+                mockUpTrack->Fill(splitTrackPt, track->GetEta(), track->GetPhi(), track->GetCharge(), kTRUE, Concatenate(fEventNumber, i));
                 fMockupEvent->FindOrCreateEmptyTrack()->Fill(mockUpTrack);
             } else {
                 AddProtoJetToCollection(fjInputVector, px, py, pz, j);
