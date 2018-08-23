@@ -54,6 +54,11 @@ class AliGMFSimpleJetFinder : public TObject {
             fRandomizeSplitTrack = kFALSE;
         }
         void    SetIsME(Bool_t m)                       { fIsME = m; }
+        void    SetSmearRho(Float_t mean, Float_t sigma) {
+            fSmearMean = mean;
+            fSmearSigma = sigma;
+            fSmearRho = kTRUE;
+        }
 
     private:
         Int_t   fEventNumber;                   // number of event that's currently being analyzed
@@ -78,6 +83,10 @@ class AliGMFSimpleJetFinder : public TObject {
         Float_t fPtAssHigh;                     // associate pt
         Float_t fPtTrigLow;                     // trigger pt
         Float_t fPtTrigHigh;                    // trigger pt
+
+        Float_t fSmearMean;                     // mean of smearing function for rho
+        Float_t fSmearSigma;                    // sigma of smearing function of rho
+        Bool_t  fSmearRho;                      // toggle on smearing for rho
 
         AliGMFSimpleEventCuts*        fEventCuts;       // event cuts
         AliGMFSimpleTrackCuts*        fTrackCuts;       // track cuts

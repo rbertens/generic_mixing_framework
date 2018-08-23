@@ -52,6 +52,9 @@ AliGMFSimpleJetFinder::AliGMFSimpleJetFinder() : TObject(),
     fPtAssHigh(9),
     fPtTrigLow(20),
     fPtTrigHigh(50),
+    fSmearMean(0.),
+    fSmearSigma(0.),
+    fSmearRho(kFALSE),
     fEventCuts(0x0),
     fTrackCuts(0x0),
     fMockupEvent(0x0),
@@ -401,6 +404,10 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
         }
         // note: math will try to sort the vector, but since it's already sorted, this is a trivial op
         rho = TMath::Median(trimmedI, trimmedRhoVector);
+    }
+
+    if(fSmearRho) {
+        rho += gRandom->Gaus(fSmearMean, fSmearSigma);
     }
 
     fHistogramManager->Fill(
