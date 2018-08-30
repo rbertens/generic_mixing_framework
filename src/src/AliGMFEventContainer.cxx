@@ -13,7 +13,7 @@
 #include "AliGMFTTreeHeader.h"
 #include "AliGMFTTreeTrack.h"
 
-ClassImp(AliGMFEventContainer)
+//ClassImp(AliGMFEventContainer)
 
 //------------------------------------------------------------------------
 AliGMFEventContainer::AliGMFEventContainer( 

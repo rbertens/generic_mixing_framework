@@ -10,6 +10,4 @@ add_executable(MixingManager.x  MixingManager.h MixingManagerLinkDef.h G__Mixing
 target_link_libraries(MixingManager.x
     PUBLIC
     ${ROOT_DEPENDENCIES}
-    src
-    PRIVATE
-    gsl)
+    src)

@@ -19,10 +19,10 @@ generate_dictionary("${MODULE}" "${CMAKE_SOURCE_DIR}/src/${MODULE}/${MODULE}Link
 
 # Create an object to be reused in case of static libraries
 # Otherwise the sources will be compiled twice
-add_library(${MODULE} SHARED ${SRCS} ${HDRS} ${MODULE}LinkDef.h G__${MODULE}.cxx)
-#target_link_libraries(${MODULE}
-#  PUBLIC ${ROOT_DEPENDENCIES}
-#  PRIVATE gsl)
+add_library(${MODULE} SHARED ${MODULE}LinkDef.h G__${MODULE}.cxx)
+# add_library(${MODULE} SHARED ${SRCS} ${MODULE}LinkDef.h G__${MODULE}.cxx)
+target_link_libraries(${MODULE}
+    PUBLIC ${ROOT_DEPENDENCIES})
 
 install(TARGETS ${MODULE}
   ARCHIVE DESTINATION lib
