@@ -1,13 +1,13 @@
 # define target
-add_subdirectory(src)
+add_subdirectory(runEventMixer)
 
 set(ROOT_DEPENDENCIES Core EG Gpad Graf Hist MathCore RIO Tree)
 
 get_directory_property(incdirs INCLUDE_DIRECTORIES)
-generate_dictionary(MixingManager "MixingManagerLinkDef.h" "MixingManager.h" "${incdirs}")
+generate_dictionary(runEventMixer "runEventMixerLinkDef.h" "runEventMixer.h" "${incdirs}")
 
-add_executable(MixingManager.x  MixingManager.h MixingManagerLinkDef.h G__MixingManager.cxx)
-target_link_libraries(MixingManager.x
+add_executable(runEventMixer.x  runEventMixer.h runEventMixerLinkDef.h G__runEventMixer.cxx)
+target_link_libraries(runEventMixer.x
     PUBLIC
     ${ROOT_DEPENDENCIES}
-    src)
+    runEventMixer)

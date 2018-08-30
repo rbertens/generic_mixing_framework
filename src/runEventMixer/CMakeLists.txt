@@ -1,4 +1,4 @@
-set(MODULE src)
+set(MODULE runEventMixer)
 
 set(SRCS
     ${CMAKE_SOURCE_DIR}/src/${MODULE}/AliGMFEventContainer.cxx

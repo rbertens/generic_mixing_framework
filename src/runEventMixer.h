@@ -1,5 +1,5 @@
-#include "src/AliGMFEventReader.h"
-#include "src/AliGMFMixingManager.h"
+#include "runEventMixer/AliGMFEventReader.h"
+#include "runEventMixer/AliGMFMixingManager.h"
 #include "TChain.h"
 
 int main (int argc, char** argv) {
