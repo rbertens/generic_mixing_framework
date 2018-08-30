@@ -9,7 +9,6 @@
 
 #include <TObject.h>
 
-#include "AliGMFEventContainer.h"
 
 class TTree;
 class TH1;

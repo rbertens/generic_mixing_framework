@@ -2,7 +2,7 @@
 
 #include "AliGMFTTreeTrack.h"
 
-ClassImp(AliGMFTTreeTrack);
+//ClassImp(AliGMFTTreeTrack);
 
 using namespace std;
 

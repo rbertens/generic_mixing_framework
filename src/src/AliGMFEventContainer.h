@@ -6,10 +6,9 @@
 
 #include "TClonesArray.h"
 #include "TObject.h"
-#include "AliGMFTTreeTrack.h"
-#include "AliGMFTTreeHeader.h"
 
 #include <vector>
+#include "AliGMFTTreeHeader.h"
 
 //forward declarations
 class AliGMFTTreeTrack;
