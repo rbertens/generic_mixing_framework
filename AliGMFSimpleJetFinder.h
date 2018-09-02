@@ -79,11 +79,6 @@ class AliGMFSimpleJetFinder : public TObject {
         Bool_t          fIsME;                  // general flag for ME (e.g. recoil jet analysis)
         Int_t           fRejectNHardestJets;    // reject N hardest jets from rho estimate
          
-        Float_t fPtAssLow;                      // associate pt
-        Float_t fPtAssHigh;                     // associate pt
-        Float_t fPtTrigLow;                     // trigger pt
-        Float_t fPtTrigHigh;                    // trigger pt
-
         Float_t fSmearMean;                     // mean of smearing function for rho
         Float_t fSmearSigma;                    // sigma of smearing function of rho
         Bool_t  fSmearRho;                      // toggle on smearing for rho
@@ -109,10 +104,8 @@ class AliGMFSimpleJetFinder : public TObject {
             while (base <= b) base *= 10;
             return a*base + b;
         }
-
-
-
-
+        
+        void     RandomizeEtaPhi(AliGMFTTreeTrack* track);
         void     GenerateV2(Double_t &phi, Double_t &pt) const;
         void     GenerateV3(Double_t &phi, Double_t &pt) const;
         Bool_t   GetRandomCone(AliGMFEventContainer* event, Float_t &pt, Float_t &eta, Float_t &phi, Float_t etaJet = -2, Float_t phiJet = -10);

@@ -27,9 +27,9 @@
 
 ClassImp(AliGMFSimpleJetFinder)
 
-using namespace std;
+    using namespace std;
 
-//_____________________________________________________________________________
+    //_____________________________________________________________________________
 AliGMFSimpleJetFinder::AliGMFSimpleJetFinder() : TObject(),
     fEventNumber(0),
     fDoBackgroundSubtraction(kFALSE),
@@ -48,10 +48,6 @@ AliGMFSimpleJetFinder::AliGMFSimpleJetFinder() : TObject(),
     fCollinearSplittingOverMEs(kFALSE),
     fIsME(kFALSE),
     fRejectNHardestJets(2),
-    fPtAssLow(8),
-    fPtAssHigh(9),
-    fPtTrigLow(20),
-    fPtTrigHigh(50),
     fSmearMean(0.),
     fSmearSigma(0.),
     fSmearRho(kFALSE),
@@ -76,10 +72,8 @@ Bool_t AliGMFSimpleJetFinder::Initialize() {
     fHistogramManager->BookTH1D("fHistMockedUpConstituentPt", "p_{T}^{mocked up constituent}", 500, 0, 100);
     fHistogramManager->BookTH2D("fHistMockedUpConstituentEtaPhi", "#eta^{track}", "#phi^{track}", 100, -1, 1, 100, 0, TMath::TwoPi());
     fHistogramManager->BookTH1D("fHistJetPtSubtracted", "p_{T}^{jet sub} = p_{T}^{jet} - #rho A ", 500, -130, 370); 
-    fHistogramManager->BookTH2D("fHistRecoilJetBkgSpectrum", "p_{T}^{jet raw}", "#Delta #phi", 500, -130, 370, 40, 0, TMath::TwoPi()); 
-    fHistogramManager->BookTH2D("fHistRecoilJetTriSpectrum", "p_{T}^{jet raw}", "#Delta #phi", 500, -130, 370, 40, 0, TMath::TwoPi()); 
-    fHistogramManager->BookTH2D("fHistRecoilJetBkgSpectrumSub", "p_{T}^{jet sub} = p_{T}^{jet} - #rho A (bkg)", "#Delta #phi", 500, -130, 370, 40, 0, TMath::TwoPi()); 
-    fHistogramManager->BookTH2D("fHistRecoilJetTriSpectrumSub", "p_{T}^{jet sub} = p_{T}^{jet} - #rho A (tri)", "#Delta #phi", 500, -130, 370, 40, 0, TMath::TwoPi()); 
+    fHistogramManager->BookTH3D("fHistRecoilJetBkgSpectrumSub", "p_{T}^{jet sub} = p_{T}^{jet} - #rho A (bkg)", "#Delta #phi", "trigger p_{T}", 500, -130, 370, 80, 0, TMath::TwoPi(), 50, 0, 50); 
+    fHistogramManager->BookTH3D("fHistRecoilJetTriSpectrumSub", "p_{T}^{jet sub} = p_{T}^{jet} - #rho A (tri)", "#Delta #phi", "trigger p_{T}", 500, -130, 370, 80, 0, TMath::TwoPi(), 40, 0, 50); 
     fHistogramManager->BookTH1D("fHistMultiplicity", "track multiplicity", 1000, 0, 4000);
     fHistogramManager->BookTH1D("fHistRho", "#rho", 100, 0, 250);
     fHistogramManager->BookTH2D("fHistMultiplicityRho", "track multiplicity", "#rho", 1000, 0, 4000, 100, 0, 250);
@@ -109,16 +103,6 @@ Bool_t AliGMFSimpleJetFinder::Initialize() {
     settings->SetBinContent(5, (int)fRandomizeEtaPhi);
     settings->GetXaxis()->SetBinLabel(6, "fRandomizeSplitTrack");
     settings->SetBinContent(6, (int)fRandomizeSplitTrack);
-    settings->GetXaxis()->SetBinLabel(7, "fNCones");
-    settings->SetBinContent(7, (int)fNCones);
-    settings->GetXaxis()->SetBinLabel(8, "fPtAssLow");
-    settings->SetBinContent(7, fPtAssLow);
-    settings->GetXaxis()->SetBinLabel(9, "fPtAssHigh");
-    settings->SetBinContent(7, fPtAssHigh);
-    settings->GetXaxis()->SetBinLabel(10, "fPtTrigLow");
-    settings->SetBinContent(7, fPtTrigLow);
-    settings->GetXaxis()->SetBinLabel(11, "fPtTrigHigh");
-    settings->SetBinContent(7, fPtTrigHigh);
 
     // always make a minimal track cuts object
     if(!fTrackCuts) {
@@ -215,6 +199,7 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
         track = event->GetTrack(i);
         // check if the track satisfies the cuts
         if(!fTrackCuts->IsSelected(track)) continue;
+        if(fRandomizeSplitTrack) RandomizeEtaPhi(track);
         // decide how to deal with the track based on its pt
         if(track->GetPt() <= fSplittingThreshold) {
             // track is selected and pt smaller than threshold, use it directly in jet finding
@@ -478,56 +463,24 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
                 // just pick a random track every so often, and then bookkeep the angular distribution
                 // of jets w.r.t. this track
                 pickMe = gRandom->Uniform(0,1);
-                if(pickMe > .99) {
+                if (pickMe < .01) {
                     for (UInt_t jJet = 0; jJet < inclusiveJets.size(); jJet++) {
                         if (!range.is_in_range(inclusiveJets[jJet])) continue;
-                        fHistogramManager->Fill(
-                                "fHistRecoilJetBkgSpectrum",
-                                inclusiveJets[jJet].perp(),
-                                PhaseShift(TMath::Pi() - (inclusiveJets[jJet].phi() - constituents[i].phi())));
-                        fHistogramManager->Fill(
-                                "fHistRecoilJetBkgSpectrumSub",
-                                inclusiveJets[jJet].perp() - rho * inclusiveJets[jJet].area(),
-                                PhaseShift(TMath::Pi() - (inclusiveJets[jJet].phi() - constituents[i].phi())));
-                    }
-                } else if (pickMe < .01) {
-                    for (UInt_t jJet = 0; jJet < inclusiveJets.size(); jJet++) {
-                        if (!range.is_in_range(inclusiveJets[jJet])) continue;
-                        fHistogramManager->Fill(
-                                "fHistRecoilJetTriSpectrum",
-                                inclusiveJets[jJet].perp(),
-                                PhaseShift(TMath::Pi() - (inclusiveJets[jJet].phi() - constituents[i].phi())));
                         fHistogramManager->Fill(
                                 "fHistRecoilJetTriSpectrumSub",
                                 inclusiveJets[jJet].perp() - rho * inclusiveJets[jJet].area(),
-                                PhaseShift(TMath::Pi() - (inclusiveJets[jJet].phi() - constituents[i].phi())));
+                                PhaseShift(TMath::Pi() - (inclusiveJets[jJet].phi() - constituents[i].phi())),
+                                constituents[i].perp());
                     }
                 }
             } else {
-                if(constituents[i].perp() > fPtAssLow && constituents[i].perp() < fPtAssHigh) {
-                    for (UInt_t jJet = 0; jJet < inclusiveJets.size(); jJet++) {
-                        if (!range.is_in_range(inclusiveJets[jJet])) continue;
-                        fHistogramManager->Fill(
-                                "fHistRecoilJetBkgSpectrum",
-                                inclusiveJets[jJet].perp(),
-                                PhaseShift(TMath::Pi() - (inclusiveJets[jJet].phi() - constituents[i].phi())));
-                        fHistogramManager->Fill(
-                                "fHistRecoilJetBkgSpectrumSub",
-                                inclusiveJets[jJet].perp() - rho * inclusiveJets[jJet].area(),
-                                PhaseShift(TMath::Pi() - (inclusiveJets[jJet].phi() - constituents[i].phi())));
-                    }
-                } else if (constituents[i].perp() > fPtTrigLow && constituents[i].perp() < fPtTrigHigh) {
-                    for (UInt_t jJet = 0; jJet < inclusiveJets.size(); jJet++) {
-                        if (!range.is_in_range(inclusiveJets[jJet])) continue;
-                        fHistogramManager->Fill(
-                                "fHistRecoilJetTriSpectrum",
-                                inclusiveJets[jJet].perp(),
-                                PhaseShift(TMath::Pi() - (inclusiveJets[jJet].phi() - constituents[i].phi())));
-                        fHistogramManager->Fill(
-                                "fHistRecoilJetTriSpectrumSub",
-                                inclusiveJets[jJet].perp() - rho * inclusiveJets[jJet].area(),
-                                PhaseShift(TMath::Pi() - (inclusiveJets[jJet].phi() - constituents[i].phi())));
-                    }
+                for (UInt_t jJet = 0; jJet < inclusiveJets.size(); jJet++) {
+                    if (!range.is_in_range(inclusiveJets[jJet])) continue;
+                    fHistogramManager->Fill(
+                            "fHistRecoilJetTriSpectrumSub",
+                            inclusiveJets[jJet].perp() - rho * inclusiveJets[jJet].area(),
+                            PhaseShift(TMath::Pi() - (inclusiveJets[jJet].phi() - constituents[i].phi())),
+                            constituents[i].perp());
                 }
             }
         }
@@ -564,6 +517,11 @@ Bool_t AliGMFSimpleJetFinder::Finalize(TFile* of) {
     of->cd();
     fHistogramManager->StoreManager(of);
     return kTRUE;
+}
+//_____________________________________________________________________________
+void AliGMFSimpleJetFinder::RandomizeEtaPhi(AliGMFTTreeTrack* track) {
+    track->SetEta(gRandom->Uniform(-.9, .9));
+    track->SetPhi(gRandom->Uniform(0, TMath::TwoPi()));
 }
 //_____________________________________________________________________________
 void AliGMFSimpleJetFinder::GenerateV2(Double_t &phi, Double_t &pt) const
@@ -619,8 +577,8 @@ Bool_t AliGMFSimpleJetFinder::GetRandomCone(AliGMFEventContainer* event, Float_t
     return (TMath::Sqrt((etaJet-eta)*(etaJet-eta)+(phiJet-phi)*(phiJet-phi)) > fJetResolution);
 }
 //_____________________________________________________________________________
-void     AliGMFSimpleJetFinder::AddProtoJetToCollection( std::vector<fastjet::PseudoJet>& protoJetCollection,
-       Double_t &px, Double_t &py, Double_t &pz, Int_t &j ) {
+void AliGMFSimpleJetFinder::AddProtoJetToCollection( std::vector<fastjet::PseudoJet>& protoJetCollection,
+        Double_t &px, Double_t &py, Double_t &pz, Int_t &j ) {
     // add a protojet to a protojet collection
     if(fCollinearSplittingOverMEs && fEventNumber < 5) return;
     Double_t totalE = px*px+py*py+pz*pz;
@@ -635,7 +593,7 @@ void     AliGMFSimpleJetFinder::AddProtoJetToCollection( std::vector<fastjet::Ps
     j++;
 }
 //_____________________________________________________________________________
-void     AliGMFSimpleJetFinder::AddProtoJetToCollection( std::vector<fastjet::PseudoJet>& protoJetCollection, AliGMFTTreeTrack* track, Int_t &j ) {
+void AliGMFSimpleJetFinder::AddProtoJetToCollection( std::vector<fastjet::PseudoJet>& protoJetCollection, AliGMFTTreeTrack* track, Int_t &j ) {
     // add a protojet to a protojet collection
     if(fCollinearSplittingOverMEs && fEventNumber < 5) return;
     Double_t px = track->GetPt()*TMath::Cos(track->GetPhi()); 

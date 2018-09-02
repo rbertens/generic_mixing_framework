@@ -3,7 +3,7 @@
 
 #include "TH1D.h"
 #include "TH2D.h"
-#include "TH3F.h"
+#include "TH3D.h"
 #include "THashList.h"
 #include "TFile.h"
 #include "TH1.h"
@@ -50,13 +50,13 @@ TH2D* AliGMFHistogramManager::BookTH2D(const char* name, const char* x, const ch
     return histogram;   
 }
 //_____________________________________________________________________________
-TH3F* AliGMFHistogramManager::BookTH3F(const char* name, const char* x, const char* y, const char* z, Int_t binsx, Double_t minx, Double_t maxx, Int_t binsy, Double_t miny, Double_t maxy, Int_t binsz, Double_t minz, Double_t maxz, Bool_t append)
+TH3D* AliGMFHistogramManager::BookTH3D(const char* name, const char* x, const char* y, const char* z, Int_t binsx, Double_t minx, Double_t maxx, Int_t binsy, Double_t miny, Double_t maxy, Int_t binsz, Double_t minz, Double_t maxz, Bool_t append)
 {
-    // book a TH2D and connect it to the output container
+    // book a TH3D and connect it to the output container
     if(append && !fOutputList) return 0x0;
     TString title(name);
     title += Form(";%s;%s;%s", x, y, z);
-    TH3F* histogram = new TH3F(Form("%s_%s", name, fManagerName.Data()), title.Data(), binsx, minx, maxx, binsy, miny, maxy, binsz, minz, maxz);
+    TH3D* histogram = new TH3D(Form("%s_%s", name, fManagerName.Data()), title.Data(), binsx, minx, maxx, binsy, miny, maxy, binsz, minz, maxz);
     histogram->Sumw2();
     if(append) fOutputList->Add(histogram);
     return histogram;   
