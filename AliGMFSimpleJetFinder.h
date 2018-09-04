@@ -35,6 +35,7 @@ class AliGMFSimpleJetFinder : public TObject {
         void    SetImprintV3(TF1* v3)                   { fImprintV3 = v3; delete fImprintV2; fImprintV2 = 0x0; }
         void    SetEventCuts(AliGMFSimpleEventCuts* c)  { fEventCuts = c;}
         void    SetTrackCuts(AliGMFSimpleTrackCuts* c)  { delete fTrackCuts; fTrackCuts = c;}
+        void    SetDoRandomConeAnalysis(Int_t cones)    { fNCones = cones; }
 
         void    SetRejectNHardestJets(Int_t n)          { fRejectNHardestJets = n;}
         void    SetSplittingForTracksWithPtHigherThan(Double_t pt) {

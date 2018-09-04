@@ -88,7 +88,7 @@ Bool_t AliGMFSimpleJetFinder::Initialize() {
     fHistogramManager->BookTH1D("fHistEventPlane", "#Psi", 100, -4, 4);
     fHistogramManager->BookTH1D("fHistJetFinderSettings", "flag", 12, -.5, 11.5);
 
-    fNCones = TMath::CeilNint(((1.8-2.*fJetResolution)*TMath::TwoPi())/(TMath::Pi()*fJetResolution*fJetResolution));
+    if(fNCones > 0) fNCones = TMath::CeilNint(((1.8-2.*fJetResolution)*TMath::TwoPi())/(TMath::Pi()*fJetResolution*fJetResolution));
 
     TH1D* settings = static_cast<TH1D*>(fHistogramManager->GetHistogram("fHistJetFinderSettings"));
     settings->GetXaxis()->SetBinLabel(1, "fJetResolution");
