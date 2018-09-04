@@ -421,21 +421,19 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
             rho
             );
 
-    /*
-       Float_t rcPt(0), rcEta(0), rcPhi(0);
-       for(Int_t i = 0; i < fNCones; i++) {
-       Bool_t unbiased = GetRandomCone(event, rcPt, rcEta, rcPhi, 
-       backgroundJets[0].eta(), backgroundJets[0].phi());
-       if(unbiased) fHistogramManager->Fill(
-       "fHistDeltaPtExLJ",
-       rcPt - rho*TMath::Pi()*fJetResolution*fJetResolution
-       );
-       fHistogramManager->Fill(
-       "fHistDeltaPt",
-       rcPt - rho*TMath::Pi()*fJetResolution*fJetResolution
-       );
-       }
-       */      
+    Float_t rcPt(0), rcEta(0), rcPhi(0);
+    for(Int_t i = 0; i < fNCones; i++) {
+        Bool_t unbiased = GetRandomCone(event, rcPt, rcEta, rcPhi, 
+                backgroundJets[0].eta(), backgroundJets[0].phi());
+        if(unbiased) fHistogramManager->Fill(
+                "fHistDeltaPtExLJ",
+                rcPt - rho*TMath::Pi()*fJetResolution*fJetResolution
+                );
+        fHistogramManager->Fill(
+                "fHistDeltaPt",
+                rcPt - rho*TMath::Pi()*fJetResolution*fJetResolution
+                );
+    }
 
     // fill the jet histograms
     for (UInt_t iJet = 0; iJet < inclusiveJets.size(); iJet++) {
