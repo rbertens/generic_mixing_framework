@@ -75,13 +75,14 @@ void runJetFindingOnTree(
        jetFinder[i]->SetEventCuts(eventCuts);
        jetFinder[i]->SetTrackCuts(trackCuts);
        jetFinder[i]->SetRejectNHardestJets(rejectNJ);
+       jetFinder[i]->SetDoRandomConeAnalysis(kTRUE);
        jetFinder[i]->Initialize();
     }
 
     for (int i = 0; i < iEvents; i ++) {
         for(int j = 0; j < 3; j++) {
             jetFinder[j]->AnalyzeEvent(reader->GetEvent(i));
-            //cout <<"Event: " << i << "\r"; cout.flush();
+            cout <<"Event: " << i << "\r"; cout.flush();
         }
     }
 

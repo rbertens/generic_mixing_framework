@@ -77,6 +77,7 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0,
         jetFinder[i]->SetRejectNHardestJets(rejectHardJets);
         jetFinder[i]->SetIsME(kTRUE);
         jetFinder[i]->SetCollinearSplittingOverMEs(collinear);
+        jetFinder[i]->SetDoRandomConeAnalysis(kTRUE);
         jetFinder[i]->Initialize();
     }
     

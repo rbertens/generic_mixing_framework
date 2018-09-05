@@ -1,5 +1,5 @@
 #ifndef COMPRESSION_LEVEL
-#define COMPRESSION_LEVEL 0 
+#define COMPRESSION_LEVEL 1 
 #endif
 
 #ifndef AliGMFTTreeHeader_H
