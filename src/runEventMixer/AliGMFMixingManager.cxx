@@ -1,5 +1,7 @@
 // author: redmer alexander bertens (rbertens@cern.ch)
 
+#include <thread>
+
 #include "TFile.h"
 #include "TClonesArray.h"
 #include "TTree.h"
@@ -8,7 +10,7 @@
 #include "TRandom.h"
 #include "TH1.h"
 #include "TH1I.h"
-
+#include "TROOT.h" 
 #include "AliGMFMixingManager.h"
 #include "AliGMFEventReader.h"
 #include "AliGMFEventContainer.h"
@@ -21,7 +23,7 @@
 using namespace std;
 #endif
 
-ClassImp(AliGMFMixingManager);
+ClassImp(AliGMFMixingManager)
 
 //_____________________________________________________________________________
 AliGMFMixingManager::AliGMFMixingManager() : TObject(),
@@ -102,6 +104,10 @@ Bool_t AliGMFMixingManager::Initialize() {
     // used to on the fly sample multiplicities from a realistic distribution
     fOnTheFlyMultDist = new TH1I("fOnTheFlyMultDist", "fOnTheFlyMultDist", fMultiplicityMin, fMultiplicityMax, fMultiplicityMax-fMultiplicityMin);
     fOnTheFlyMultDist->SetDirectory(0);
+
+    // enable implicit multi threading 
+    ROOT::EnableImplicitMT();
+
 
     // initialize output structure
     fOutputFile = new TFile("myMixedEvents.root", "RECREATE");

@@ -3,7 +3,7 @@
 #include "AliGMFSimpleTrackCuts.h"
 #include "AliGMFTTreeTrack.h"
 
-ClassImp(AliGMFSimpleTrackCuts);
+ClassImp(AliGMFSimpleTrackCuts)
 
 AliGMFSimpleTrackCuts::AliGMFSimpleTrackCuts() : TObject(),
     fCurrentTrack(0x0),
