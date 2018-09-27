@@ -15,9 +15,9 @@ void runTTreeFilterOnGrid() {
 
 
     // select range of runs to analyze (see runs[] for definition)
-    Int_t firstrun = 42;
-    Int_t lastrun = 63;// max 91 for 2010
-    Int_t year = 2011;  // set to 
+    Int_t firstrun = 0;
+    Int_t lastrun = 10;// max 91 for 2010
+    Int_t year = 2015;  // set to 
                                 // 2010 for 2010
                                 // 2011 for good 2011 runs
                                 // 20111 for irocc13 issue runs
@@ -41,9 +41,9 @@ void runTTreeFilterOnGrid() {
     alienHandler->SetAdditionalLibs("AliGMFEventCuts.cxx AliGMFEventCuts.h AliGMFTrackCuts.cxx AliGMFTrackCuts.h AliGMFTTreeHeader.cxx AliGMFTTreeTrack.cxx AliGMFHistogramManager.cxx AliAnalysisTaskTTreeFilter.cxx AliGMFTTreeHeader.h AliGMFTTreeTrack.h AliGMFHistogramManager.h AliAnalysisTaskTTreeFilter.h");
     alienHandler->SetAnalysisSource("AliGMFEventCuts.cxx AliGMFTrackCuts.cxx AliGMFTTreeHeader.cxx AliGMFTTreeTrack.cxx AliGMFHistogramManager.cxx AliAnalysisTaskTTreeFilter.cxx");
     alienHandler->SetOverwriteMode();
-    if(!terminate) alienHandler->SetRunMode("full");
+    if(!terminate) alienHandler->SetRunMode("test");
     else alienHandler->SetRunMode("terminate");
-    alienHandler->SetNtestFiles(1);
+    alienHandler->SetNtestFiles(10);
     alienHandler->SetAPIVersion("V1.1x");
     alienHandler->SetAliPhysicsVersion("vAN-20171101-1");
     alienHandler->SetFileForTestMode("filelist.txt");
@@ -56,6 +56,9 @@ void runTTreeFilterOnGrid() {
         // settings for 11h
         alienHandler->SetGridDataDir("/alice/data/2011/LHC11h_2");
         alienHandler->SetDataPattern("*ESDs/pass2/AOD145/*AOD.root");
+    } else if(year == 2015) {
+        alienHandler->SetGridDataDir("/alice/data/2015/LHC15o/");
+        alienHandler->SetDataPattern("pass1/AOD/*/AliAOD.root");
     }
 
     alienHandler->SetRunPrefix("000");
@@ -71,6 +74,7 @@ void runTTreeFilterOnGrid() {
     // and the last batch - 24
     Int_t runs11hSemiGoodTPCOrocC08[] = {169040, 169044, 169045, 169099, 169418, 169419, 169420, 169475, 169498, 169504, 169506, 169512, 169515, 169550, 169553, 169554, 169555, 169557, 169584, 169586, 169587, 169588, 169590, 169591};
 
+    Int_t runs15o[] = {246994, 246991, 246989, 246984, 246982, 246948, 246945, 246928, 246851, 246847, 246846, 246845, 246844, 246810, 246809, 246808, 246807, 246805, 246804, 246766, 246765, 246763, 246760, 246759, 246758, 246757, 246751, 246750, 246495, 246493, 246488, 246487, 246434, 246431, 246424, 246276, 246275, 246272, 246271, 246225, 246222, 246217, 246185, 246182, 246181, 246180, 246178, 246153, 246152, 246151, 246115, 246113, 246089, 246087, 246053, 246052, 246049, 246048, 246042, 246037, 246036, 246012, 246003, 246001, 245954, 245952, 245949, 245923, 245833, 245831, 245829, 245705, 245702, 245692, 245683}; 
 
 
     // add the runnnumbers to the handler
@@ -78,6 +82,7 @@ void runTTreeFilterOnGrid() {
     else if (year == 2011) for(int i = firstrun; i < lastrun; i++) alienHandler->AddRunNumber(runs11hGoodTPC[i]);
     else if (year == 20111) for(int i = firstrun; i < lastrun; i++) alienHandler->AddRunNumber(runs11hSemiGoodTPCIrocC13[i]);
     else if (year == 20112) for(int i = firstrun; i < lastrun; i++) alienHandler->AddRunNumber(runs11hSemiGoodTPCOrocC08[i]);
+    else if (year == 2015) for(int i = firstrun; i < lastrun; i++) alienHandler->AddRunNumber(runs15o[i]);
 
     alienHandler->SetDefaultOutputs();
     alienHandler->SetAnalysisMacro("TTreeFilterOnGrid.C");
@@ -119,6 +124,11 @@ void runTTreeFilterOnGrid() {
     gROOT->LoadMacro("AliGMFHistogramManager.cxx+");
     gROOT->LoadMacro("AliAnalysisTaskTTreeFilter.cxx+");
 
+
+    // add mult selection task for run II
+    gROOT->LoadMacro("$ALICE_PHYSICS/OADB/COMMON/MULTIPLICITY/macros/AddTaskMultSelection.C");
+    AddTaskMultSelection(kFALSE);
+
     // load the addtask
     gROOT->LoadMacro("add_task_macros/AddTaskTTreeFilter.C");
 
@@ -127,7 +137,7 @@ void runTTreeFilterOnGrid() {
     if(year == 2010) task = AddTaskTTreeFilter();
     else {
         task = AddTaskTTreeFilter(
-                TString("myFilteredTTree2011.root"),
+                TString("myFilteredTTree2015.root"),
                 AliVEvent::kMB | AliVEvent::kCentral | AliVEvent::kSemiCentral);
         AliGMFEventCuts* eventcuts = task->GetEventCuts();
         eventcuts->Set2010PileUpRejection(kFALSE);

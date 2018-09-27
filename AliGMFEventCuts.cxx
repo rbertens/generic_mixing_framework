@@ -5,12 +5,13 @@
 #include "AliAODTrack.h"
 #include "AliVVertex.h"
 #include "AliCentrality.h"
+#include "AliMultSelection.h"
 
 ClassImp(AliGMFEventCuts);
 
 AliGMFEventCuts::AliGMFEventCuts() : TObject(),
     fCurrentEvent(0x0),
-    fCheck2010PileUpRejection(kTRUE)
+    fCheck2010PileUpRejection(kFALSE)
 {
     // default constructor
 }
@@ -29,8 +30,14 @@ Bool_t AliGMFEventCuts::IsSelected(AliVEvent* event) {
 
 Bool_t AliGMFEventCuts::PassesCentralitySelection() {
     // check centrality criteria
-    Float_t centrality(fCurrentEvent->GetCentrality()->GetCentralityPercentile("V0M"));
-    if (TMath::Abs(centrality-fCurrentEvent->GetCentrality()->GetCentralityPercentile("TRK")) > 5.) return kFALSE;
+    Float_t centrality(-1);
+    AliMultSelection *multSelection = static_cast<AliMultSelection*>(fCurrentEvent->FindListObject("MultSelection"));
+    if(multSelection) {
+        centrality = multSelection->GetMultiplicityPercentile("V0M");
+    } else { 
+        centrality = fCurrentEvent->GetCentrality()->GetCentralityPercentile("V0M");
+        if (TMath::Abs(centrality-fCurrentEvent->GetCentrality()->GetCentralityPercentile("TRK")) > 5.) return kFALSE;
+    }
     if (centrality > 0 && centrality < 90) return kTRUE;
     return kFALSE;
 }
@@ -38,13 +45,13 @@ Bool_t AliGMFEventCuts::PassesCentralitySelection() {
 Bool_t AliGMFEventCuts::PassesVertexSelection() {
     // check vertex criteria
     if(TMath::Abs(fCurrentEvent->GetPrimaryVertex()->GetZ()) > 10) return kFALSE;
-    if(TMath::Abs(fCurrentEvent->GetPrimaryVertexSPD()->GetZ() - fCurrentEvent->GetPrimaryVertex()->GetZ()) > .5) return kFALSE; 
     return kTRUE;
 }
 
 Bool_t AliGMFEventCuts::Passes2010PileUpRejection() {
     // check for pileup via the different between tpc and global multiplicity (SLOW!)
     Float_t multTPC(0.), multGlob(0.);
+    if(TMath::Abs(fCurrentEvent->GetPrimaryVertexSPD()->GetZ() - fCurrentEvent->GetPrimaryVertex()->GetZ()) > .5) return kFALSE; 
     Int_t nGoodTracks(fCurrentEvent->GetNumberOfTracks());
     for(Int_t iTracks = 0; iTracks < nGoodTracks; iTracks++) { // fill tpc mult
         AliAODTrack* trackAOD = static_cast<AliAODTrack*>(fCurrentEvent->GetTrack(iTracks));

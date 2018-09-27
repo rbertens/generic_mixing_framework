@@ -13,6 +13,7 @@
 #include <TProfile.h>
 #include <TH1F.h>
 #include <TH2F.h>
+#include <TGrid.h>
 
 // AliRoot includes
 #include <AliAnalysisManager.h>
@@ -22,6 +23,7 @@
 #include <AliVEvent.h>
 #include <AliVVertex.h>
 #include <AliCentrality.h>
+#include <AliMultSelection.h>
 #include <AliVTrack.h>
 #include <AliEventplane.h>
 #include <AliVVZERO.h>
@@ -43,11 +45,11 @@ AliAnalysisTaskTTreeFilter::AliAnalysisTaskTTreeFilter():
     fHistogramManager(0x0),
     fEventCuts(0x0),
     fTrackCuts(0x0),
-    fEventPlaneN(2),
     fDetectorType(kTPC),
     fCollisionPeriod(kPbPb10h),
     fDoQA(kFALSE),
     fCachedEP(0),
+    fCachedEP3(0),
     fOADB(0x0),
     fRunNumber(-1)
 {
@@ -59,6 +61,10 @@ AliAnalysisTaskTTreeFilter::AliAnalysisTaskTTreeFilter():
                 fWidthQ[i][j][k] = 0.;  
                 fMeanQv3[i][j][k] = 0.; 
                 fWidthQv3[i][j][k] = 0.;
+                fMQ[j][k][0] = 0;
+                fWQ[j][k][0] = 0;
+                fMQ[j][k][1] = 0;
+                fWQ[j][k][1] = 0;
             }
         }
     }
@@ -71,11 +77,11 @@ AliAnalysisTaskTTreeFilter::AliAnalysisTaskTTreeFilter(const char *name):
     fHistogramManager(0x0),
     fEventCuts(0x0),
     fTrackCuts(0x0),
-    fEventPlaneN(2),
     fDetectorType(kTPC),
     fCollisionPeriod(kPbPb10h),
     fDoQA(kFALSE),
     fCachedEP(0),
+    fCachedEP3(0),
     fOADB(0x0),
     fRunNumber(-1)
 {
@@ -87,6 +93,10 @@ AliAnalysisTaskTTreeFilter::AliAnalysisTaskTTreeFilter(const char *name):
                 fWidthQ[i][j][k] = 0.;  
                 fMeanQv3[i][j][k] = 0.; 
                 fWidthQv3[i][j][k] = 0.;
+                fMQ[j][k][0] = 0;
+                fWQ[j][k][0] = 0;
+                fMQ[j][k][1] = 0;
+                fWQ[j][k][1] = 0;
             }
         }
     }
@@ -111,6 +121,10 @@ Bool_t AliAnalysisTaskTTreeFilter::Notify()
                 case kPbPb10h : {
                     ReadVZEROCalibration2010h(); 
                     return kTRUE;
+                } break;
+                case kPbPb15o : {
+                     ReadVZEROCalibration2015o();
+                     return kTRUE;
                 } break;
                 default : break;
             }
@@ -184,10 +198,13 @@ Bool_t AliAnalysisTaskTTreeFilter::ParseEvent(AliVEvent* event)
     fEvent->SetZvtx(event->GetPrimaryVertex()->GetZ());
 
     // store centrality
-    fEvent->SetCentrality(InputEvent()->GetCentrality()->GetCentralityPercentile("V0M"));
+    AliMultSelection *multSelection = static_cast<AliMultSelection*>(InputEvent()->FindListObject("MultSelection"));
+    if(multSelection) fEvent->SetCentrality(multSelection->GetMultiplicityPercentile("V0M"));
+    else  fEvent->SetCentrality(InputEvent()->GetCentrality()->GetCentralityPercentile("V0M"));
    
     // store event plane orientation
-    fEvent->SetEventPlane(GetEventPlane());
+    fEvent->SetEventPlane(GetEventPlane(kFALSE, 2));
+    fEvent->SetEventPlane3(GetEventPlane(kFALSE, 3));
 
     // store the run number
     fEvent->SetRunNumber(InputEvent()->GetRunNumber());
@@ -223,12 +240,13 @@ void AliAnalysisTaskTTreeFilter::ParseTracks(AliVEvent* event)
     return;
 }
 //________________________________________________________________________
-Float_t AliAnalysisTaskTTreeFilter::GetEventPlane(Bool_t useCache) {
+Float_t AliAnalysisTaskTTreeFilter::GetEventPlane(Bool_t useCache, Int_t nHarm) {
     // return the n-th order event plane
 
     // cache value can be used when the EP is called
     // multiple times per event
-    if(useCache) return fCachedEP;
+    if(useCache && nHarm == 2) return fCachedEP;
+    if(useCache && nHarm == 3) return fCachedEP3;
 
     // otherwise recalculate it
     Double_t vzero[2][2];
@@ -259,14 +277,12 @@ Float_t AliAnalysisTaskTTreeFilter::GetEventPlane(Bool_t useCache) {
         }  break;
         default : break;
     }
-    if(fEventPlaneN == 2) {
-        fCachedEP = psi2;
-        return psi2;
-    }
-    if(fEventPlaneN == 3) {
-        fCachedEP = psi3;
-        return psi3;
-    }
+
+    fCachedEP = psi2;
+    fCachedEP3 = psi3;
+
+    if(nHarm == 2)  return psi2;
+    if(nHarm == 3)  return psi3;
 
     return 0;
 }
@@ -287,6 +303,62 @@ void AliAnalysisTaskTTreeFilter::CalculateEventPlaneVZERO(Double_t vzero[2][2]) 
             vzero[0][1] = (1./3.)*TMath::ATan2(QA3[1], QA3[0]);
             vzero[1][1] = (1./3.)*TMath::ATan2(QC3[1], QC3[0]);
             return;     // paranoid return
+        } break;
+       case kPbPb15o : {
+            Int_t VZEROcentralityBin(GetVZEROCentralityBin());
+            Double_t Qxan = 0, Qyan = 0;
+            Double_t Qxcn = 0, Qycn = 0;
+            Double_t Qxa3 = 0, Qya3 = 0;
+            Double_t Qxc3 = 0, Qyc3 = 0;
+            Double_t Qxa3_raw = 0, Qya3_raw = 0;
+            Double_t Qxc3_raw = 0, Qyc3_raw = 0;
+            Double_t sumMa = 0, sumMc = 0;
+            AliVVZERO* aodV0 = (InputEvent())->GetVZEROData();
+            for (Int_t iV0 = 0; iV0 < 64; iV0++) {
+                Double_t phiV0 = TMath::PiOver4()*(0.5 + iV0 % 8);
+                Float_t multv0 = aodV0->GetMultiplicity(iV0);
+                if (iV0 < 32){
+                    Double_t multCorC = -10;
+                    if (iV0 < 8) multCorC = multv0/fVZEROgainEqualization->GetBinContent(iV0+1)*fVZEROgainEqualization->GetBinContent(1);
+                    else if (iV0 >= 8 && iV0 < 16) multCorC = multv0/fVZEROgainEqualization->GetBinContent(iV0+1)*fVZEROgainEqualization->GetBinContent(9);
+                    else if (iV0 >= 16 && iV0 < 24) multCorC = multv0/fVZEROgainEqualization->GetBinContent(iV0+1)*fVZEROgainEqualization->GetBinContent(17);
+                    else if (iV0 >= 24 && iV0 < 32) multCorC = multv0/fVZEROgainEqualization->GetBinContent(iV0+1)*fVZEROgainEqualization->GetBinContent(25);
+                    Qxcn += TMath::Cos(2.*phiV0) * multCorC;
+                    Qycn += TMath::Sin(2.*phiV0) * multCorC;
+                    Qxc3 += TMath::Cos(3.*phiV0) * multCorC;
+                    Qxc3_raw += TMath::Cos(3.*phiV0) * multv0;
+                    Qyc3 += TMath::Sin(3.*phiV0) * multCorC;
+                    Qyc3_raw += TMath::Sin(3.*phiV0) * multv0;
+                    sumMc = sumMc + multCorC;
+                } else {
+                    Double_t multCorA = -10;
+                    if (iV0 >= 32 && iV0 < 40) multCorA = multv0/fVZEROgainEqualization->GetBinContent(iV0+1)*fVZEROgainEqualization->GetBinContent(33);
+                    else if (iV0 >= 40 && iV0 < 48) multCorA = multv0/fVZEROgainEqualization->GetBinContent(iV0+1)*fVZEROgainEqualization->GetBinContent(41);
+                    else if (iV0 >= 48 && iV0 < 56) multCorA = multv0/fVZEROgainEqualization->GetBinContent(iV0+1)*fVZEROgainEqualization->GetBinContent(49);
+                    else if (iV0 >= 56 && iV0 < 64) multCorA = multv0/fVZEROgainEqualization->GetBinContent(iV0+1)*fVZEROgainEqualization->GetBinContent(57);
+                    Qxan += TMath::Cos(2.*phiV0) * multCorA;
+                    Qyan += TMath::Sin(2.*phiV0) * multCorA;
+                    Qxa3 += TMath::Cos(3.*phiV0) * multCorA;
+                    Qxa3_raw += TMath::Cos(3.*phiV0) * multv0;
+                    Qya3 += TMath::Sin(3.*phiV0) * multCorA;
+                    Qya3_raw += TMath::Sin(3.*phiV0) * multv0;
+                    sumMa = sumMa + multCorA;
+                }
+            }
+            if (sumMa <=0 || sumMc <= 0) return;
+            Double_t iCentSPD = fEvent->GetCentrality();
+            Double_t QyanCor = (Qyan - fMQ[1][0][0]->GetBinContent(iCentSPD+1))/fWQ[1][0][0]->GetBinContent(iCentSPD+1);
+            Double_t QycnCor = (Qycn - fMQ[1][1][0]->GetBinContent(iCentSPD+1))/fWQ[1][1][0]->GetBinContent(iCentSPD+1);
+            Double_t QxanCor = (Qxan - fMQ[0][0][0]->GetBinContent(iCentSPD+1))/fWQ[0][0][0]->GetBinContent(iCentSPD+1);
+            Double_t QxcnCor = (Qxcn - fMQ[0][1][0]->GetBinContent(iCentSPD+1))/fWQ[0][1][0]->GetBinContent(iCentSPD+1);
+            vzero[0][0] = .5*TMath::ATan2(QyanCor,QxanCor);
+            vzero[1][0] = .5*TMath::ATan2(QycnCor,QxcnCor);
+            QyanCor = (Qya3 - fMQ[1][0][1]->GetBinContent(iCentSPD+1))/fWQ[1][0][1]->GetBinContent(iCentSPD+1);
+            QycnCor = (Qyc3 - fMQ[1][1][1]->GetBinContent(iCentSPD+1))/fWQ[1][1][1]->GetBinContent(iCentSPD+1);
+            QxanCor = (Qxa3 - fMQ[0][0][1]->GetBinContent(iCentSPD+1))/fWQ[0][0][1]->GetBinContent(iCentSPD+1);
+            QxcnCor = (Qxc3 - fMQ[0][1][1]->GetBinContent(iCentSPD+1))/fWQ[0][1][1]->GetBinContent(iCentSPD+1);
+            vzero[0][1] = (1./3.)*TMath::ATan2(QyanCor,QxanCor);
+            vzero[1][1] = (1./3.)*TMath::ATan2(QycnCor,QxcnCor);
         } break;
         default: {
             // by default use the ep from the event header (make sure EP selection task is enabeled!)
@@ -578,6 +650,102 @@ void AliAnalysisTaskTTreeFilter::ReadVZEROCalibration2010h()
     // for qa store the runnumber that is currently used for calibration purposes
 }
 //_____________________________________________________________________________
+void AliAnalysisTaskTTreeFilter::ReadVZEROCalibration2015o() {
+     #ifdef ALIANALYSISTASKJETV3_DEBUG_FLAG_1
+        printf("__FILE__ = %s \n __LINE __ %i , __FUNC__ %s \n ", __FILE__, __LINE__, __func__);
+    #endif
+    if(!fOADB || fOADB->IsZombie()) {
+        if (!gGrid) TGrid::Connect("alien");
+        fOADB = TFile::Open("alien:///alice/cern.ch/user/r/rbertens/calibV0HIR.root");
+    }
+    if(fOADB->IsZombie()) {
+	printf("OADB file could not be opened CALIBRATION FAILED !");
+	return;
+    }
+
+    AliOADBContainer* cont = (AliOADBContainer*) fOADB->Get("hMultV0BefCorPfpx");
+    fVZEROgainEqualization= ((TH1D*) cont->GetObject(fRunNumber));
+
+    for(Int_t i(0); i < 2; i++) {
+        Int_t fNHarm = i+2;
+
+        AliOADBContainer* contQxnam = 0;
+        if (fNHarm == 2)       contQxnam = (AliOADBContainer*) fOADB->Get("fqxa2m");
+        else if (fNHarm == 3)  contQxnam = (AliOADBContainer*) fOADB->Get("fqxa3m");
+        if(!contQxnam || !(contQxnam->GetObject(fRunNumber))) {
+            printf("OADB object fqyanm is not available for run %i\n", fRunNumber);
+            return;
+        }
+        fMQ[0][0][i] = ((TH1D*) contQxnam->GetObject(fRunNumber));
+
+        AliOADBContainer* contQynam = 0;
+        if (fNHarm == 2)       contQynam = (AliOADBContainer*) fOADB->Get("fqya2m");
+        else if (fNHarm == 3)  contQynam = (AliOADBContainer*) fOADB->Get("fqya3m");
+        if(!contQynam || !(contQynam->GetObject(fRunNumber))) {
+            printf("OADB object fqyanm is not available for run %i\n", fRunNumber);
+            return;
+        }
+        fMQ[1][0][i] = ((TH1D*) contQynam->GetObject(fRunNumber));
+        
+        AliOADBContainer* contQxnas = 0;
+        if (fNHarm == 2)       contQxnas = (AliOADBContainer*) fOADB->Get("fqxa2s");
+        else if (fNHarm == 3)  contQxnas = (AliOADBContainer*) fOADB->Get("fqxa3s");
+        
+        if(!contQxnas || !(contQxnas->GetObject(fRunNumber))) {
+            printf("OADB object fqxans is not available for run %i\n", fRunNumber);
+            return;
+        }
+        fWQ[0][0][i] = ((TH1D*) contQxnas->GetObject(fRunNumber));
+        
+        AliOADBContainer* contQynas = 0;
+        if (fNHarm == 2)       contQynas = (AliOADBContainer*) fOADB->Get("fqya2s");
+        else if (fNHarm == 3)  contQynas = (AliOADBContainer*) fOADB->Get("fqya3s");
+        
+        if(!contQynas || !(contQynas->GetObject(fRunNumber))){
+            printf("OADB object fqyans is not available for run %i\n", fRunNumber);
+            return;
+        }
+        fWQ[1][0][i] = ((TH1D*) contQynas->GetObject(fRunNumber));
+        
+        AliOADBContainer* contQxncm = 0;
+        if (fNHarm == 2)       contQxncm = (AliOADBContainer*) fOADB->Get("fqxc2m");
+        else if (fNHarm == 3)  contQxncm = (AliOADBContainer*) fOADB->Get("fqxc3m");
+        
+        if(!contQxncm || !(contQxncm->GetObject(fRunNumber))) {
+            printf("OADB object fqxcnm is not available for run %i\n", fRunNumber);
+            return;
+        }
+        fMQ[0][1][i] = ((TH1D*) contQxncm->GetObject(fRunNumber));
+        
+        AliOADBContainer* contQyncm = 0;
+        if (fNHarm == 2)       contQyncm = (AliOADBContainer*) fOADB->Get("fqyc2m");
+        else if (fNHarm == 3)  contQyncm = (AliOADBContainer*) fOADB->Get("fqyc3m");
+        if(!contQyncm || !(contQyncm->GetObject(fRunNumber))) {
+            printf("OADB object fqyc2m is not available for run %i\n", fRunNumber);
+            return;
+        }
+        fMQ[1][1][i] = ((TH1D*) contQyncm->GetObject(fRunNumber));
+        
+        AliOADBContainer* contQxncs = 0;
+        if (fNHarm == 2)        contQxncs = (AliOADBContainer*) fOADB->Get("fqxc2s");
+        else if (fNHarm == 3)   contQxncs = (AliOADBContainer*) fOADB->Get("fqxc3s");
+        if(!contQxncs || !(contQxncs->GetObject(fRunNumber))) {
+            printf("OADB object fqxc2s is not available for run %i\n", fRunNumber);
+            return;
+        }
+        fWQ[0][1][i] = ((TH1D*) contQxncs->GetObject(fRunNumber));
+        
+        AliOADBContainer* contQyncs = 0;
+        if (fNHarm == 2)        contQyncs = (AliOADBContainer*) fOADB->Get("fqyc2s");
+        else if (fNHarm == 3)   contQyncs = (AliOADBContainer*) fOADB->Get("fqyc3s");
+        if(!contQyncs || !(contQyncs->GetObject(fRunNumber))){
+            printf("OADB object fqycns is not available for run %i\n", fRunNumber);
+            return;
+        }
+        fWQ[1][1][i] = ((TH1D*) contQyncs->GetObject(fRunNumber));
+    }
+}    
+//_____________________________________________________________________________
 Int_t AliAnalysisTaskTTreeFilter::GetVZEROCentralityBin() const
 {
     // return cache index number corresponding to the event centrality
@@ -603,7 +771,7 @@ void AliAnalysisTaskTTreeFilter::FillEventQA(Bool_t cutsApplied, AliVEvent* even
         fHistogramManager->Fill("fHistBeforeEventPlane", GetEventPlane(kTRUE));
     } else {
         fHistogramManager->Fill("fHistAfterVertex", event->GetPrimaryVertex()->GetZ());
-        fHistogramManager->Fill("fHistAfterCentrality", event->GetCentrality()->GetCentralityPercentile("V0M"));
+        fHistogramManager->Fill("fHistAfterCentrality", fEvent->GetCentrality());
         fHistogramManager->Fill("fHistAfterEventPlane", GetEventPlane(kTRUE));
     }
 }

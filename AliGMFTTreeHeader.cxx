@@ -4,8 +4,9 @@
 
 ClassImp(AliGMFTTreeHeader)
 AliGMFTTreeHeader::AliGMFTTreeHeader(): TObject(),
-  fZvtx(0),
-  fEventPlane(0),
+  fZvtx(-999),
+  fEventPlane(-999),
+  fEventPlane3(-999),
   fCentrality(-1),
   fRunNumber(-1),
   fEventID(-1),
@@ -23,6 +24,7 @@ void AliGMFTTreeHeader::Fill(AliGMFTTreeHeader* event) {
    // fill current header with info from another header
    fZvtx = event->GetZvtx();
    fEventPlane = event->GetEventPlane();
+   fEventPlane3 = event->GetEventPlane3();
    fEventID = event->GetEventID();
    fUsed = event->GetUsed();
    fMultiplicity = event->GetMultiplicity();
@@ -31,9 +33,10 @@ void AliGMFTTreeHeader::Fill(AliGMFTTreeHeader* event) {
 }
 //_____________________________________________________________________________
 void AliGMFTTreeHeader::Reset() {
-   // fill current header with info from another header
+   // reset header 
    fZvtx = -999;
    fEventPlane = -999;
+   fEventPlane3 = -999;
    fEventID = -1;
    fUsed = kFALSE;
    fMultiplicity = 0;

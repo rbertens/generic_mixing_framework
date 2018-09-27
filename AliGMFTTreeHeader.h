@@ -17,6 +17,7 @@ class AliGMFTTreeHeader : public TObject{
   // manipulators - persistent
   void  SetZvtx(Float_t Zvtx)           {fZvtx  = Zvtx;}
   void  SetEventPlane(Float_t ep)       {fEventPlane = ep;}
+  void  SetEventPlane3(Float_t ep)      {fEventPlane3 = ep;}
   void  SetRunNumber(ULong_t rn)        {fRunNumber = rn;}
 
   // manipulators - no persistent
@@ -29,6 +30,7 @@ class AliGMFTTreeHeader : public TObject{
   // getters
   Float_t       GetZvtx() const         {return fZvtx;}
   Float_t       GetEventPlane() const   {return fEventPlane;}
+  Float_t       GetEventPlane3() const  {return fEventPlane3;}
 
   Int_t         GetEventID() const      {return fEventID;}
   Bool_t        GetUsed() const         {return fUsed;}
@@ -44,16 +46,19 @@ class AliGMFTTreeHeader : public TObject{
   // maximum compression, some loss of precision may occur
   Double32_t    fZvtx;          //[0,10,8] rec vertex
   Double32_t    fEventPlane;    //[0,3.15,8] event plane orientation
+  Double32_t    fEventPlane3;   //[0,3.15,8] event plane 3 orientation
   Double32_t    fCentrality;    //[0,100,8] collision centrality
 #elif COMPRESSION > 0
   //medium compression, no precision loss expected`
   Double32_t    fZvtx;          //[0,10,12] rec vertex
   Double32_t    fEventPlane;    //[0,3.15,12] event plane orientation
+  Double32_t    fEventPlane3;   //[0,3.15,12] event plane 3 orientation
   Double32_t    fCentrality;    //[0,100,12] collision centrality
 #else  
   // no compression
   Float_t       fZvtx;          // rec vertex
   Float_t       fEventPlane;    // event plane orientation
+  Float_t       fEventPlane3;   // event plane 3 orientation
   Float_t       fCentrality;    // collision centrality
 #endif
 
@@ -67,7 +72,7 @@ class AliGMFTTreeHeader : public TObject{
 
   virtual ~AliGMFTTreeHeader(); // default destructor
 
-  ClassDef(AliGMFTTreeHeader, 2);    // Help class
+  ClassDef(AliGMFTTreeHeader, 3);    // Help class
 };
 
 #endif	
