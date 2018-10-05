@@ -16,13 +16,13 @@ void runTTreeFilterOnGrid() {
 
     // select range of runs to analyze (see runs[] for definition)
     Int_t firstrun = 0;
-    Int_t lastrun = 10;// max 91 for 2010
+    Int_t lastrun = 75;// max 75 for 2015
     Int_t year = 2015;  // set to 
                                 // 2010 for 2010
                                 // 2011 for good 2011 runs
                                 // 20111 for irocc13 issue runs
                                 // 20112 for orocc08 issue runs
-    Bool_t terminate =           kFALSE; // run in terminate mode
+    Bool_t terminate =           kTRUE; // run in terminate mode
     Bool_t downloadoutput =      kFALSE;// get the final output files
 
 
@@ -41,11 +41,11 @@ void runTTreeFilterOnGrid() {
     alienHandler->SetAdditionalLibs("AliGMFEventCuts.cxx AliGMFEventCuts.h AliGMFTrackCuts.cxx AliGMFTrackCuts.h AliGMFTTreeHeader.cxx AliGMFTTreeTrack.cxx AliGMFHistogramManager.cxx AliAnalysisTaskTTreeFilter.cxx AliGMFTTreeHeader.h AliGMFTTreeTrack.h AliGMFHistogramManager.h AliAnalysisTaskTTreeFilter.h");
     alienHandler->SetAnalysisSource("AliGMFEventCuts.cxx AliGMFTrackCuts.cxx AliGMFTTreeHeader.cxx AliGMFTTreeTrack.cxx AliGMFHistogramManager.cxx AliAnalysisTaskTTreeFilter.cxx");
     alienHandler->SetOverwriteMode();
-    if(!terminate) alienHandler->SetRunMode("test");
+    if(!terminate) alienHandler->SetRunMode("full");
     else alienHandler->SetRunMode("terminate");
     alienHandler->SetNtestFiles(10);
     alienHandler->SetAPIVersion("V1.1x");
-    alienHandler->SetAliPhysicsVersion("vAN-20171101-1");
+    alienHandler->SetAliPhysicsVersion("vAN-20180901-1");
     alienHandler->SetFileForTestMode("filelist.txt");
 
     if(year == 2010) {
@@ -138,7 +138,7 @@ void runTTreeFilterOnGrid() {
     else {
         task = AddTaskTTreeFilter(
                 TString("myFilteredTTree2015.root"),
-                AliVEvent::kMB | AliVEvent::kCentral | AliVEvent::kSemiCentral);
+                AliVEvent::kINT7);
         AliGMFEventCuts* eventcuts = task->GetEventCuts();
         eventcuts->Set2010PileUpRejection(kFALSE);
     }

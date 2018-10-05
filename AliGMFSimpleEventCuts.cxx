@@ -15,6 +15,9 @@ AliGMFSimpleEventCuts::AliGMFSimpleEventCuts() : TObject(),
     fCheckEventPlane(kFALSE),
     fEventPlaneMin(1),
     fEventPlaneMax(-1),
+    fCheckEventPlane3(kFALSE),
+    fEventPlane3Min(1),
+    fEventPlane3Max(-1),
     fCheckCentrality(kFALSE),
     fCentralityMin(1),
     fCentralityMax(-1),
@@ -31,6 +34,7 @@ void AliGMFSimpleEventCuts::Diagnose() {
     if(!PassesCentralitySelection()) printf(" Failed centrality check  \n"); 
     if(!PassesVertexSelection()) printf(" Failed vertex check  \n");
     if(!PassesEventPlaneSelection()) printf(" Failed event plane check  \n");
+    if(!PassesEventPlane3Selection()) printf(" Failed event plane check  \n");
     if(!PassesMultiplicitySelection()) printf(" Failed multiplicity check  \n");
     if(!PassesRunNumberSelection()) printf(" Failed run number check  \n");
 }   
@@ -43,6 +47,7 @@ Bool_t AliGMFSimpleEventCuts::IsSelected(AliGMFEventContainer* event) {
     if(!PassesCentralitySelection()) return kFALSE;
     if(!PassesVertexSelection()) return kFALSE;
     if(!PassesEventPlaneSelection()) return kFALSE;
+    if(!PassesEventPlane3Selection()) return kFALSE;
     if(!PassesMultiplicitySelection()) return kFALSE;
     if(!PassesRunNumberSelection()) return kFALSE;
     // all is good, jay
@@ -67,6 +72,13 @@ Bool_t AliGMFSimpleEventCuts::PassesEventPlaneSelection() {
     // check event plane criteria
     if(!fCheckEventPlane) return kTRUE;
     if(fCurrentEvent->GetEventPlane() > fEventPlaneMin && fCurrentEvent->GetEventPlane() < fEventPlaneMax) return kTRUE;
+    return kFALSE;
+}
+
+Bool_t AliGMFSimpleEventCuts::PassesEventPlane3Selection() {
+    // check event plane criteria
+    if(!fCheckEventPlane3) return kTRUE;
+    if(fCurrentEvent->GetEventPlane3() > fEventPlane3Min && fCurrentEvent->GetEventPlane3() < fEventPlane3Max) return kTRUE;
     return kFALSE;
 }
 

@@ -17,6 +17,7 @@ class AliGMFSimpleEventCuts : public TObject {
     Bool_t PassesVertexSelection();
     Bool_t PassesCentralitySelection();
     Bool_t PassesEventPlaneSelection();
+    Bool_t PassesEventPlaneeSelection();
     Bool_t PassesRunNumberSelection();
 
     void Diagnose();
@@ -36,6 +37,12 @@ class AliGMFSimpleEventCuts : public TObject {
         fCheckEventPlane = kTRUE;
         fEventPlaneMin = min;
         fEventPlaneMax = max;
+    }
+
+    void SetEventPlane3Range(Float_t min, Float_t max) {
+        fCheckEventPlane3 = kTRUE;
+        fEventPlane3Min = min;
+        fEventPlane3Max = max;
     }
 
     void SetCentralityRange(Float_t min, Float_t max) {
@@ -62,6 +69,9 @@ class AliGMFSimpleEventCuts : public TObject {
     Bool_t      fCheckEventPlane;   // cut on event plane angle orientation
     Float_t     fEventPlaneMin;     // minimum event plane angle
     Float_t     fEventPlaneMax;     // maximum event plane angle
+    Bool_t      fCheckEventPlane3;  // cut on event plane angle orientation
+    Float_t     fEventPlane3Min;     // minimum event plane angle
+    Float_t     fEventPlane3Max;     // maximum event plane angle
     Bool_t      fCheckCentrality;   // cut on centrality percentile
     Float_t     fCentralityMin;     // minimum event centrality
     Float_t     fCentralityMax;     // maximum event centrality

@@ -31,6 +31,8 @@ AliGMFMixingManager::AliGMFMixingManager() : TObject(),
     fVertexMax(-1),
     fEventPlaneMin(1),
     fEventPlaneMax(-1),
+    fEventPlane3Max(1),
+    fEventPlane3Min(-1),
     fCentralityMin(1),
     fCentralityMax(-1),
     fMaxEvents(-1),
@@ -228,6 +230,7 @@ Bool_t AliGMFMixingManager::FillMixingCache(Int_t iCache) {
                 fQAManager->Fill("fHistAcceptedVertex", cachedEvent->GetZvtx());
                 fQAManager->Fill("fHistAcceptedCentrality", cachedEvent->GetCentrality());
                 fQAManager->Fill("fHistAcceptedEP", cachedEvent->GetEventPlane());
+                fQAManager->Fill("fHistAcceptedEP3", cachedEvent->GetEventPlane3());
                 for(Int_t i(0); i < fMultiplicityMax; i++) {
                     if((track = cachedEvent->GetTrack(i))) {
                         fQAManager->Fill("fHistUnmixedPt", track->GetPt());
@@ -243,6 +246,7 @@ Bool_t AliGMFMixingManager::FillMixingCache(Int_t iCache) {
             fQAManager->Fill("fHistRejectedCentrality", currentEvent->GetCentrality());
             fQAManager->Fill("fHistRejectedMultCent", currentEvent->GetMultiplicity(), currentEvent->GetCentrality());
             fQAManager->Fill("fHistRejectedEP", currentEvent->GetEventPlane());
+            fQAManager->Fill("fHistRejectedEP3", currentEvent->GetEventPlane());
         }
 
         // if the cache is full, break the loop
@@ -284,11 +288,13 @@ void AliGMFMixingManager::FillHeaderWithCachedEventInfo() {
     if(fBufferedEvent) {
         fEvent->SetZvtx(fBufferedEvent->GetZvtx());
         fEvent->SetEventPlane(fBufferedEvent->GetEventPlane());
+        fEvent->SetEventPlane3(fBufferedEvent->GetEventPlane3());
         fEvent->SetCentrality(fBufferedEvent->GetCentrality());
         // and fill the qa hists TODO make this more elegant
         if(gRandom->Uniform(0,fMultiplicityMin) < 1) {
             fQAManager->Fill("fHistMixedVertex", fBufferedEvent->GetZvtx());
             fQAManager->Fill("fHistMixedEventPlane", fBufferedEvent->GetEventPlane());
+            fQAManager->Fill("fHistMixedEventPlane3", fBufferedEvent->GetEventPlane3());
             fQAManager->Fill("fHistMixedCentrality", fBufferedEvent->GetCentrality());
         }
     }
@@ -385,9 +391,13 @@ Bool_t AliGMFMixingManager::IsSelected(AliGMFEventContainer* event) {
         pass = kFALSE;
         if(fQAManager) fQAManager->Fill("fHistRejectionReason", 2);
     }
-    if(event->GetCentrality() >= fCentralityMax || event->GetCentrality() < fCentralityMin) {
+    if(event->GetEventPlane3() >= fEventPlane3Max || event->GetEventPlane3() < fEventPlaneMin) {
         pass = kFALSE;
         if(fQAManager) fQAManager->Fill("fHistRejectionReason", 3);
+    }
+    if(event->GetCentrality() >= fCentralityMax || event->GetCentrality() < fCentralityMin) {
+        pass = kFALSE;
+        if(fQAManager) fQAManager->Fill("fHistRejectionReason", 4);
     }
     return pass;
 }

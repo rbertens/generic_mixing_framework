@@ -8,6 +8,8 @@ void runEventMixer(
         Float_t maxVtx = 2,
         Float_t minEp = 0,
         Float_t maxEp = 2,
+        Float_t minEp3 = 0;
+        Float_t maxEp3 = 0;
         Float_t minCen = 0,
         Float_t maxCen = 10,
         Bool_t AutoOverflow = kTRUE,
@@ -200,6 +202,7 @@ void runEventMixer(
     mixer->SetMultiplicityRange(minMult, maxMult);
     mixer->SetVertexRange(minVtx, maxVtx);
     mixer->SetEventPlaneRange(minEp, maxEp);
+    mixer->SetEventPlane3Range(minEp3, maxEp3);
     mixer->SetCentralityRange(minCen, maxCen);
     mixer->SetMaxEventsPerFile(5000);
     //    mixer->SetMaxEvents(10000);
