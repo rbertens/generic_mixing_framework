@@ -60,7 +60,7 @@ echo "cp $PATH_TO_SOURCE/*.C ." >> create_mixed_events_autoscript.sh
 echo "cp $PATH_TO_SOURCE/*.cxx ." >> create_mixed_events_autoscript.sh
 echo "cp $PATH_TO_SOURCE/*.h ." >> create_mixed_events_autoscript.sh
 
-echo "root -q -b 'runEventMixer.C($1,$2,$3,$4,$5,$6,$7,$8,$9,${10})'" >> create_mixed_events_autoscript.sh
+echo "root -q -b 'runEventMixer.C($1,$2,$3,$4,$5,$6,$7,$8,$9,${10},kTRUE,20,10)'" >> create_mixed_events_autoscript.sh
 echo "mv *.root $WORKDIR" >> create_mixed_events_autoscript.sh
 echo "rm -rf $TDIR" >> create_mixed_events_autoscript.sh
 # change permissions
