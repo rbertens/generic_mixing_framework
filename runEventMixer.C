@@ -6,15 +6,15 @@ void runEventMixer(
         Int_t maxMult = 1800,
         Float_t minVtx = -2,
         Float_t maxVtx = 2,
-        Float_t minEp = 0,
-        Float_t maxEp = 2,
-        Float_t minEp3 = 0;
-        Float_t maxEp3 = 0;
+        Float_t minEp = -1.6,
+        Float_t maxEp = 1.6,
+        Float_t minEp3 = -1.1,
+        Float_t maxEp3 = 1.1,
         Float_t minCen = 0,
         Float_t maxCen = 10,
         Bool_t AutoOverflow = kTRUE,
         Int_t bufferPadding = -1,
-        Int_t year = 10)
+        Int_t year = 0)
 {
 
     // example macro to read data from a ttree and perform simple analysis
@@ -191,8 +191,87 @@ void runEventMixer(
         myChain->Add("$PATH_TO_DATA/170027.root"); 
         myChain->Add("$PATH_TO_DATA/170036.root"); 
         myChain->Add("$PATH_TO_DATA/170081.root");
-    } 
+    } else if(year == 15) {
+        myChain->Add("$PATH_TO_DATA/245683.root");
+        myChain->Add("$PATH_TO_DATA/245692.root");
+        myChain->Add("$PATH_TO_DATA/245702.root");
+        myChain->Add("$PATH_TO_DATA/245705.root");
+        myChain->Add("$PATH_TO_DATA/245829.root");
+        myChain->Add("$PATH_TO_DATA/245831.root");
+        myChain->Add("$PATH_TO_DATA/245833.root");
+        myChain->Add("$PATH_TO_DATA/245923.root");
+        myChain->Add("$PATH_TO_DATA/245949.root");
+        myChain->Add("$PATH_TO_DATA/245952.root");
+        myChain->Add("$PATH_TO_DATA/245954.root");
+        myChain->Add("$PATH_TO_DATA/246001.root");
+        myChain->Add("$PATH_TO_DATA/246003.root");
+        myChain->Add("$PATH_TO_DATA/246012.root");
+        myChain->Add("$PATH_TO_DATA/246036.root");
+        myChain->Add("$PATH_TO_DATA/246037.root");
+        myChain->Add("$PATH_TO_DATA/246042.root");
+        myChain->Add("$PATH_TO_DATA/246048.root");
+        myChain->Add("$PATH_TO_DATA/246049.root");
+        myChain->Add("$PATH_TO_DATA/246052.root");
+        myChain->Add("$PATH_TO_DATA/246053.root");
+        myChain->Add("$PATH_TO_DATA/246087.root");
+        myChain->Add("$PATH_TO_DATA/246089.root");
+        myChain->Add("$PATH_TO_DATA/246113.root");
+        myChain->Add("$PATH_TO_DATA/246115.root");
+        myChain->Add("$PATH_TO_DATA/246151.root");
+        myChain->Add("$PATH_TO_DATA/246152.root");
+        myChain->Add("$PATH_TO_DATA/246153.root");
+        myChain->Add("$PATH_TO_DATA/246178.root");
+        myChain->Add("$PATH_TO_DATA/246180.root");
+        myChain->Add("$PATH_TO_DATA/246181.root");
+        myChain->Add("$PATH_TO_DATA/246182.root");
+        myChain->Add("$PATH_TO_DATA/246185.root");
+        myChain->Add("$PATH_TO_DATA/246217.root");
+        myChain->Add("$PATH_TO_DATA/246222.root");
+        myChain->Add("$PATH_TO_DATA/246225.root");
+        myChain->Add("$PATH_TO_DATA/246271.root");
+        myChain->Add("$PATH_TO_DATA/246272.root");
+        myChain->Add("$PATH_TO_DATA/246275.root");
+        myChain->Add("$PATH_TO_DATA/246276.root");
+        myChain->Add("$PATH_TO_DATA/246424.root");
+        myChain->Add("$PATH_TO_DATA/246431.root");
+        myChain->Add("$PATH_TO_DATA/246434.root");
+        myChain->Add("$PATH_TO_DATA/246487.root");
+        myChain->Add("$PATH_TO_DATA/246488.root");
+        myChain->Add("$PATH_TO_DATA/246493.root");
+        myChain->Add("$PATH_TO_DATA/246495.root");
+        myChain->Add("$PATH_TO_DATA/246750.root");
+        myChain->Add("$PATH_TO_DATA/246751.root");
+        myChain->Add("$PATH_TO_DATA/246757.root");
+        myChain->Add("$PATH_TO_DATA/246758.root");
+        myChain->Add("$PATH_TO_DATA/246759.root");
+        myChain->Add("$PATH_TO_DATA/246760.root");
+        myChain->Add("$PATH_TO_DATA/246763.root");
+        myChain->Add("$PATH_TO_DATA/246765.root");
+        myChain->Add("$PATH_TO_DATA/246766.root");
+        myChain->Add("$PATH_TO_DATA/246804.root");
+        myChain->Add("$PATH_TO_DATA/246805.root");
+        myChain->Add("$PATH_TO_DATA/246807.root");
+        myChain->Add("$PATH_TO_DATA/246808.root");
+        myChain->Add("$PATH_TO_DATA/246809.root");
+        myChain->Add("$PATH_TO_DATA/246810.root");
+        myChain->Add("$PATH_TO_DATA/246844.root");
+        myChain->Add("$PATH_TO_DATA/246845.root");
+        myChain->Add("$PATH_TO_DATA/246846.root");
+        myChain->Add("$PATH_TO_DATA/246847.root");
+        myChain->Add("$PATH_TO_DATA/246851.root");
+        myChain->Add("$PATH_TO_DATA/246928.root");
+        myChain->Add("$PATH_TO_DATA/246945.root");
+        myChain->Add("$PATH_TO_DATA/246948.root");
+        myChain->Add("$PATH_TO_DATA/246982.root");
+        myChain->Add("$PATH_TO_DATA/246984.root");
+        myChain->Add("$PATH_TO_DATA/246989.root");
+        myChain->Add("$PATH_TO_DATA/246991.root");
+        myChain->Add("$PATH_TO_DATA/246994.root");
+    } else if (year == 0) {
+        myChain->Add("merge/246153.root");
+    }
 
+      
     AliGMFEventReader* reader = new AliGMFEventReader(myChain);
     // create the mixer and connect the input event reader
     AliGMFMixingManager* mixer = new AliGMFMixingManager();
@@ -204,7 +283,7 @@ void runEventMixer(
     mixer->SetEventPlaneRange(minEp, maxEp);
     mixer->SetEventPlane3Range(minEp3, maxEp3);
     mixer->SetCentralityRange(minCen, maxCen);
-    mixer->SetMaxEventsPerFile(5000);
+    mixer->SetMaxEventsPerFile(500);
     //    mixer->SetMaxEvents(10000);
     mixer->DoQA();
     //    mixer->SetSplittingForTracksWithPtHigherThan(3.);
