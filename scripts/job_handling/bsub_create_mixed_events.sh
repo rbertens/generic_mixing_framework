@@ -2,7 +2,7 @@ echo " -------------------------------- "
 echo "    welcome to the event mixer "
 echo "--------------------------------- "
 echo " "
-if [ $# -lt 8 ]; then
+if [ $# -lt 10 ]; then
   echo 1>&2 "FATAL - not enough arguments given"
   echo " " 
   echo " -  please provide 8 arguments: "
@@ -12,7 +12,7 @@ if [ $# -lt 8 ]; then
   echo "   > centrality range [7 - 8]"
   echo "------------------------------- " 
   exit 2
-elif [ $# -gt 8 ]; then
+elif [ $# -gt 10 ]; then
   echo 1>&2 "FATAL - too many arguments"
   echo " " 
   echo " -  please provide 8 arguments: "
@@ -67,5 +67,5 @@ echo "rm -rf $TDIR" >> create_mixed_events_autoscript.sh
 chmod +x create_mixed_events_autoscript.sh
 
 # launch the autolauncher
-bsub -q 8nh create_mixed_events_autoscript.sh
+#bsub -q 8nh create_mixed_events_autoscript.sh
 cd ..    

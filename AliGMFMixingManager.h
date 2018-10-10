@@ -88,7 +88,7 @@ class AliGMFMixingManager : public TObject {
         void        StageCachedEvent(Int_t i);
         void        FillHeaderWithCachedEventInfo();
         AliGMFTTreeTrack*   GetNextTrackFromEventI(Int_t i);
-        AliGMFTTreeTrack*   GetRandomTrackFromEventI(Int_t i) {return static_cast<AliGMFTTreeTrack*>(0x0);}   // to be implemented
+//        AliGMFTTreeTrack*   GetRandomTrackFromEventI(Int_t i) {return static_cast<AliGMFTTreeTrack*>(0x0);}   // to be implemented
         void        CreateNewEventChunk();
         void        WriteCurrentTreeToFile(Bool_t createNewOutputStructures);
         void        PushToTTree();

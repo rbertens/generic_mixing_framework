@@ -4,18 +4,20 @@
 
 
 # centrality range
-cen=(0 10)
+cen=(0 5)
 
 # vertex arrays
 vertex=(-10 -4 -2 2 4 10)
 
 # event plane array
-ep=(-1.6 -.785 0 .785 1.6)
-ep3=( ... )
+ep=(-1.6 -1.2 -.8 .4 0 .4 .8 1.2 1.6)
+ep3=(-1.05 -0.63 -.21 .21 .63 1.05)
 # multiplicity array
 
 #mult=(100 300 500 700 900)
-mult=(1280 1610 1940 2270 2600)
+#mult=(1280 1610 1940 2270 2600)
+mult=(1600 1900 2200 2500 2800)
+
 for ((i = 0; i < ${#vertex[@]}-1; ++i)); do
     inci=$(( $i + 1 ))
     for ((j = 0; j < ${#ep[@]}-1; ++j)); do
