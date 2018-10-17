@@ -4,3 +4,5 @@
 *.so
 *.root
 *.xml
+*.pcm
+*.txt
