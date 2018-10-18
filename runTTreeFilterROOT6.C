@@ -1,4 +1,5 @@
 #include "AliAnalysisTaskTTreeFilter.h"
+#include "AliGMFEventCuts.h"
 
 void runTTreeFilterROOT6() {
     // author: Redmer Alexander Bertens
@@ -48,6 +49,9 @@ void runTTreeFilterROOT6() {
     TMacro multSelection(gSystem->ExpandPathName("$ALICE_PHYSICS/OADB/COMMON/MULTIPLICITY/macros/AddTaskMultSelection.C"));
     AliMultSelectionTask* multSelectionTask = reinterpret_cast<AliMultSelectionTask*>(multSelection.Exec());
     // launch the task
+    task->SelectCollisionCandidates(AliVEvent::kINT7);
+    AliGMFEventCuts* eventcuts = task->GetEventCuts();
+    eventcuts->Set2010PileUpRejection(kFALSE);
     task->SetDoQA(kTRUE);
 
     // check if we can initialize the manager

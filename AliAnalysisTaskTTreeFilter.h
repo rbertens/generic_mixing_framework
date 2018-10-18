@@ -40,14 +40,16 @@ class AliAnalysisTaskTTreeFilter : public AliAnalysisTaskSE {
 
 
   // getters
-  const AliGMFEventCuts*        GetEventCuts()  {return fEventCuts;}
-  const AliGMFTrackCuts*        GetTrackCuts()  {return fTrackCuts;}
+  AliGMFEventCuts*        GetEventCuts()  {return fEventCuts;}
+  AliGMFTrackCuts*        GetTrackCuts()  {return fTrackCuts;}
+
+  Double_t                GetWDist(const AliVVertex* v0, const AliVVertex* v1);
 
  private:
   Bool_t        ParseEvent(AliVEvent* event);
   void          ParseTracks(AliVEvent* event);
   void          PushToTTree();
-  Bool_t        PassesCuts(AliVEvent* event);
+  Bool_t        PassesCuts(AliVEvent* eve);
   Bool_t        PassesCuts(AliVTrack* track);
 
   void          FillEventQA(Bool_t cutsApplied, AliVEvent* event);
@@ -93,6 +95,13 @@ class AliAnalysisTaskTTreeFilter : public AliAnalysisTaskSE {
   TFile*                fOADB;                          //! fOADB
   Int_t                 fRunNumber;     // runnumber
   
+
+
+  TF1*                  fLowCut;//!
+  TF1*                  fHighCut;//!
+  TF1*                  fMultTOFLowCut;//!
+  TF1*                  fMultTOFHighCut;//!
+
   ClassDef(AliAnalysisTaskTTreeFilter, 2);
 };
 
