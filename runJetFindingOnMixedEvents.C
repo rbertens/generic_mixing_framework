@@ -25,16 +25,16 @@ void runJetFindingOnMixedEvents(Int_t fileSuffix = 0,
     gSystem->Load("libfastjetcontribfragile");
 
     // compile the encapsulated classes
-    gROOT->LoadMacro("AliGMFHistogramManager.cxx+");
-    gROOT->LoadMacro("AliGMFTTreeHeader.cxx+");
-    gROOT->LoadMacro("AliGMFTTreeTrack.cxx+");
-    gROOT->LoadMacro("AliGMFEventContainer.cxx+");
-    gROOT->LoadMacro("AliGMFEventReader.cxx+");
-    gROOT->LoadMacro("AliGMFSimpleEventCuts.cxx+");
-    gROOT->LoadMacro("AliGMFSimpleTrackCuts.cxx+");
+    gROOT->LoadMacro("AliGMFHistogramManager.cxx++O");
+    gROOT->LoadMacro("AliGMFTTreeHeader.cxx++O");
+    gROOT->LoadMacro("AliGMFTTreeTrack.cxx++O");
+    gROOT->LoadMacro("AliGMFEventContainer.cxx++O");
+    gROOT->LoadMacro("AliGMFEventReader.cxx++O");
+    gROOT->LoadMacro("AliGMFSimpleEventCuts.cxx++O");
+    gROOT->LoadMacro("AliGMFSimpleTrackCuts.cxx++O");
 
     // compile the jet finding classes
-    gROOT->LoadMacro("AliGMFSimpleJetFinder.cxx+");
+    gROOT->LoadMacro("AliGMFSimpleJetFinder.cxx++O");
 
     TChain* myChain = new TChain("tree");
     myChain->Add(Form("ME_%i.root", fileSuffix));

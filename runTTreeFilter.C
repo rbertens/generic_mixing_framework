@@ -52,12 +52,12 @@ void runTTreeFilter() {
     gSystem->AddIncludePath("-Wno-deprecated");
     gSystem->AddIncludePath("-I$ALICE_ROOT -I$ALICE_ROOT/include -I$ALICE_PHYSICS/include");
 
-    gROOT->LoadMacro("AliGMFEventCuts.cxx+");
-    gROOT->LoadMacro("AliGMFTrackCuts.cxx+");
-    gROOT->LoadMacro("AliGMFTTreeHeader.cxx+");
-    gROOT->LoadMacro("AliGMFTTreeTrack.cxx+");
-    gROOT->LoadMacro("AliGMFHistogramManager.cxx+");
-    gROOT->LoadMacro("AliAnalysisTaskTTreeFilter.cxx+");
+    gROOT->LoadMacro("AliGMFEventCuts.cxx++O");
+    gROOT->LoadMacro("AliGMFTrackCuts.cxx++O");
+    gROOT->LoadMacro("AliGMFTTreeHeader.cxx++O");
+    gROOT->LoadMacro("AliGMFTTreeTrack.cxx++O");
+    gROOT->LoadMacro("AliGMFHistogramManager.cxx++O");
+    gROOT->LoadMacro("AliAnalysisTaskTTreeFilter.cxx++O");
 
     // load the addtask
     gROOT->LoadMacro("add_task_macros/AddTaskTTreeFilter.C");

@@ -1,6 +1,6 @@
 #include "AliAnalysisTaskTTreeFilter.h"
 
-void runTTreeFilter() {
+void runTTreeFilterROOT6() {
     // author: Redmer Alexander Bertens
     // rbertens@cern.ch
     //

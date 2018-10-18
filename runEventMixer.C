@@ -27,12 +27,12 @@ void runEventMixer(
     // include paths, necessary for compilation
     gSystem->AddIncludePath("-Wno-deprecated");
     // compile the classes
-    gROOT->LoadMacro("AliGMFTTreeHeader.cxx+");
-    gROOT->LoadMacro("AliGMFTTreeTrack.cxx+");
-    gROOT->LoadMacro("AliGMFEventContainer.cxx+");
-    gROOT->LoadMacro("AliGMFEventReader.cxx+");
-    gROOT->LoadMacro("AliGMFHistogramManager.cxx+");
-    gROOT->LoadMacro("AliGMFMixingManager.cxx+");
+    gROOT->LoadMacro("AliGMFTTreeHeader.cxx++O");
+    gROOT->LoadMacro("AliGMFTTreeTrack.cxx++O");
+    gROOT->LoadMacro("AliGMFEventContainer.cxx++O");
+    gROOT->LoadMacro("AliGMFEventReader.cxx++O");
+    gROOT->LoadMacro("AliGMFHistogramManager.cxx++O");
+    gROOT->LoadMacro("AliGMFMixingManager.cxx++O");
 
     // define the input chain and create an event reader
     TChain* myChain = new TChain("tree");

@@ -48,8 +48,8 @@ class AliGMFTTreeHeader : public TObject{
   Double32_t    fEventPlane;    //[0,3.15,8] event plane orientation
   Double32_t    fEventPlane3;   //[0,3.15,8] event plane 3 orientation
   Double32_t    fCentrality;    //[0,100,8] collision centrality
-#elif COMPRESSION > 0
-  //medium compression, no precision loss expected`
+#elif COMPRESSION_LEVEL > 0
+  //medium compression, no precision loss expected
   Double32_t    fZvtx;          //[0,10,12] rec vertex
   Double32_t    fEventPlane;    //[0,3.15,12] event plane orientation
   Double32_t    fEventPlane3;   //[0,3.15,12] event plane 3 orientation

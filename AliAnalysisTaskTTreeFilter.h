@@ -93,7 +93,7 @@ class AliAnalysisTaskTTreeFilter : public AliAnalysisTaskSE {
   TFile*                fOADB;                          //! fOADB
   Int_t                 fRunNumber;     // runnumber
   
-  ClassDef(AliAnalysisTaskTTreeFilter, 1);
+  ClassDef(AliAnalysisTaskTTreeFilter, 2);
 };
 
 #endif
