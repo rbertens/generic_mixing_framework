@@ -7,8 +7,6 @@
 #include "fastjet/ClusterSequence.hh"
 #include "fastjet/ClusterSequenceArea.hh"
 #include "fastjet/ClusterSequenceAreaBase.hh"
-
-
 #include <iostream>
 #include <vector>
 
@@ -38,7 +36,6 @@ AliGMFSimpleJetFinder::AliGMFSimpleJetFinder() : TObject(),
     fNCones(0),
     fLeadingHadronPt(.1),
     fLeadingHadronMaxPt(1e9),
-    fRandomizeEtaPhi(kFALSE),
     fImprintV2(0x0),
     fImprintV3(0x0),
     fSplittingThreshold(1e9),
@@ -99,8 +96,6 @@ Bool_t AliGMFSimpleJetFinder::Initialize() {
     settings->SetBinContent(3, fSplittingThreshold);
     settings->GetXaxis()->SetBinLabel(4, "fSplitTrackPt");
     settings->SetBinContent(4, fSplitTrackPt);
-    settings->GetXaxis()->SetBinLabel(5, "fRandomizeEtaPhi");
-    settings->SetBinContent(5, (int)fRandomizeEtaPhi);
     settings->GetXaxis()->SetBinLabel(6, "fRandomizeSplitTrack");
     settings->SetBinContent(6, (int)fRandomizeSplitTrack);
 
@@ -199,7 +194,9 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
         track = event->GetTrack(i);
         // check if the track satisfies the cuts
         if(!fTrackCuts->IsSelected(track)) continue;
-        if(fRandomizeSplitTrack) RandomizeEtaPhi(track);
+        // imprint flow if this is supplied
+        if(fImprintV2) GenerateV2(track);
+        else if(fImprintV3) GenerateV3(track);
         // decide how to deal with the track based on its pt
         if(track->GetPt() <= fSplittingThreshold) {
             // track is selected and pt smaller than threshold, use it directly in jet finding
@@ -242,10 +239,7 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
                     if(!fPreserveSplitTrackPhi) {
                         phi = gRandom->Uniform(0, TMath::TwoPi());
                         eta = gRandom->Uniform(-.9, 9);
-                        // imprint flow if this is supplied
-                        if(fImprintV2) GenerateV2(phi, pt);
-                        else if(fImprintV3) GenerateV3(phi, pt);
-                    } else if(fPreserveSplitTrackPhi) {
+                   } else if(fPreserveSplitTrackPhi) {
                         // keep the phi angle intact, but embed the new track far
                         // away enough from the initial jet to not introduce a bias
                         if(track->GetEta() > 0.) eta = gRandom->Uniform(-.9, -.2);
@@ -283,9 +277,6 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
                 if(!fPreserveSplitTrackPhi) {
                     phi = gRandom->Uniform(0, TMath::TwoPi());
                     eta = gRandom->Uniform(-.9, 9);
-                    // imprint flow if this is supplied
-                    if(fImprintV2) GenerateV2(phi, pt);
-                    else if(fImprintV3) GenerateV3(phi, pt);
                 } else if(fPreserveSplitTrackPhi) {
                     // keep the phi angle intact, but embed the new track far
                     // away enough from the initial jet to not introduce a bias
@@ -522,13 +513,14 @@ void AliGMFSimpleJetFinder::RandomizeEtaPhi(AliGMFTTreeTrack* track) {
     track->SetPhi(gRandom->Uniform(0, TMath::TwoPi()));
 }
 //_____________________________________________________________________________
-void AliGMFSimpleJetFinder::GenerateV2(Double_t &phi, Double_t &pt) const
+void AliGMFSimpleJetFinder::GenerateV2(AliGMFTTreeTrack* track)
 {
-    phi = gRandom->Uniform(0, TMath::TwoPi());
-    Double_t phi0(phi), v2(fImprintV2->Eval(pt)), f(0.), fp(0.), phiprev(0.);
+    // first randomize to get a uniform distribution
+    RandomizeEtaPhi(track);
+    Double_t phi0(track->GetPhi()), v2(fImprintV2->Eval(track->GetPt())), f(0.), fp(0.), phiprev(0.);
     if(TMath::AreEqualAbs(v2, 0, 1e-5)) return;
     // introduce flow fluctuations (gaussian)
-    //    if(fFlowFluctuations > -10) GetFlowFluctuation(v2);
+    GetFlowFluctuation(v2);
     for (Int_t i = 0; i < 100; i++) {
         phiprev = phi; //store last value for comparison
         f =  phi-phi0+v2*TMath::Sin(2.*(phi /*- fPsi2*/));
@@ -536,15 +528,16 @@ void AliGMFSimpleJetFinder::GenerateV2(Double_t &phi, Double_t &pt) const
         phi -= f/fp;
         if (TMath::AreEqualAbs(phiprev, phi, 1e-10)) break; 
     }
+    track->SetPhi(phi);
 }
 //_____________________________________________________________________________
-void AliGMFSimpleJetFinder::GenerateV3(Double_t &phi, Double_t &pt) const
+void AliGMFSimpleJetFinder::GenerateV3(AliGMFTTreeTrack* track)
 {
-    phi = gRandom->Uniform(0, TMath::TwoPi());
-    Double_t phi0(phi), v3(fImprintV3->Eval(pt)), f(0.), fp(0.), phiprev(0.);
+    RandomizeEtaPhi(track);
+    Double_t phi0(track->GetPhi()), v3(fImprintV3->Eval(track->GetPt())), f(0.), fp(0.), phiprev(0.);
     if(TMath::AreEqualAbs(v3, 0, 1e-5) ) return;
     // introduce flow fluctuations (gaussian)
-    //    if(fFlowFluctuations > -10) GetFlowFluctuation(v3);
+    GetFlowFluctuation(v3);
     for (Int_t i = 0; i < 100; i++)  {
         phiprev = phi; //store last value for comparison
         f =  phi-phi0+2./3.*v3*TMath::Sin(3.*(phi/*-fPsi3*/));
@@ -552,6 +545,7 @@ void AliGMFSimpleJetFinder::GenerateV3(Double_t &phi, Double_t &pt) const
         phi -= f/fp;
         if (TMath::AreEqualAbs(phiprev, phi, 1e-10)) break;
     }
+    track->SetPhi(phi);
 }
 //_____________________________________________________________________________
 Bool_t AliGMFSimpleJetFinder::GetRandomCone(AliGMFEventContainer* event, Float_t &pt, Float_t &eta, Float_t &phi, Float_t etaJet, Float_t phiJet)

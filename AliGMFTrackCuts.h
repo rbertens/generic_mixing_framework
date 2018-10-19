@@ -9,6 +9,7 @@ class AliGMFTrackCuts : public TObject {
 
  public:
     AliGMFTrackCuts();
+    void   Diagnose(AliVTrack* track);
     Bool_t IsSelected(AliVTrack* track);
 
     // setters

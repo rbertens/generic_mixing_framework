@@ -609,7 +609,7 @@ Bool_t AliAnalysisTaskTTreeFilter::PassesCuts(AliVEvent* eve)
 	    return false;
 	if (cl0Centr > fHighCut->Eval(v0Centr))
 	    return false;
-
+/*
 
 	if (multESDTPCDif > 15000)
 	    return false;
@@ -671,30 +671,15 @@ Bool_t AliAnalysisTaskTTreeFilter::PassesCuts(AliVEvent* eve)
 	double nsigTot = TMath::Abs(dz)/errTot, nsigTrc = TMath::Abs(dz)/errTrc;
 	if (TMath::Abs(dz)>0.2 || TMath::Abs(nsigTot)>10 || TMath::Abs(nsigTrc)>20) return kFALSE; // bad vertexing 
 	if (event->IsIncompleteDAQ()) return kFALSE;
-
+*/
     } 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 //________________________________________________________________________
 Bool_t AliAnalysisTaskTTreeFilter::PassesCuts(AliVTrack* track)
 {
     // track cuts would go here
     if(fDoQA && track) FillTrackQA(kFALSE, track);
+    fTrackCuts->Diagnose(track);
     return fTrackCuts->IsSelected(track);
 }
 //________________________________________________________________________

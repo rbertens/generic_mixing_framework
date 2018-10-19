@@ -1,5 +1,5 @@
 #ifndef COMPRESSION_LEVEL
-#define COMPRESSION_LEVEL 0
+#define COMPRESSION_LEVEL 1
 #endif
 
 #ifndef AliGMFTTreeHeader_H
@@ -44,15 +44,15 @@ class AliGMFTTreeHeader : public TObject{
   // so extra care is taken to minimize the space they take
 #if COMPRESSION_LEVEL > 1
   // maximum compression, some loss of precision may occur
-  Double32_t    fZvtx;          //[0,10,8] rec vertex
-  Double32_t    fEventPlane;    //[0,3.15,8] event plane orientation
-  Double32_t    fEventPlane3;   //[0,3.15,8] event plane 3 orientation
+  Double32_t    fZvtx;          //[-10,10,8] rec vertex
+  Double32_t    fEventPlane;    //[-1.6, 1.6,8] event plane orientation
+  Double32_t    fEventPlane3;   //[-1.05, 1.05,8] event plane 3 orientation
   Double32_t    fCentrality;    //[0,100,8] collision centrality
 #elif COMPRESSION_LEVEL > 0
   //medium compression, no precision loss expected
-  Double32_t    fZvtx;          //[0,10,12] rec vertex
-  Double32_t    fEventPlane;    //[0,3.15,12] event plane orientation
-  Double32_t    fEventPlane3;   //[0,3.15,12] event plane 3 orientation
+  Double32_t    fZvtx;          //[-10,10,12] rec vertex
+  Double32_t    fEventPlane;    //[-1.6,1.6,12] event plane orientation
+  Double32_t    fEventPlane3;   //[-1.05, 1.05,12] event plane 3 orientation
   Double32_t    fCentrality;    //[0,100,12] collision centrality
 #else  
   // no compression

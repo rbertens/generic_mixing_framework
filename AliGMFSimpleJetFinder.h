@@ -30,7 +30,6 @@ class AliGMFSimpleJetFinder : public TObject {
         void    SetLeadingHadronPt(Float_t l)           { fLeadingHadronPt = l; }
         void    SetLeadingHadronMaxPt(Float_t l)        { fLeadingHadronMaxPt = l; }
 
-        void    SetRandomizeEtaPhi(Bool_t r)            { fRandomizeEtaPhi = r; }
         void    SetImprintV2(TF1* v2)                   { fImprintV2 = v2; delete fImprintV3; fImprintV3 = 0x0; }
         void    SetImprintV3(TF1* v3)                   { fImprintV3 = v3; delete fImprintV2; fImprintV2 = 0x0; }
         void    SetEventCuts(AliGMFSimpleEventCuts* c)  { fEventCuts = c;}
@@ -69,7 +68,6 @@ class AliGMFSimpleJetFinder : public TObject {
         Int_t   fNCones;                        // number of random cones
         Float_t fLeadingHadronPt;               // min leading hadron pt
         Float_t fLeadingHadronMaxPt;            // max pt for leading hadron
-        Bool_t  fRandomizeEtaPhi;               // shuffle tracks randomly in eta, phi
         TF1*    fImprintV2;                     // imprint pt differential v2 on event
         TF1*    fImprintV3;                     // imprint pt differnetial v3 on event
         Double_t        fSplittingThreshold;    // split tracks with pt higher than this
@@ -91,9 +89,9 @@ class AliGMFSimpleJetFinder : public TObject {
         // histograms
         AliGMFHistogramManager* fHistogramManager;      // histogram manager
 
-//        void GetFlowFluctuation(Double_t& vn) const {
-//            vn += TMath::Sqrt(2*(vn*.25)*(vn*.25))*TMath::ErfInverse(2*(gRandom->Uniform(0, fFlowFluctuations))-1); 
-//        }
+        void GetFlowFluctuation(Double_t& vn) const {
+            vn += TMath::Sqrt(2*(vn*.25)*(vn*.25))*TMath::ErfInverse(2*(gRandom->Uniform(0, fFlowFluctuations))-1); 
+        }
         static Double_t PhaseShift(Double_t x) {  
             while (x >= TMath::TwoPi()) x-= TMath::TwoPi();
             while (x < 0.) x += TMath::TwoPi();
@@ -107,8 +105,8 @@ class AliGMFSimpleJetFinder : public TObject {
         }
         
         void     RandomizeEtaPhi(AliGMFTTreeTrack* track);
-        void     GenerateV2(Double_t &phi, Double_t &pt) const;
-        void     GenerateV3(Double_t &phi, Double_t &pt) const;
+        void     GenerateV2(AliGMFTTreeTrack* track);
+        void     GenerateV3(AliGMFTTreeTrack* track);
         Bool_t   GetRandomCone(AliGMFEventContainer* event, Float_t &pt, Float_t &eta, Float_t &phi, Float_t etaJet = -2, Float_t phiJet = -10);
 
         void     AddProtoJetToCollection( std::vector<fastjet::PseudoJet> &protoJetCollection,
