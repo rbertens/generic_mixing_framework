@@ -517,7 +517,7 @@ void AliGMFSimpleJetFinder::GenerateV2(AliGMFTTreeTrack* track)
 {
     // first randomize to get a uniform distribution
     RandomizeEtaPhi(track);
-    Double_t phi0(track->GetPhi()), v2(fImprintV2->Eval(track->GetPt())), f(0.), fp(0.), phiprev(0.);
+    Double_t phi0(track->GetPhi()), v2(fImprintV2->Eval(track->GetPt())), f(0.), fp(0.), phiprev(0.), phi(0.);
     if(TMath::AreEqualAbs(v2, 0, 1e-5)) return;
     // introduce flow fluctuations (gaussian)
     GetFlowFluctuation(v2);
@@ -534,7 +534,7 @@ void AliGMFSimpleJetFinder::GenerateV2(AliGMFTTreeTrack* track)
 void AliGMFSimpleJetFinder::GenerateV3(AliGMFTTreeTrack* track)
 {
     RandomizeEtaPhi(track);
-    Double_t phi0(track->GetPhi()), v3(fImprintV3->Eval(track->GetPt())), f(0.), fp(0.), phiprev(0.);
+    Double_t phi0(track->GetPhi()), v3(fImprintV3->Eval(track->GetPt())), f(0.), fp(0.), phiprev(0.), phi(0.);
     if(TMath::AreEqualAbs(v3, 0, 1e-5) ) return;
     // introduce flow fluctuations (gaussian)
     GetFlowFluctuation(v3);

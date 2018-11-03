@@ -68,7 +68,6 @@ void runJetFindingOnTree(
        jetFinder[i]->SetSplittingForTracksWithPtHigherThan(splitTracksFrom);
        jetFinder[i]->SetSplitTrackPt(splitThemIn);
        jetFinder[i]->SetRandomizeSplitTrackEtaPhi(randomize);
-       jetFinder[i]->SetRandomizeEtaPhi(randomizeEtaPhi);
        jetFinder[i]->SetLeadingHadronPt(leadingHadronPt);
        jetFinder[i]->SetLeadingHadronMaxPt(leadingHadronMaxPt);
        // pass the event cuts to the jet finder

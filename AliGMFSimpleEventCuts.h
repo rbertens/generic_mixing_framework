@@ -17,7 +17,7 @@ class AliGMFSimpleEventCuts : public TObject {
     Bool_t PassesVertexSelection();
     Bool_t PassesCentralitySelection();
     Bool_t PassesEventPlaneSelection();
-    Bool_t PassesEventPlaneeSelection();
+    Bool_t PassesEventPlane3Selection();
     Bool_t PassesRunNumberSelection();
 
     void Diagnose();
