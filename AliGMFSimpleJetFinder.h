@@ -90,7 +90,7 @@ class AliGMFSimpleJetFinder : public TObject {
         AliGMFHistogramManager* fHistogramManager;      // histogram manager
 
         void GetFlowFluctuation(Double_t& vn) const {
-            vn += TMath::Sqrt(2*(vn*.25)*(vn*.25))*TMath::ErfInverse(2*(gRandom->Uniform(0, fFlowFluctuations))-1); 
+            vn += TMath::Sqrt(2*(vn*.25)*(vn*.25))*TMath::ErfInverse(2*(gRandom->Uniform(0, 1))-1); 
         }
         static Double_t PhaseShift(Double_t x) {  
             while (x >= TMath::TwoPi()) x-= TMath::TwoPi();
