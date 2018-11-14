@@ -314,7 +314,7 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
 
 
     // setup the jet finder for signal and background jets
-    fastjet::GhostedAreaSpec     ghostSpec(.95, 1, 0.001, 1, .1, 1e-100);
+    fastjet::GhostedAreaSpec     ghostSpec(.95, 1, 0.0005, 1, .1, 1e-100);
     fastjet::Strategy            strategy = fastjet::Best;
     fastjet::RecombinationScheme recombScheme = fastjet::BIpt_scheme;
     fastjet::AreaType            areaType = fastjet::active_area;
