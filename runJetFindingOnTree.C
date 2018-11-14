@@ -2,7 +2,7 @@ void runJetFindingOnTree(
         Int_t cenMin = 0,
         Int_t cenMax = 10,
         Int_t file = 0,
-        Int_t rejectNJ = 2,
+        Int_t rejectNJ = 0,
         Float_t minConstPt = 0.,
         Float_t leadingHadronPt = 0,
         Float_t leadingHadronMaxPt = 1e9,

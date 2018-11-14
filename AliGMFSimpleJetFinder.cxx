@@ -116,9 +116,10 @@ Bool_t AliGMFSimpleJetFinder::Initialize() {
 }
 //_____________________________________________________________________________
 Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
-    // called for each event
-
+    // event loop
+    if(!event) return kFALSE;
     // check if event cuts are required, and if so, if the event passes
+
     if(fEventCuts) {
         if(!fEventCuts->IsSelected(event)) return kFALSE;
     }
@@ -314,7 +315,7 @@ Bool_t AliGMFSimpleJetFinder::AnalyzeEvent(AliGMFEventContainer* event) {
 
 
     // setup the jet finder for signal and background jets
-    fastjet::GhostedAreaSpec     ghostSpec(.95, 1, 0.0005, 1, .1, 1e-100);
+    fastjet::GhostedAreaSpec     ghostSpec(.95, 1, 0.001, 1, .1, 1e-100);
     fastjet::Strategy            strategy = fastjet::Best;
     fastjet::RecombinationScheme recombScheme = fastjet::BIpt_scheme;
     fastjet::AreaType            areaType = fastjet::active_area;
