@@ -679,7 +679,7 @@ Bool_t AliAnalysisTaskTTreeFilter::PassesCuts(AliVTrack* track)
 {
     // track cuts would go here
     if(fDoQA && track) FillTrackQA(kFALSE, track);
-    fTrackCuts->Diagnose(track);
+//    fTrackCuts->Diagnose(track);
     return fTrackCuts->IsSelected(track);
 }
 //________________________________________________________________________

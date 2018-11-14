@@ -16,13 +16,13 @@ void runTTreeFilterOnGrid() {
 
     // select range of runs to analyze (see runs[] for definition)
     Int_t firstrun = 0;
-    Int_t lastrun = 20;// max 75 for 2015
+    Int_t lastrun = 75;// max 75 for 2015
     Int_t year = 2015;  // set to 
                                 // 2010 for 2010
                                 // 2011 for good 2011 runs
                                 // 20111 for irocc13 issue runs
                                 // 20112 for orocc08 issue runs
-    Bool_t terminate =           kFALSE; // run in terminate mode
+    Bool_t terminate =           kTRUE; // run in terminate mode
     Bool_t downloadoutput =      kFALSE;// get the final output files
 
 
