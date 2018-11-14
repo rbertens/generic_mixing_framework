@@ -33,8 +33,6 @@ void runJetFindingOnTree(
     gROOT->LoadMacro("AliGMFEventReader.cxx++O");
     gROOT->LoadMacro("AliGMFSimpleTrackCuts.cxx++O");
     gROOT->LoadMacro("AliGMFSimpleEventCuts.cxx++O");
-    gROOT->LoadMacro("AliGMFSimpleJetFinder.cxx++O");
-
 
     // compile the jet finding classes
     gROOT->LoadMacro("AliGMFSimpleJetFinder.cxx++O");
