@@ -23,7 +23,7 @@ AliGMFSimpleEventCuts::AliGMFSimpleEventCuts() : TObject(),
     fCentralityMax(-1),
     fCheckRunNumber(kFALSE),
     fRunNumberMin(0),
-    fRunNumberMax(ULONG_MAX)
+    fRunNumberMax(1e9)
 {
   // default constructor
 }
