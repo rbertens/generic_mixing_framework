@@ -277,7 +277,7 @@ Input files to run over are simply passed to the mixing manager in the form of a
 
 The event mixer will use all events that are available in the chain for mixing, the user does not have to define an explicit event loop. 
 
-### Mixing vent selection criteria
+### Mixing event selection criteria
 Tracks from events that have similar characteristics are used for mixing. These characteristics are
 - multiplicity
 - vertex z position
@@ -483,4 +483,13 @@ The above information and the `runJetFindingOnTree.C` macro should give sufficie
 
 The procedure for running the jet finders on mixed events is similar to running on unmixed events. The macro `runJetFindingOnMixedEvents.C` can be used to steer jet finding on mixed events. An important feature of the jet finder that pertaining to running on mixed events, is the treatment of tracks with high transverse momentum. These tracks can be split into multiple fragments, where the sum of the fragments' transverse momentum equals the initial transverse momentum of the highly energetic track. 
 
+# Job submission scripts
 
+Nobody wants to submit thousands of jobs by hand, therefore, a collection of scripts to automatically submit jobs (using bsub, but these can easily be used as a template for other queue systems), can be found under the `scripts/job_handling` folder. Scripts are divided into two categories:
+
+- `kickstart*` which call `bsub*` scripts with different parameters
+- `bsub*` scripts, which themselves write a shell script that contains the actual job description (and is also launched at the end of the bsub script)
+
+The bsub scripts create a temporary directory under /tmp, where jobs are executed. Output data is, at the end of the job, copied to the directory from which the job is launched. These bsub scripts contain some hardcoded paths that likely need to be changed when you run on your own system, but changes should be straightforward. 
+
+The folder `scripts/postprocessing` shows some example scripts that can be used to compare mixed and unmixed event analysis results. 
