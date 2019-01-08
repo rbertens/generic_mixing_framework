@@ -305,7 +305,8 @@ Here comes the fun part. Event mixing is challenging, and you can configure the 
 The way the mixer works, is as follows. Take the simple example of wanting to mix tracks with a multiplicity between two and three, then it sets N to 3. The mixer will read through the input chain, and fill an NxN matrix with tracks that it finds. Let's call these tracks S0T0 through S0TN, where the S0 means unmixed event 0, and TN track number N, so that a matrix filled with its rows filled with two events with a multiplicity of 3 and one event with a multiplicity of 2 could look like
 
 | S0T0 | S0T1 | S0T2 |
-| S1T0 | S1T1 | --- |
+|---|---|---|
+| S1T0 | S1T1 |  |
 | S2T0 | S2T1 | S2T2|
 
 Mixed events are now creating by finding vertical paths through this matrix (columns), and putting the encountered tracks into new mixed events. From the above example, we can construct three mixed events, the multiplicity of the ensemble is automatically preserved:
@@ -317,28 +318,31 @@ Mixed events are now creating by finding vertical paths through this matrix (col
 When dealing with less trivial examples, it is not obvious a solution can be found when following the same approach
 
 | S0T0 | S0T1 | S0T2 | S0T3 | S0T4 |
+|---|---|---|---|---|
 | S1T0 | S1T1 | S1T2 | S1T3 | S1T4 |
-| S2T0 | S2T1 | S2T2| --- | --- |
-| S3T0 | S3T1 | S3T2| --- | --- |
-| S4T0 | S4T1 | S4T2| --- | --- |
+| S2T0 | S2T1 | S2T2|  |  |
+| S3T0 | S3T1 | S3T2|  |  |
+| S4T0 | S4T1 | S4T2|  |  |
 
 To construct mixed events with proper multiplicity from columns, a shuffling is performed, in which the matrix is rearranged like
 
 | S0T0 | S0T1 | S0T2 | S0T3 | S0T4 |
+|---|---|---|---|---|
 | S1T0 | S1T1 | S1T2 | S1T3 | S1T4 |
-| S2T0 | S2T1 | --- | S2T2| --- |
-| S3T0 | S3T1 | --- | --- | S3T2|
-| S4T0 | S4T1 | S4T2| --- | --- |
+| S2T0 | S2T1 |  | S2T2|  |
+| S3T0 | S3T1 |  |  | S3T2|
+| S4T0 | S4T1 | S4T2|  |  |
 
 #### Buffer padding
 
 Some examples do not have a solution, e.g.
 
 | S0T0 | S0T1 | S0T2 | S0T3 | S0T4 |
+|---|---|---|---|---|
 | S1T0 | S1T1 | S1T2 | S1T3 | S1T4 |
 | S2T0 | S2T1 | S2T2| S2T3 |S2T4 |
 | S3T0 | S3T1 | S3T2| S3T3 |S3T4 |
-| S4T0 | S4T1 | S4T2| --- | --- |
+| S4T0 | S4T1 | S4T2|  |  |
 
 To make sure that we do not mix more than one track from a given unmixed into event into a mixed event, tracks can only be shuffled to different columns, not different rows. If you observe that mixed multiplicity distributions do not match up with the multiplicity distribution of the unmixed input events (all distributions are available in the mixing QA files), we can add a `buffer column` to the mixing matrix. This is done by specifying
 
@@ -355,8 +359,9 @@ Another way in which the mixer can fail, is when it is not able to fill a comple
 
 
 | S10T0 | S10T1 | S10T2 |
+|---|---|---|
 | S11T0 | S11T1 | S11T1 |
-| --- | --- | ---|
+|  | | |
 
 Unless otherwise specified, the mixer will exit when a mixing matrix cannot be filled, and the tracks in the matrix are lost. 
 
