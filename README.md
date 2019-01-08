@@ -16,7 +16,7 @@ In short, just use the master branch and all should be well.
 The package contains three different modules, which are built only when invoked to run. Each module has a different purpose and different prerequisites. 
 
 ### Data filtering
-In this step, full ALICE events (AODs) are filtered, event and track selection is performed, and only information that is necessary for the final analysis is written into mini-events, which are written into a TTree. More details are given in the 'running' section of this manual. Since this step requires reading of AODs, a full AliPhysics software stack is necessary. If AODs are resolved from the GRID, a valid authentication token is necessary as well. 
+In this step, full ALICE events (AODs) are filtered, event and track selection is performed, and only information that is necessary for the final analysis is written into mini-events, which subsequently are written into a TTree. More details are given in the 'running' section of this manual. Since this step requires reading of AODs, a full AliPhysics software stack is necessary. If AODs are resolved from the GRID, a valid authentication token is necessary as well. 
 
 Data filtering can be started with the scripts
 - runTTreeFilter.C (launches a filtering of locally available AODs)
@@ -300,7 +300,7 @@ Smaller intervals result in more precise results, but will require large data sa
 
 ### Technical configuration of the mixer
 
-Here comes the fun part. Event mixing is challenging, and you can configure the mixer in such a way both efficiency and efficacy are ensured. 
+Here comes the fun part. Event mixing is challenging, and you can configure the mixer in such a way both efficiency and efficacy are ensured. The goal of the event mixer is simple: ** create mixed events that have the same multiplicity distribution as their unmixed counterparts, and ensure that each track of a mixed event is picked from a different unmixed event**. 
 
 The way the mixer works, is as follows. Take the simple example of wanting to mix tracks with a multiplicity between two and three, then it sets N to 3. The mixer will read through the input chain, and fill an NxN matrix with tracks that it finds. Let's call these tracks S0T0 through S0TN, where the S0 means unmixed event 0, and TN track number N, so that a matrix filled with its rows filled with two events with a multiplicity of 3 and one event with a multiplicity of 2 could look like
 
@@ -329,9 +329,9 @@ To construct mixed events with proper multiplicity from columns, a shuffling is 
 | S0T0 | S0T1 | S0T2 | S0T3 | S0T4 |
 |---|---|---|---|---|
 | S1T0 | S1T1 | S1T2 | S1T3 | S1T4 |
-| S2T0 | S2T1 |  | S2T2|  |
-| S3T0 | S3T1 |  |  | S3T2|
-| S4T0 | S4T1 | S4T2|  |  |
+| S2T0 | S2T1 |  S2T2|  |  |
+| S3T0 | S3T1 |  |  | S3T2|  |
+| S4T0 | S4T1 |  |  | S4T2 |
 
 #### Buffer padding
 
@@ -349,7 +349,7 @@ To make sure that we do not mix more than one track from a given unmixed into ev
 ```cpp    
 mixer->SetAllowBufferPadding(bufferPadding);
 ```
-where `buferrPadding` is an integer percentage, which tells the mixing manager which percentage of N (the maximum multiplicity) events, should be added as buffer columns in the mixing matrix, e.g. when N = 10, and bufferPadding = 10, a mixing matrix with 11 columns (0.1 times 10) and 10 rows is created. 
+where `bufferPadding` is an integer percentage, which tells the mixing manager which percentage of N (the maximum multiplicity) events, should be added as buffer columns in the mixing matrix, e.g. when N = 10, and bufferPadding = 10, a mixing matrix with 11 columns (0.1 times 10) and 10 rows is created. 
 
 Usually, a bufferPadding of 5 or 10 suffices; note though that using a buffer comes at an efficiency loss, but when staying between 5 and 10, the efficiency loss from adding the buffer tends to be (much) smaller than the efficiency loss that occurs naturally from mixing matrices that do not have a solution. 
 
@@ -410,4 +410,77 @@ To store QA information on the mixing itself, call
 ```
 
 This will bookkeep QA information on track-by-track and ensemble features of the events, and write the info out to a separate file (separate from the mini-events that are written out). Histogram manipulation is delegated to the general histogram manager class that is available in the package, which uses an efficient hashed list to call histograms. 
+
+To get an idea of the program flow of the mixing manager, you can set the verbosity level, defined by preprocessor flag `VERBOSE`, to 1 (or higher), in the class header prior to compilation. 
+
+## Jet finding
+
+The package ships with its own jet finding class, which relies on FastJet to perform jet finding. Jet finding is performed by the aptly called `AliGMFSimpleJetFinder` class. 
+
+### Running the jet finder on unmixed events
+
+To run the jet finder on unmixed events, one can invoke the macro `runJetFindingOnTree.C`. To read events, the jet finder relies on an event reader that is initialized with a TChain of mini events. After initializing a jet finder (multiple instances can be initialized to operate on the same reader, to e.g. facilitate analyzing jets with different radii, one can pass event and track cut objects to the jet finder via setter functions
+
+```cpp
+     // create the event cuts
+    AliGMFSimpleEventCuts* eventCuts = new AliGMFSimpleEventCuts();
+    eventCuts->SetCentralityRange(cenMin, cenMax);
+    AliGMFSimpleTrackCuts* trackCuts = new AliGMFSimpleTrackCuts();
+    trackCuts->SetTrackMinPt(minConstPt);
+
+    jetFinder[i]->SetEventCuts(eventCuts);
+    jetFinder[i]->SetTrackCuts(trackCuts);
+```
+Since the data that is used as input is already filtered, using these cuts is not strictly necessary. When the objects at not set, no selection is performed. 
+
+When browsing through the `runJetFindingOnTree.C` macro, one can find a set of options that is passed through the jet finders. They are explained here below, but have sane defaults. 
+
+```cpp
+       jetFinder[i] = new AliGMFSimpleJetFinder();
+
+       // set the resolution parameter for the jet finder (anti-kt)
+       jetFinder[i]->SetJetResolution(radii[i]);
+
+       // set the resolution parameter that is used for the background estimator (kt)
+       jetFinder[i]->SetJetResolutionBkg(radii[i]);
+
+       // the following options are not really relevant for unmixed event analysis
+
+       // optional: tracks with a pt exceeding a certain value can be split into multiple fragments
+       // this is only useful for running on mixed events, in the run macro for unmixed events
+       // these setters are only shown for illustrative purposes
+       jetFinder[i]->SetSplittingForTracksWithPtHigherThan(splitTracksFrom);
+
+       // specify if the pt that is split off is discarded or not 
+       // when splitThemIn (below) is smaller than 0, the pt is discarded
+       // when the value is larger than 0, the remaining pt is divided over multiple
+       // tracks with a realistic pt distribution
+       jetFinder[i]->SetSplitTrackPt(splitThemIn);
+      
+       // legacy function: forget about it
+       jetFinder[i]->SetRandomizeSplitTrackEtaPhi(randomize);
+
+       // leading hadron pt requirement
+       jetFinder[i]->SetLeadingHadronPt(leadingHadronPt);
+
+       // 'inverted' leading hadron pt requirement
+       jetFinder[i]->SetLeadingHadronMaxPt(leadingHadronMaxPt);
+
+       // reject N hard jets for the background estimation
+       jetFinder[i]->SetRejectNHardestJets(rejectNJ);
+
+       // toggle on or off a random cone dpt analysis (slows down the procedure)
+       jetFinder[i]->SetDoRandomConeAnalysis(kTRUE);
+
+       // initialize the jet finders
+       jetFinder[i]->Initialize();
+
+```
+
+The above information and the `runJetFindingOnTree.C` macro should give sufficient information on how to run the jet finders. 
+
+### Jet finding on mixed events
+
+The procedure for running the jet finders on mixed events is similar to running on unmixed events. The macro `runJetFindingOnMixedEvents.C` can be used to steer jet finding on mixed events. An important feature of the jet finder that pertaining to running on mixed events, is the treatment of tracks with high transverse momentum. These tracks can be split into multiple fragments, where the sum of the fragments' transverse momentum equals the initial transverse momentum of the highly energetic track. 
+
 
