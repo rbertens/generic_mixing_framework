@@ -368,7 +368,7 @@ Another way in which the mixer can fail, is when it is not able to fill a comple
 | ME0|ME1|ME2|
 |---|---|---|
 | S10T0 | S10T1 | S10T2 |
-| S11T0 | S11T1 | S11T1 |
+| S11T0 | S11T1 | S11T2 |
 |  | | |
 
 Unless otherwise specified, the mixer will exit when a mixing matrix cannot be filled, and the tracks in the matrix are lost. 
@@ -378,8 +378,8 @@ However, the mixer can also be instructed to skip to reading input chain of even
 | ME0|ME1|ME2|
 |---|---|---|
 | S10T0 | S10T1 | S10T2 |
-| S11T0 | S11T1 | S11T1 |
-| S0T0  | S0T1 | S0T1 |
+| S11T0 | S11T1 | S11T2 |
+| S0T0  | S0T1 | S0T2 |
 
 Note the last row. After this, mixed events are still created according to the **original multiplicity specifications**, so two events with a multiplicity of 3 would be created here, with as content
 
