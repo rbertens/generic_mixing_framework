@@ -300,9 +300,9 @@ Smaller intervals result in more precise results, but will require large data sa
 
 ### Technical configuration of the mixer
 
-Here comes the fun part. Event mixing is challenging, and you can configure the mixer in such a way both efficiency and efficacy are ensured. The goal of the event mixer is simple: ** create mixed events that have the same multiplicity distribution as their unmixed counterparts, and ensure that each track of a mixed event is picked from a different unmixed event**. 
+Here comes the fun part. Event mixing is challenging, and you can configure the mixer in such a way both efficiency and efficacy are ensured. The goal of the event mixer is simple: **create mixed events that have the same multiplicity distribution as their unmixed counterparts, and ensure that each track of a mixed event is picked from a different unmixed event**. 
 
-The way the mixer works, is as follows. Take the simple example of wanting to mix tracks with a multiplicity between two and three, then it sets N to 3. The mixer will read through the input chain, and fill an NxN matrix with tracks that it finds. Let's call these tracks S0T0 through S0TN, where the S0 means unmixed event 0, and TN track number N, so that a matrix filled with its rows filled with two events with a multiplicity of 3 and one event with a multiplicity of 2 could look like
+The way the mixer works, is as follows. Take the simple example of wanting to mix tracks with a multiplicity between two and three, then it sets N to 3 (the maximum desired multiplicity). The mixer will read through the input chain, and fill an NxN matrix with tracks that it finds. Let's call these tracks S0T0 through SNTN, where the SN means unmixed event N, and TN track number N from that event. A matrix filled with its rows filled with two events with a multiplicity of 3 and one event with a multiplicity of 2 could look like
 
 | ME0|ME1|ME2|
 |---|---|---|
@@ -310,7 +310,7 @@ The way the mixer works, is as follows. Take the simple example of wanting to mi
 | S1T0 | S1T1 |  |
 | S2T0 | S2T1 | S2T2|
 
-Mixed events are now creating by finding vertical paths through this matrix (columns), and putting the encountered tracks into new mixed events. From the above example, we can construct three mixed events, the multiplicity of the ensemble is automatically preserved:
+The columns of this matrix are labeled MEN, since we will fill N mixed events from them. Mixed events are now creating by finding vertical paths through this matrix (columns), and putting the encountered tracks into new mixed events. From the above example, we can construct three mixed events, the multiplicity of the ensemble is automatically preserved:
 
 - ME0: S0T0, S1T0, S2T0
 - ME1: S0T1, S1T1, S2T1
