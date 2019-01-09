@@ -304,21 +304,23 @@ Here comes the fun part. Event mixing is challenging, and you can configure the 
 
 The way the mixer works, is as follows. Take the simple example of wanting to mix tracks with a multiplicity between two and three, then it sets N to 3. The mixer will read through the input chain, and fill an NxN matrix with tracks that it finds. Let's call these tracks S0T0 through S0TN, where the S0 means unmixed event 0, and TN track number N, so that a matrix filled with its rows filled with two events with a multiplicity of 3 and one event with a multiplicity of 2 could look like
 
-| S0T0 | S0T1 | S0T2 |
+| ME0|ME1|ME2|
 |---|---|---|
+| S0T0 | S0T1 | S0T2 |
 | S1T0 | S1T1 |  |
 | S2T0 | S2T1 | S2T2|
 
 Mixed events are now creating by finding vertical paths through this matrix (columns), and putting the encountered tracks into new mixed events. From the above example, we can construct three mixed events, the multiplicity of the ensemble is automatically preserved:
 
-- S0T0, S1T0, S2T0
-- S0T1, S1T1, S2T1
-- S0T2, S2T2
+- ME0: S0T0, S1T0, S2T0
+- ME1: S0T1, S1T1, S2T1
+- ME2: S0T2, S2T2
 
 When dealing with less trivial examples, it is not obvious a solution can be found when following the same approach
 
-| S0T0 | S0T1 | S0T2 | S0T3 | S0T4 |
+| ME0|ME1|ME2|ME3|ME4|
 |---|---|---|---|---|
+| S0T0 | S0T1 | S0T2 | S0T3 | S0T4 |
 | S1T0 | S1T1 | S1T2 | S1T3 | S1T4 |
 | S2T0 | S2T1 | S2T2|  |  |
 | S3T0 | S3T1 | S3T2|  |  |
@@ -326,8 +328,9 @@ When dealing with less trivial examples, it is not obvious a solution can be fou
 
 To construct mixed events with proper multiplicity from columns, a shuffling is performed, in which the matrix is rearranged like
 
-| S0T0 | S0T1 | S0T2 | S0T3 | S0T4 |
+| ME0|ME1|ME2|ME3|ME4|
 |---|---|---|---|---|
+| S0T0 | S0T1 | S0T2 | S0T3 | S0T4 |
 | S1T0 | S1T1 | S1T2 | S1T3 | S1T4 |
 | S2T0 | S2T1 |  S2T2|  |  |
 | S3T0 | S3T1 |  |  | S3T2|  |
@@ -337,8 +340,9 @@ To construct mixed events with proper multiplicity from columns, a shuffling is 
 
 Some examples do not have a solution, e.g.
 
-| S0T0 | S0T1 | S0T2 | S0T3 | S0T4 |
+| ME0|ME1|ME2|ME3|ME4|
 |:-:|:-:|:-:|:-:|:-:|
+| S0T0 | S0T1 | S0T2 | S0T3 | S0T4 |
 | S1T0 | S1T1 | S1T2 | S1T3 | S1T4 |
 | S2T0 | S2T1 | S2T2| S2T3 |S2T4 |
 | S3T0 | S3T1 | S3T2| S3T3 |S3T4 |
@@ -357,9 +361,9 @@ Usually, a bufferPadding of 5 or 10 suffices; note though that using a buffer co
 
 Another way in which the mixer can fail, is when it is not able to fill a complete NxN mixing matrix, one wants to e.g. look for events with a multiplicity between 2 and 3, but only 2 events qualify. Let's for convenience say, that these events were number 10 and 11 that were found in the input chain (so events 0 through 9 have been used in previous mixing matrices), but event 11 is the last event in the chain
 
-
-| S10T0 | S10T1 | S10T2 |
+| ME0|ME1|ME2|
 |---|---|---|
+| S10T0 | S10T1 | S10T2 |
 | S11T0 | S11T1 | S11T1 |
 |  | | |
 
@@ -367,15 +371,16 @@ Unless otherwise specified, the mixer will exit when a mixing matrix cannot be f
 
 However, the mixer can also be instructed to skip to reading input chain of events from event 0 again, and fill the matrix so that it looks like
 
-| S10T0 | S10T1 | S10T2 |
+| ME0|ME1|ME2|
 |---|---|---|
+| S10T0 | S10T1 | S10T2 |
 | S11T0 | S11T1 | S11T1 |
 | S0T0  | S0T1 | S0T1 |
 
 Note the last row. After this, mixed events are still created according to the **original multiplicity specifications**, so two events with a multiplicity of 3 would be created here, with as content
 
-- S10T0, S11T0, S0T0
-- S10T1, S11T1, S0T1
+- ME10: S10T0, S11T0, S0T0
+- ME11: S11T0, S11T1, S0T1
 
 Using this overflow option can be toggled on and off by passing a boolean argument `AutoOverflow` via the setter
 
