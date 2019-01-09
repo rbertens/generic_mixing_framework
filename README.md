@@ -333,7 +333,7 @@ To construct mixed events with proper multiplicity from columns, a shuffling is 
 | S0T0 | S0T1 | S0T2 | S0T3 | S0T4 |
 | S1T0 | S1T1 | S1T2 | S1T3 | S1T4 |
 | S2T0 | S2T1 |  S2T2|  |  |
-| S3T0 | S3T1 |  |  | S3T2|  |
+| S3T0 | S3T1 |  |  S3T2|  |
 | S4T0 | S4T1 |  |  | S4T2 |
 
 #### Buffer padding
