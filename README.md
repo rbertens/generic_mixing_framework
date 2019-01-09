@@ -451,15 +451,6 @@ When browsing through the `runJetFindingOnTree.C` macro, one can find a set of o
        // these setters are only shown for illustrative purposes
        jetFinder[i]->SetSplittingForTracksWithPtHigherThan(splitTracksFrom);
 
-       // specify if the pt that is split off is discarded or not 
-       // when splitThemIn (below) is smaller than 0, the pt is discarded
-       // when the value is larger than 0, the remaining pt is divided over multiple
-       // tracks with a realistic pt distribution
-       jetFinder[i]->SetSplitTrackPt(splitThemIn);
-      
-       // legacy function: forget about it
-       jetFinder[i]->SetRandomizeSplitTrackEtaPhi(randomize);
-
        // leading hadron pt requirement
        jetFinder[i]->SetLeadingHadronPt(leadingHadronPt);
 
@@ -482,6 +473,51 @@ The above information and the `runJetFindingOnTree.C` macro should give sufficie
 ### Jet finding on mixed events
 
 The procedure for running the jet finders on mixed events is similar to running on unmixed events. The macro `runJetFindingOnMixedEvents.C` can be used to steer jet finding on mixed events. An important feature of the jet finder that pertaining to running on mixed events, is the treatment of tracks with high transverse momentum. These tracks can be split into multiple fragments, where the sum of the fragments' transverse momentum equals the initial transverse momentum of the highly energetic track. 
+
+There are several ways to change the splitting behavior (and note that splitting can be done both for unmixed and mixed events), the setters to govern the procedure do not have the clearest names, and are defined as follows
+
+```cpp
+        void    SetSplittingForTracksWithPtHigherThan(Double_t pt) {
+            fSplittingThreshold = pt;
+        }
+```
+The above method can be used to set a splitting threshold: tracks with a transverse momentum exceeding this threshold will be split into multiple fragments. 
+
+
+```cpp
+        void    SetSplitTrackPt(Double_t pt) {
+            fSplitTrackPt = pt;
+        }
+```
+This method has an unfortunate name, that is here for legacy reasons. If you set it to a value **lower than 0**, the transverse momentum of a track that exceeds the threshold value is just set to the threshold value (i.e., if the threshold value is 3, and a track has a transverse momentum of 10.7, its momentum will just be changed to 3, and the remaining 7.3 GeV/c is lost).
+
+Conversely, if you specify a value higher than 0, an iterative splitting procedure is started, were a random transverse momentum is sampled from a realistic distribution which is defined between 0.15 and fSplittingThreshold. A new track is created with this sampled transverse momentum.  The original transverse momentum of the track is decreased by this sampled value. If the new value still exceeds the threshold, the process is repeated, until a set of new tracks (in the code referred to 'mocked up tracks'), which all obey the threshold value, is obtained. These tracks can then distributed over multiple mixed events: each split fragment is embedded into a different mixed event. 
+
+To split the fragments into multiple events, call
+
+```cpp
+        void    SetCollinearSplittingOverMEs(Bool_t r) {
+            fCollinearSplittingOverMEs = r;
+            fRandomizeSplitTrack = kFALSE;
+        }
+```
+
+Since this procedure results in a 'pool' of tracks that have to be distributed into several mixed events, a sophisticated event procedure is started when this option is chosen. The first 5 analyzed events are just used to build up a pool of track fragments. For threshold values as low as 2, this is a reasonable number of events to build up a stable buffer. From the 5th event on, analysis proceeds as normal, embedding fragments from previous events into current mixed events on the fly. When the last event in the loop has been analyzed, the first 5 events are re-analyzed: this time, they undergo a full analysis, and use the existing track fragment buffer (which contains fragments of the events at the end of the chain) for embedding of fragments. In this way, all data are analyzed.
+
+
+Otherwise, the fragments can be embedded into the event from which they originate. To govern this procedure, two methods exist
+
+```cpp
+        void    SetRandomizeSplitTrackEtaPhi(Bool_t r) {
+            fRandomizeSplitTrack = r;
+        }
+        void    SetPreserveSplitTrackPhi(Bool_t r) {
+            fPreserveSplitTrackPhi = r;
+        }
+```
+These two methods are here for complicated reasons: they give the user the possibility to randomize eta and phi values of the track that is truncated. By toggling the first on to true, randomization is enabled. By setting the second one to true, the azimuthal angle of the track is preserved. If one splits tracks, but does not randomize, the entire procedure of splitting is pointless: collinear safety of the jet finder ensures that the results with and with out splitting are the same. 
+
+
 
 # Job submission scripts
 
