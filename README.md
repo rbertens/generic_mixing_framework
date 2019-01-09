@@ -2,6 +2,8 @@ Generic data mixing framework, R. A. Bertens (UTK,CERN) 2018
 
 This is a short instruction manual on how to use the event mixing framework, serving to complement the analysis note, and to be used as guidance for anyone who wants to use the framework. 
 
+It's recommended to read the full manual before starting with the package, as the manual also motivates why the package is organized the way it is. 
+
 # Branches
 The current project has three branches
 
@@ -315,6 +317,8 @@ The columns of this matrix are labeled MEN, since we will fill N mixed events fr
 - ME0: S0T0, S1T0, S2T0
 - ME1: S0T1, S1T1, S2T1
 - ME2: S0T2, S2T2
+
+Note, that there is a non-trivial step that is performed before actually constructing the mixed events: the positions of the elements of each row are randomized. This randomization is performed because the ordering of tracks within ALICE events is (somewhat) ordered according to transverse momentum, therefore not performing a shuffling would lead to an unbalanced momentum distribution. This procedure is carried out by efficient randomization of a standard vector with integer values representing row elements, so no shuffling of allocated memory is performed for reasons of efficiency. 
 
 When dealing with less trivial examples, it is not obvious a solution can be found when following the same approach
 
