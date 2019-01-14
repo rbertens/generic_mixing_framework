@@ -16,13 +16,13 @@ void runTTreeFilterOnGrid() {
 
     // select range of runs to analyze (see runs[] for definition)
     Int_t firstrun = 0;
-    Int_t lastrun = 75;// max 75 for 2015
+    Int_t lastrun = 15;// max 75 for 2015
     Int_t year = 2015;  // set to 
-                                // 2010 for 2010
-                                // 2011 for good 2011 runs
-                                // 20111 for irocc13 issue runs
-                                // 20112 for orocc08 issue runs
-    Bool_t terminate =           kTRUE; // run in terminate mode
+    // 2010 for 2010
+    // 2011 for good 2011 runs
+    // 20111 for irocc13 issue runs
+    // 20112 for orocc08 issue runs
+    Bool_t terminate =           kFALSE; // run in terminate mode
     Bool_t downloadoutput =      kFALSE;// get the final output files
 
 
@@ -43,7 +43,7 @@ void runTTreeFilterOnGrid() {
     alienHandler->SetOverwriteMode();
     if(!terminate) alienHandler->SetRunMode("full");
     else alienHandler->SetRunMode("terminate");
-    alienHandler->SetNtestFiles(10);
+    alienHandler->SetNtestFiles(1);
     alienHandler->SetAPIVersion("V1.1x");
     alienHandler->SetAliPhysicsVersion("vAN-20180901-1");
     alienHandler->SetFileForTestMode("filelist.txt");
@@ -58,8 +58,9 @@ void runTTreeFilterOnGrid() {
         alienHandler->SetDataPattern("*ESDs/pass2/AOD145/*AOD.root");
     } else if(year == 2015) {
         alienHandler->SetGridDataDir("/alice/data/2015/LHC15o/");
-        alienHandler->SetDataPattern("pass1/AOD/*/AliAOD.root");
+        alienHandler->SetDataPattern("pass1/AOD194/*/AliAOD.root");
     }
+
 
     alienHandler->SetRunPrefix("000");
 
@@ -74,7 +75,8 @@ void runTTreeFilterOnGrid() {
     // and the last batch - 24
     Int_t runs11hSemiGoodTPCOrocC08[] = {169040, 169044, 169045, 169099, 169418, 169419, 169420, 169475, 169498, 169504, 169506, 169512, 169515, 169550, 169553, 169554, 169555, 169557, 169584, 169586, 169587, 169588, 169590, 169591};
 
-    Int_t runs15o[] = {246994, 246991, 246989, 246984, 246982, 246948, 246945, 246928, 246851, 246847, 246846, 246845, 246844, 246810, 246809, 246808, 246807, 246805, 246804, 246766, 246765, 246763, 246760, 246759, 246758, 246757, 246751, 246750, 246495, 246493, 246488, 246487, 246434, 246431, 246424, 246276, 246275, 246272, 246271, 246225, 246222, 246217, 246185, 246182, 246181, 246180, 246178, 246153, 246152, 246151, 246115, 246113, 246089, 246087, 246053, 246052, 246049, 246048, 246042, 246037, 246036, 246012, 246003, 246001, 245954, 245952, 245949, 245923, 245833, 245831, 245829, 245705, 245702, 245692, 245683}; 
+    Int_t runs15o[] = {246994, 246991, 246989, 246984, 246982, 246980, 246948, 246945, 246928, 246851, 246847, 246846, 246845, 246844, 246810, 246809, 246808, 246807, 246805, 246804, 246766, 246765, 246763, 246760, 246759, 246758, 246757, 246751, 246750, 246495, 246493, 246488, 246487, 246434, 246431, 246428, 246424, 246276, 246275, 246272, 246271, 246225, 246222, 246217, 246185, 246182, 246181, 246180, 246178, 246153, 246152, 246151, 246148, 246115, 246113, 246089, 246087, 246053, 246052, 246049, 246048, 246042, 246037, 246036, 246012, 246003, 246001, 245963, 245954, 245952, 245949, 245923, 245833, 245831, 245829, 245705, 245702, 245700, 245692, 245683};
+
 
 
     // add the runnnumbers to the handler
@@ -101,8 +103,8 @@ void runTTreeFilterOnGrid() {
     else alienHandler->SetMergeViaJDL(kFALSE);
 
     // define the output folders
-    alienHandler->SetGridWorkingDir("filteredTTree");
-    alienHandler->SetGridOutputDir("filteredTTree");
+    alienHandler->SetGridWorkingDir("filteredTTreeR5");
+    alienHandler->SetGridOutputDir("filteredTTreeR5");
 
     // create the analysis manager
     AliAnalysisManager* mgr = new AliAnalysisManager("MyManager");
