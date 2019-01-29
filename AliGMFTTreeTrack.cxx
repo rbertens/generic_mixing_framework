@@ -7,9 +7,9 @@ ClassImp(AliGMFTTreeTrack);
 using namespace std;
 
 AliGMFTTreeTrack::AliGMFTTreeTrack() : TObject(),
-    fPt          (0.),
-    fEta         (0.),
-    fPhi         (0.),
+    fPt          (0.001),
+    fEta         (10.),
+    fPhi         (0),
     fCharge      (0.),
     fUsed        (kFALSE),
     fFilled      (kFALSE),
@@ -33,9 +33,9 @@ void AliGMFTTreeTrack::Fill(AliGMFTTreeTrack* track) {
 //_____________________________________________________________________________
 void AliGMFTTreeTrack::Reset() {
     // fill current track with info from supplied track
-    fPt = -1;
-    fEta = -1;
-    fPhi = -1;
+    fPt = .001;
+    fEta = 10.;
+    fPhi = 0;
     fCharge = -1;
     fUsed = kFALSE;
     fFilled = kFALSE;
